@@ -1,0 +1,8 @@
+package: application
+output: internal/application/application.gen.go
+generate:
+  models: true
+  client: true
+output-options:
+  overlay:
+    path: openapi/application-overlay.yaml

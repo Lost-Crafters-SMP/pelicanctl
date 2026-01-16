@@ -1,0 +1,138 @@
+overlay: 1.0.0
+x-speakeasy-jsonpath: rfc9535
+info:
+  title: Overlay openapi/application.json => openapi/application-3.0.json
+  version: 0.0.0
+actions:
+  - target: $["openapi"]
+    update: "3.0.3"
+  - target: $["paths"]["/nodes/{node}/configuration"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["uuid"]["type"]
+    update: "string"
+  - target: $["paths"]["/nodes/{node}/configuration"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["uuid"]
+    update:
+      "nullable": true
+  - target: $["paths"]["/nodes/{node}/configuration"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["token_id"]["type"]
+    update: "string"
+  - target: $["paths"]["/nodes/{node}/configuration"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["token_id"]
+    update:
+      "nullable": true
+  - target: $["paths"]["/servers/{server}/transfer"]["post"]["requestBody"]["content"]["application/json"]["schema"]["allOf"][1]["properties"]["allocation_additional"]["type"]
+    update: "array"
+  - target: $["paths"]["/servers/{server}/transfer"]["post"]["requestBody"]["content"]["application/json"]["schema"]["allOf"][1]["properties"]["allocation_additional"]
+    update:
+      "nullable": true
+  - target: $["paths"]["/eggs/{egg}/export"]["get"]["parameters"][1]["schema"]["type"]
+    update: "string"
+  - target: $["paths"]["/eggs/{egg}/export"]["get"]["parameters"][1]["schema"]
+    update:
+      "nullable": true
+  - target: $["paths"]["/eggs/uuid/{egg}"]["delete"]["parameters"][0]["schema"]["type"]
+    update: "string"
+  - target: $["paths"]["/eggs/uuid/{egg}"]["delete"]["parameters"][0]["schema"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreAllocationRequest"]["properties"]["alias"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreAllocationRequest"]["properties"]["alias"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreDatabaseHostRequest"]["properties"]["password"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreDatabaseHostRequest"]["properties"]["password"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreDatabaseHostRequest"]["properties"]["node_ids"]["type"]
+    update: "array"
+  - target: $["components"]["schemas"]["StoreDatabaseHostRequest"]["properties"]["node_ids"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreNodeRequest"]["properties"]["description"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreNodeRequest"]["properties"]["description"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreNodeRequest"]["properties"]["daemon_sftp_alias"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreNodeRequest"]["properties"]["daemon_sftp_alias"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["external_id"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["external_id"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["description"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["description"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["limits"]["properties"]["threads"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["limits"]["properties"]["threads"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["feature_limits"]["properties"]["databases"]["type"]
+    update: "integer"
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["feature_limits"]["properties"]["databases"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["feature_limits"]["properties"]["allocations"]["type"]
+    update: "integer"
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["feature_limits"]["properties"]["allocations"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["feature_limits"]["properties"]["backups"]["type"]
+    update: "integer"
+  - target: $["components"]["schemas"]["StoreServerRequest"]["properties"]["feature_limits"]["properties"]["backups"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreUserRequest"]["properties"]["external_id"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreUserRequest"]["properties"]["external_id"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreUserRequest"]["properties"]["password"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreUserRequest"]["properties"]["password"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["allocation"]["type"]
+    update: "integer"
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["allocation"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["threads"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["threads"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["limits"]["properties"]["threads"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["limits"]["properties"]["threads"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["feature_limits"]["properties"]["databases"]["type"]
+    update: "integer"
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["feature_limits"]["properties"]["databases"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["feature_limits"]["properties"]["allocations"]["type"]
+    update: "integer"
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["feature_limits"]["properties"]["allocations"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["feature_limits"]["properties"]["backups"]["type"]
+    update: "integer"
+  - target: $["components"]["schemas"]["UpdateServerBuildConfigurationRequest"]["properties"]["feature_limits"]["properties"]["backups"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateServerDetailsRequest"]["properties"]["external_id"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["UpdateServerDetailsRequest"]["properties"]["external_id"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateServerDetailsRequest"]["properties"]["description"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["UpdateServerDetailsRequest"]["properties"]["description"]
+    update:
+      "nullable": true

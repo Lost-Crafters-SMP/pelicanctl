@@ -1,0 +1,8 @@
+package: client
+output: internal/client/client.gen.go
+generate:
+  models: true
+  client: true
+output-options:
+  overlay:
+    path: openapi/client-overlay.yaml

@@ -1,0 +1,93 @@
+overlay: 1.0.0
+x-speakeasy-jsonpath: rfc9535
+info:
+  title: Overlay openapi/client.json => openapi/client-3.0.json
+  version: 0.0.0
+actions:
+  - target: $["openapi"]
+    update: "3.0.3"
+  - target: $["paths"]["/servers/{server}/files/list"]["get"]["parameters"][1]["schema"]["type"]
+    update: "string"
+  - target: $["paths"]["/servers/{server}/files/list"]["get"]["parameters"][1]["schema"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["ChmodFilesRequest"]["properties"]["root"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["ChmodFilesRequest"]["properties"]["root"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["CompressFilesRequest"]["properties"]["root"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["CompressFilesRequest"]["properties"]["root"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["CompressFilesRequest"]["properties"]["name"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["CompressFilesRequest"]["properties"]["name"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["CreateFolderRequest"]["properties"]["root"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["CreateFolderRequest"]["properties"]["root"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["DecompressFilesRequest"]["properties"]["root"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["DecompressFilesRequest"]["properties"]["root"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["DeleteFileRequest"]["properties"]["root"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["DeleteFileRequest"]["properties"]["root"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["DescriptionServerRequest"]["properties"]["description"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["DescriptionServerRequest"]["properties"]["description"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["PullFileRequest"]["properties"]["directory"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["PullFileRequest"]["properties"]["directory"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["PullFileRequest"]["properties"]["filename"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["PullFileRequest"]["properties"]["filename"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["RenameFileRequest"]["properties"]["root"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["RenameFileRequest"]["properties"]["root"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreApiKeyRequest"]["properties"]["description"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreApiKeyRequest"]["properties"]["description"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["name"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["name"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["is_locked"]["type"]
+    update: "boolean"
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["is_locked"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["ignored"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["ignored"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreTaskRequest"]["properties"]["payload"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreTaskRequest"]["properties"]["payload"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["UpdateAllocationRequest"]["properties"]["notes"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["UpdateAllocationRequest"]["properties"]["notes"]
+    update:
+      "nullable": true
