@@ -34,6 +34,7 @@ const (
 	ResourceTypeAdminServer    ResourceType = "admin.server"
 	ResourceTypeAdminNode      ResourceType = "admin.node"
 	ResourceTypeAdminUser      ResourceType = "admin.user"
+	ResourceTypeAdminBackup    ResourceType = "admin.backup"
 	ResourceTypeClientBackup   ResourceType = "client.backup"
 	ResourceTypeClientDatabase ResourceType = "client.database"
 	ResourceTypeClientFile     ResourceType = "client.file"
@@ -79,6 +80,10 @@ var (
 		ResourceTypeAdminUser: {
 			Fields:  []string{"id", "attributes.email", "attributes.username"},
 			Headers: []string{"ID", "Email", "Username"},
+		},
+		ResourceTypeAdminBackup: {
+			Fields:  []string{"uuid", "name", "created_at", "is_successful"},
+			Headers: []string{"UUID", "Name", "Created At", "Successful"},
 		},
 		ResourceTypeClientBackup: {
 			Fields:  []string{"uuid", "name", "created_at"},

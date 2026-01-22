@@ -41,16 +41,17 @@ func NewClientAPI() (*ClientAPI, error) {
 		)
 	}
 
-	// Append /api/client to base URL for the generated client
+	// Append /api/client to base URL for the generated client.
 	apiBaseURL := baseURL
 	if len(apiBaseURL) > 0 && apiBaseURL[len(apiBaseURL)-1] == '/' {
 		apiBaseURL = apiBaseURL[:len(apiBaseURL)-1]
 	}
 	apiBaseURL += "/api/client"
 
-	// Create request editor function to add auth header
+	// Create request editor function to add auth header and Accept header.
 	withAuth := func(_ context.Context, req *http.Request) error {
 		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Accept", "application/json")
 		return nil
 	}
 
@@ -108,7 +109,7 @@ func convertInterfaceSliceToMapSlice(ifaceSlice *[]any) ([]map[string]any, error
 		if m, ok := item.(map[string]any); ok {
 			result = append(result, m)
 		} else {
-			// Try to convert via JSON marshaling/unmarshaling
+			// Try to convert via JSON marshaling/unmarshaling.
 			jsonData, err := json.Marshal(item)
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal response item: %w", err)
@@ -133,7 +134,7 @@ func convertInterfaceToMap(iface any) (map[string]any, error) {
 		return m, nil
 	}
 
-	// Try to convert via JSON marshaling/unmarshaling
+	// Try to convert via JSON marshaling/unmarshaling.
 	jsonData, err := json.Marshal(iface)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal response: %w", err)
@@ -149,14 +150,14 @@ func convertInterfaceToMap(iface any) (map[string]any, error) {
 func handleWrappedResponse(body []byte) ([]byte, error) {
 	var wrapper map[string]any
 	if err := json.Unmarshal(body, &wrapper); err != nil {
-		// Not wrapped, return original body
+		// Not wrapped, return original body.
 		return body, nil //nolint:nilerr // Intentionally returning body even if unmarshal fails
 	}
 
-	// Check for common wrapper keys
+	// Check for common wrapper keys.
 	for _, key := range []string{"data", "servers", "backups", "databases", "files"} {
 		if val, ok := wrapper[key]; ok {
-			// Extract the wrapped data
+			// Extract the wrapped data.
 			unwrapped, err := json.Marshal(val)
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal unwrapped data: %w", err)
@@ -165,7 +166,7 @@ func handleWrappedResponse(body []byte) ([]byte, error) {
 		}
 	}
 
-	// No wrapper found, return original body
+	// No wrapper found, return original body.
 	return body, nil
 }
 
@@ -173,13 +174,13 @@ func handleWrappedResponse(body []byte) ([]byte, error) {
 func (c *ClientAPI) ListServers() ([]map[string]any, error) {
 	ctx := context.Background()
 
-	// Use the raw request method to avoid generated client parsing failures with wrapped responses
+	// Use the raw request method to avoid generated client parsing failures with wrapped responses.
 	body, err := makeRawRequest(c.genClient.ApiClientIndex(ctx, nil))
 	if err != nil {
 		return nil, err
 	}
 
-	// Handle wrapped response (e.g., {"data": [...]})
+	// Handle wrapped response (e.g., {"data": [...]}).
 	unwrapped, unwrapErr := handleWrappedResponse(body)
 	if unwrapErr != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", unwrapErr)
@@ -195,28 +196,28 @@ func (c *ClientAPI) ListServers() ([]map[string]any, error) {
 // getServerUUIDFromIdentifier converts a server identifier (UUID string or integer ID) to a UUID.
 // Client API only accepts UUIDs, so if an integer ID is provided, we look it up.
 func (c *ClientAPI) getServerUUIDFromIdentifier(_ context.Context, identifier string) (string, error) {
-	// Check if it looks like a UUID (contains hyphens)
+	// Check if it looks like a UUID (contains hyphens).
 	if strings.Contains(identifier, "-") {
 		return identifier, nil
 	}
 
-	// Try to parse as integer ID
+	// Try to parse as integer ID.
 	if _, err := strconv.Atoi(identifier); err != nil {
-		// Not an integer, assume it's a UUID and pass through
+		// Not an integer, assume it's a UUID and pass through.
 		return identifier, nil //nolint:nilerr // Intentionally returning identifier even if parse fails
 	}
 
-	// It's an integer ID, need to look it up
+	// It's an integer ID, need to look it up.
 	servers, err := c.ListServers()
 	if err != nil {
 		return "", fmt.Errorf("failed to list servers to look up UUID: %w", err)
 	}
 
-	// Find server with matching ID
+	// Find server with matching ID.
 	for _, server := range servers {
 		var serverID any
 
-		// Check for id field (could be at root or in attributes)
+		// Check for id field (could be at root or in attributes).
 		if id, hasID := server["id"]; hasID {
 			serverID = id
 		} else if attrs, hasAttrs := server["attributes"].(map[string]any); hasAttrs {
@@ -225,7 +226,7 @@ func (c *ClientAPI) getServerUUIDFromIdentifier(_ context.Context, identifier st
 			}
 		}
 
-		// Compare IDs (handle float64 from JSON)
+		// Compare IDs (handle float64 from JSON).
 		var idInt int
 		switch v := serverID.(type) {
 		case int:
@@ -259,7 +260,7 @@ func (c *ClientAPI) getServerUUIDFromIdentifier(_ context.Context, identifier st
 func (c *ClientAPI) GetServer(identifier string) (map[string]any, error) {
 	ctx := context.Background()
 
-	// Convert identifier (UUID or integer ID) to UUID
+	// Convert identifier (UUID or integer ID) to UUID..
 	uuid, err := c.getServerUUIDFromIdentifier(ctx, identifier)
 	if err != nil {
 		return nil, err
@@ -270,7 +271,7 @@ func (c *ClientAPI) GetServer(identifier string) (map[string]any, error) {
 		return nil, err
 	}
 
-	// Handle wrapped response or single object
+	// Handle wrapped response or single object.
 	unwrapped, unwrapErr := handleWrappedResponse(body)
 	if unwrapErr != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", unwrapErr)
@@ -281,7 +282,7 @@ func (c *ClientAPI) GetServer(identifier string) (map[string]any, error) {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	// If it's a slice with one item, extract it
+	// If it's a slice with one item, extract it.
 	if arr, ok := server.([]any); ok && len(arr) > 0 {
 		return convertInterfaceToMap(arr[0])
 	}
@@ -293,7 +294,7 @@ func (c *ClientAPI) GetServer(identifier string) (map[string]any, error) {
 func (c *ClientAPI) GetServerResources(identifier string) (map[string]any, error) {
 	ctx := context.Background()
 
-	// Convert identifier (UUID or integer ID) to UUID
+	// Convert identifier (UUID or integer ID) to UUID..
 	uuid, err := c.getServerUUIDFromIdentifier(ctx, identifier)
 	if err != nil {
 		return nil, err
@@ -304,7 +305,7 @@ func (c *ClientAPI) GetServerResources(identifier string) (map[string]any, error
 		return nil, err
 	}
 
-	// Try to parse the response body directly
+	// Try to parse the response body directly.
 	unwrapped, unwrapErr := handleWrappedResponse(body)
 	if unwrapErr != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", unwrapErr)
@@ -322,7 +323,7 @@ func (c *ClientAPI) GetServerResources(identifier string) (map[string]any, error
 func (c *ClientAPI) ListFiles(serverIdentifier, directory string) ([]map[string]any, error) {
 	ctx := context.Background()
 
-	// Convert identifier (UUID or integer ID) to UUID
+	// Convert identifier (UUID or integer ID) to UUID.
 	serverUUID, err := c.getServerUUIDFromIdentifier(ctx, serverIdentifier)
 	if err != nil {
 		return nil, err
@@ -338,7 +339,7 @@ func (c *ClientAPI) ListFiles(serverIdentifier, directory string) ([]map[string]
 		return nil, err
 	}
 
-	// Handle wrapped response
+	// Handle wrapped response.
 	unwrapped, unwrapErr := handleWrappedResponse(body)
 	if unwrapErr != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", unwrapErr)
@@ -355,13 +356,13 @@ func (c *ClientAPI) ListFiles(serverIdentifier, directory string) ([]map[string]
 func (c *ClientAPI) SendPowerCommand(serverIdentifier, command string) error {
 	ctx := context.Background()
 
-	// Convert identifier (UUID or integer ID) to UUID
+	// Convert identifier (UUID or integer ID) to UUID.
 	serverUUID, err := c.getServerUUIDFromIdentifier(ctx, serverIdentifier)
 	if err != nil {
 		return err
 	}
 
-	// Map command string to the generated type
+	// Map command string to the generated type.
 	var signal client.SendPowerRequestSignal
 	switch command {
 	case "start":
@@ -398,7 +399,7 @@ func (c *ClientAPI) SendPowerCommand(serverIdentifier, command string) error {
 func (c *ClientAPI) ListBackups(serverIdentifier string) ([]map[string]any, error) {
 	ctx := context.Background()
 
-	// Convert identifier (UUID or integer ID) to UUID
+	// Convert identifier (UUID or integer ID) to UUID.
 	serverUUID, err := c.getServerUUIDFromIdentifier(ctx, serverIdentifier)
 	if err != nil {
 		return nil, err
@@ -409,7 +410,7 @@ func (c *ClientAPI) ListBackups(serverIdentifier string) ([]map[string]any, erro
 		return nil, err
 	}
 
-	// Handle wrapped response
+	// Handle wrapped response.
 	unwrapped, unwrapErr := handleWrappedResponse(body)
 	if unwrapErr != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", unwrapErr)
@@ -426,7 +427,7 @@ func (c *ClientAPI) ListBackups(serverIdentifier string) ([]map[string]any, erro
 func (c *ClientAPI) CreateBackup(serverIdentifier string) (map[string]any, error) {
 	ctx := context.Background()
 
-	// Convert identifier (UUID or integer ID) to UUID
+	// Convert identifier (UUID or integer ID) to UUID.
 	serverUUID, err := c.getServerUUIDFromIdentifier(ctx, serverIdentifier)
 	if err != nil {
 		return nil, err
@@ -447,7 +448,7 @@ func (c *ClientAPI) CreateBackup(serverIdentifier string) (map[string]any, error
 		return nil, handleErrorResponse(httpResp, body)
 	}
 
-	// Handle wrapped response
+	// Handle wrapped response.
 	unwrapped, unwrapErr := handleWrappedResponse(body)
 	if unwrapErr != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", unwrapErr)
@@ -458,7 +459,7 @@ func (c *ClientAPI) CreateBackup(serverIdentifier string) (map[string]any, error
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	// If it's a slice with one item, extract it
+	// If it's a slice with one item, extract it.
 	if arr, ok := backup.([]any); ok && len(arr) > 0 {
 		return convertInterfaceToMap(arr[0])
 	}
@@ -470,7 +471,7 @@ func (c *ClientAPI) CreateBackup(serverIdentifier string) (map[string]any, error
 func (c *ClientAPI) ListDatabases(serverIdentifier string) ([]map[string]any, error) {
 	ctx := context.Background()
 
-	// Convert identifier (UUID or integer ID) to UUID
+	// Convert identifier (UUID or integer ID) to UUID.
 	serverUUID, err := c.getServerUUIDFromIdentifier(ctx, serverIdentifier)
 	if err != nil {
 		return nil, err
@@ -481,7 +482,7 @@ func (c *ClientAPI) ListDatabases(serverIdentifier string) ([]map[string]any, er
 		return nil, err
 	}
 
-	// Handle wrapped response
+	// Handle wrapped response.
 	unwrapped, unwrapErr := handleWrappedResponse(body)
 	if unwrapErr != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", unwrapErr)
@@ -498,7 +499,7 @@ func (c *ClientAPI) ListDatabases(serverIdentifier string) ([]map[string]any, er
 func (c *ClientAPI) DownloadFile(serverIdentifier, filePath string) (io.ReadCloser, error) {
 	ctx := context.Background()
 
-	// Convert identifier (UUID or integer ID) to UUID
+	// Convert identifier (UUID or integer ID) to UUID.
 	serverUUID, err := c.getServerUUIDFromIdentifier(ctx, serverIdentifier)
 	if err != nil {
 		return nil, err
@@ -508,8 +509,8 @@ func (c *ClientAPI) DownloadFile(serverIdentifier, filePath string) (io.ReadClos
 		File: filePath,
 	}
 
-	// Use the low-level method to get the raw response body
-	// ClientWithResponses embeds ClientInterface which has FileDownload
+	// Use the low-level method to get the raw response body.
+	// ClientWithResponses embeds ClientInterface which has FileDownload.
 	httpResp, err := c.genClient.ClientInterface.FileDownload(ctx, serverUUID, params)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
@@ -521,12 +522,12 @@ func (c *ClientAPI) DownloadFile(serverIdentifier, filePath string) (io.ReadClos
 		return nil, handleErrorResponse(httpResp, bodyBytes)
 	}
 
-	// Return the response body - caller is responsible for closing
+	// Return the response body - caller is responsible for closing.
 	return httpResp.Body, nil
 }
 
 // UploadFile uploads a file to the server.
 func (c *ClientAPI) UploadFile(_, _, _ string) error {
-	// This is a simplified version - actual implementation would need multipart form data
+	// This is a simplified version - actual implementation would need multipart form data.
 	return errors.New("file upload not yet implemented")
 }

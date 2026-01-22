@@ -102,7 +102,7 @@ func SetToken(apiType, token string) error {
 	// Validate API type
 	switch apiType {
 	case apiTypeClient, apiTypeAdmin:
-		// Valid
+		// Valid API type
 	default:
 		return fmt.Errorf("invalid API type: %s", apiType)
 	}
@@ -134,7 +134,7 @@ func DeleteToken(apiType string) error {
 	// Validate API type
 	switch apiType {
 	case apiTypeClient, apiTypeAdmin:
-		// Valid
+		// Valid API type
 	default:
 		return fmt.Errorf("invalid API type: %s", apiType)
 	}

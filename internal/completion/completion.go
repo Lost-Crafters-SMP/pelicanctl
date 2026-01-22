@@ -24,7 +24,6 @@ func CompleteServers(apiType string, toComplete string) ([]string, error) {
 		var client *api.ClientAPI
 		client, err = api.NewClientAPI()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "completion debug: NewClientAPI failed: %v\n", err)
 			return nil, nil
 		}
 		servers, err = client.ListServers()
@@ -32,7 +31,6 @@ func CompleteServers(apiType string, toComplete string) ([]string, error) {
 		var client *api.ApplicationAPI
 		client, err = api.NewApplicationAPI()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "completion debug: NewApplicationAPI failed: %v\n", err)
 			return nil, nil
 		}
 		servers, err = client.ListServers()

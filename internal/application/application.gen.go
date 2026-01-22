@@ -613,6 +613,21 @@ type AssignUserRolesRequest struct {
 	Roles []int `json:"roles"`
 }
 
+// RenameBackupRequest defines model for RenameBackupRequest.
+type RenameBackupRequest struct {
+	Name string `json:"name"`
+}
+
+// RestoreBackupRequest defines model for RestoreBackupRequest.
+type RestoreBackupRequest struct {
+	Truncate bool `json:"truncate"`
+}
+
+// SendCommandRequest defines model for SendCommandRequest.
+type SendCommandRequest struct {
+	Command string `json:"command"`
+}
+
 // SendPowerRequest defines model for SendPowerRequest.
 type SendPowerRequest struct {
 	Signal SendPowerRequestSignal `json:"signal"`
@@ -629,6 +644,13 @@ type StoreAllocationRequest struct {
 	Alias *string  `json:"alias"`
 	Ip    string   `json:"ip"`
 	Ports []string `json:"ports"`
+}
+
+// StoreBackupRequest defines model for StoreBackupRequest.
+type StoreBackupRequest struct {
+	Ignored  *string `json:"ignored"`
+	IsLocked *bool   `json:"is_locked"`
+	Name     *string `json:"name"`
 }
 
 // StoreDatabaseHostRequest defines model for StoreDatabaseHostRequest.
@@ -905,8 +927,20 @@ type RoleUpdateJSONRequestBody = UpdateRoleRequest
 // ServerStoreJSONRequestBody defines body for ServerStore for application/json ContentType.
 type ServerStoreJSONRequestBody = StoreServerRequest
 
+// BackupStoreJSONRequestBody defines body for BackupStore for application/json ContentType.
+type BackupStoreJSONRequestBody = StoreBackupRequest
+
+// BackupRenameJSONRequestBody defines body for BackupRename for application/json ContentType.
+type BackupRenameJSONRequestBody = RenameBackupRequest
+
+// BackupRestoreJSONRequestBody defines body for BackupRestore for application/json ContentType.
+type BackupRestoreJSONRequestBody = RestoreBackupRequest
+
 // ApplicationServersBuildJSONRequestBody defines body for ApplicationServersBuild for application/json ContentType.
 type ApplicationServersBuildJSONRequestBody = UpdateServerBuildConfigurationRequest
+
+// CommandIndexJSONRequestBody defines body for CommandIndex for application/json ContentType.
+type CommandIndexJSONRequestBody = SendCommandRequest
 
 // DatabaseStoreJSONRequestBody defines body for DatabaseStore for application/json ContentType.
 type DatabaseStoreJSONRequestBody = StoreServerDatabaseRequest
@@ -914,8 +948,8 @@ type DatabaseStoreJSONRequestBody = StoreServerDatabaseRequest
 // ApplicationServersDetailsJSONRequestBody defines body for ApplicationServersDetails for application/json ContentType.
 type ApplicationServersDetailsJSONRequestBody = UpdateServerDetailsRequest
 
-// PowerPowerJSONRequestBody defines body for PowerPower for application/json ContentType.
-type PowerPowerJSONRequestBody = SendPowerRequest
+// PowerIndexJSONRequestBody defines body for PowerIndex for application/json ContentType.
+type PowerIndexJSONRequestBody = SendPowerRequest
 
 // ApplicationServersStartupJSONRequestBody defines body for ApplicationServersStartup for application/json ContentType.
 type ApplicationServersStartupJSONRequestBody = UpdateServerStartupRequest
@@ -1158,10 +1192,45 @@ type ClientInterface interface {
 	// ApplicationServersView request
 	ApplicationServersView(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// BackupIndex request
+	BackupIndex(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BackupStoreWithBody request with any body
+	BackupStoreWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	BackupStore(ctx context.Context, server int, body BackupStoreJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BackupDelete request
+	BackupDelete(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BackupView request
+	BackupView(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BackupDownload request
+	BackupDownload(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BackupToggleLock request
+	BackupToggleLock(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BackupRenameWithBody request with any body
+	BackupRenameWithBody(ctx context.Context, server int, backup string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	BackupRename(ctx context.Context, server int, backup string, body BackupRenameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// BackupRestoreWithBody request with any body
+	BackupRestoreWithBody(ctx context.Context, server int, backup string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	BackupRestore(ctx context.Context, server int, backup string, body BackupRestoreJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ApplicationServersBuildWithBody request with any body
 	ApplicationServersBuildWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ApplicationServersBuild(ctx context.Context, server int, body ApplicationServersBuildJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CommandIndexWithBody request with any body
+	CommandIndexWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CommandIndex(ctx context.Context, server int, body CommandIndexJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ApplicationServersDatabases request
 	ApplicationServersDatabases(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1188,10 +1257,10 @@ type ClientInterface interface {
 	// PowerHealth request
 	PowerHealth(ctx context.Context, server int, params *PowerHealthParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PowerPowerWithBody request with any body
-	PowerPowerWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PowerIndexWithBody request with any body
+	PowerIndexWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PowerPower(ctx context.Context, server int, body PowerPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PowerIndex(ctx context.Context, server int, body PowerIndexJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ApplicationServersReinstall request
 	ApplicationServersReinstall(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1897,6 +1966,138 @@ func (c *Client) ApplicationServersView(ctx context.Context, server int, reqEdit
 	return c.Client.Do(req)
 }
 
+func (c *Client) BackupIndex(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupIndexRequest(c.Server, server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupStoreWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupStoreRequestWithBody(c.Server, server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupStore(ctx context.Context, server int, body BackupStoreJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupStoreRequest(c.Server, server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupDelete(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupDeleteRequest(c.Server, server, backup)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupView(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupViewRequest(c.Server, server, backup)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupDownload(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupDownloadRequest(c.Server, server, backup)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupToggleLock(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupToggleLockRequest(c.Server, server, backup)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupRenameWithBody(ctx context.Context, server int, backup string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupRenameRequestWithBody(c.Server, server, backup, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupRename(ctx context.Context, server int, backup string, body BackupRenameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupRenameRequest(c.Server, server, backup, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupRestoreWithBody(ctx context.Context, server int, backup string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupRestoreRequestWithBody(c.Server, server, backup, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BackupRestore(ctx context.Context, server int, backup string, body BackupRestoreJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBackupRestoreRequest(c.Server, server, backup, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ApplicationServersBuildWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewApplicationServersBuildRequestWithBody(c.Server, server, contentType, body)
 	if err != nil {
@@ -1911,6 +2112,30 @@ func (c *Client) ApplicationServersBuildWithBody(ctx context.Context, server int
 
 func (c *Client) ApplicationServersBuild(ctx context.Context, server int, body ApplicationServersBuildJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewApplicationServersBuildRequest(c.Server, server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CommandIndexWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCommandIndexRequestWithBody(c.Server, server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CommandIndex(ctx context.Context, server int, body CommandIndexJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCommandIndexRequest(c.Server, server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2029,8 +2254,8 @@ func (c *Client) PowerHealth(ctx context.Context, server int, params *PowerHealt
 	return c.Client.Do(req)
 }
 
-func (c *Client) PowerPowerWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPowerPowerRequestWithBody(c.Server, server, contentType, body)
+func (c *Client) PowerIndexWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPowerIndexRequestWithBody(c.Server, server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2041,8 +2266,8 @@ func (c *Client) PowerPowerWithBody(ctx context.Context, server int, contentType
 	return c.Client.Do(req)
 }
 
-func (c *Client) PowerPower(ctx context.Context, server int, body PowerPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPowerPowerRequest(c.Server, server, body)
+func (c *Client) PowerIndex(ctx context.Context, server int, body PowerIndexJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPowerIndexRequest(c.Server, server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4015,6 +4240,359 @@ func NewApplicationServersViewRequest(server string, serverID int) (*http.Reques
 	return req, nil
 }
 
+// NewBackupIndexRequest generates requests for BackupIndex
+func NewBackupIndexRequest(server string, serverID int) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/backups", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBackupStoreRequest calls the generic BackupStore builder with application/json body
+func NewBackupStoreRequest(server string, serverID int, body BackupStoreJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBackupStoreRequestWithBody(server, serverID, "application/json", bodyReader)
+}
+
+// NewBackupStoreRequestWithBody generates requests for BackupStore with any type of body
+func NewBackupStoreRequestWithBody(server string, serverID int, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/backups", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewBackupDeleteRequest generates requests for BackupDelete
+func NewBackupDeleteRequest(server string, serverID int, backup string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "backup", runtime.ParamLocationPath, backup)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/backups/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBackupViewRequest generates requests for BackupView
+func NewBackupViewRequest(server string, serverID int, backup string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "backup", runtime.ParamLocationPath, backup)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/backups/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBackupDownloadRequest generates requests for BackupDownload
+func NewBackupDownloadRequest(server string, serverID int, backup string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "backup", runtime.ParamLocationPath, backup)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/backups/%s/download", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBackupToggleLockRequest generates requests for BackupToggleLock
+func NewBackupToggleLockRequest(server string, serverID int, backup string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "backup", runtime.ParamLocationPath, backup)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/backups/%s/lock", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewBackupRenameRequest calls the generic BackupRename builder with application/json body
+func NewBackupRenameRequest(server string, serverID int, backup string, body BackupRenameJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBackupRenameRequestWithBody(server, serverID, backup, "application/json", bodyReader)
+}
+
+// NewBackupRenameRequestWithBody generates requests for BackupRename with any type of body
+func NewBackupRenameRequestWithBody(server string, serverID int, backup string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "backup", runtime.ParamLocationPath, backup)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/backups/%s/rename", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewBackupRestoreRequest calls the generic BackupRestore builder with application/json body
+func NewBackupRestoreRequest(server string, serverID int, backup string, body BackupRestoreJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBackupRestoreRequestWithBody(server, serverID, backup, "application/json", bodyReader)
+}
+
+// NewBackupRestoreRequestWithBody generates requests for BackupRestore with any type of body
+func NewBackupRestoreRequestWithBody(server string, serverID int, backup string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "backup", runtime.ParamLocationPath, backup)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/backups/%s/restore", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewApplicationServersBuildRequest calls the generic ApplicationServersBuild builder with application/json body
 func NewApplicationServersBuildRequest(server string, serverID int, body ApplicationServersBuildJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -4053,6 +4631,53 @@ func NewApplicationServersBuildRequestWithBody(server string, serverID int, cont
 	}
 
 	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCommandIndexRequest calls the generic CommandIndex builder with application/json body
+func NewCommandIndexRequest(server string, serverID int, body CommandIndexJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCommandIndexRequestWithBody(server, serverID, "application/json", bodyReader)
+}
+
+// NewCommandIndexRequestWithBody generates requests for CommandIndex with any type of body
+func NewCommandIndexRequestWithBody(server string, serverID int, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/command", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -4385,19 +5010,19 @@ func NewPowerHealthRequest(server string, serverID int, params *PowerHealthParam
 	return req, nil
 }
 
-// NewPowerPowerRequest calls the generic PowerPower builder with application/json body
-func NewPowerPowerRequest(server string, serverID int, body PowerPowerJSONRequestBody) (*http.Request, error) {
+// NewPowerIndexRequest calls the generic PowerIndex builder with application/json body
+func NewPowerIndexRequest(server string, serverID int, body PowerIndexJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPowerPowerRequestWithBody(server, serverID, "application/json", bodyReader)
+	return NewPowerIndexRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
-// NewPowerPowerRequestWithBody generates requests for PowerPower with any type of body
-func NewPowerPowerRequestWithBody(server string, serverID int, contentType string, body io.Reader) (*http.Request, error) {
+// NewPowerIndexRequestWithBody generates requests for PowerIndex with any type of body
+func NewPowerIndexRequestWithBody(server string, serverID int, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -5196,10 +5821,45 @@ type ClientWithResponsesInterface interface {
 	// ApplicationServersViewWithResponse request
 	ApplicationServersViewWithResponse(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*ApplicationServersViewResponse, error)
 
+	// BackupIndexWithResponse request
+	BackupIndexWithResponse(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*BackupIndexResponse, error)
+
+	// BackupStoreWithBodyWithResponse request with any body
+	BackupStoreWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BackupStoreResponse, error)
+
+	BackupStoreWithResponse(ctx context.Context, server int, body BackupStoreJSONRequestBody, reqEditors ...RequestEditorFn) (*BackupStoreResponse, error)
+
+	// BackupDeleteWithResponse request
+	BackupDeleteWithResponse(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*BackupDeleteResponse, error)
+
+	// BackupViewWithResponse request
+	BackupViewWithResponse(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*BackupViewResponse, error)
+
+	// BackupDownloadWithResponse request
+	BackupDownloadWithResponse(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*BackupDownloadResponse, error)
+
+	// BackupToggleLockWithResponse request
+	BackupToggleLockWithResponse(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*BackupToggleLockResponse, error)
+
+	// BackupRenameWithBodyWithResponse request with any body
+	BackupRenameWithBodyWithResponse(ctx context.Context, server int, backup string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BackupRenameResponse, error)
+
+	BackupRenameWithResponse(ctx context.Context, server int, backup string, body BackupRenameJSONRequestBody, reqEditors ...RequestEditorFn) (*BackupRenameResponse, error)
+
+	// BackupRestoreWithBodyWithResponse request with any body
+	BackupRestoreWithBodyWithResponse(ctx context.Context, server int, backup string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BackupRestoreResponse, error)
+
+	BackupRestoreWithResponse(ctx context.Context, server int, backup string, body BackupRestoreJSONRequestBody, reqEditors ...RequestEditorFn) (*BackupRestoreResponse, error)
+
 	// ApplicationServersBuildWithBodyWithResponse request with any body
 	ApplicationServersBuildWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplicationServersBuildResponse, error)
 
 	ApplicationServersBuildWithResponse(ctx context.Context, server int, body ApplicationServersBuildJSONRequestBody, reqEditors ...RequestEditorFn) (*ApplicationServersBuildResponse, error)
+
+	// CommandIndexWithBodyWithResponse request with any body
+	CommandIndexWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CommandIndexResponse, error)
+
+	CommandIndexWithResponse(ctx context.Context, server int, body CommandIndexJSONRequestBody, reqEditors ...RequestEditorFn) (*CommandIndexResponse, error)
 
 	// ApplicationServersDatabasesWithResponse request
 	ApplicationServersDatabasesWithResponse(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*ApplicationServersDatabasesResponse, error)
@@ -5226,10 +5886,10 @@ type ClientWithResponsesInterface interface {
 	// PowerHealthWithResponse request
 	PowerHealthWithResponse(ctx context.Context, server int, params *PowerHealthParams, reqEditors ...RequestEditorFn) (*PowerHealthResponse, error)
 
-	// PowerPowerWithBodyWithResponse request with any body
-	PowerPowerWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error)
+	// PowerIndexWithBodyWithResponse request with any body
+	PowerIndexWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PowerIndexResponse, error)
 
-	PowerPowerWithResponse(ctx context.Context, server int, body PowerPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error)
+	PowerIndexWithResponse(ctx context.Context, server int, body PowerIndexJSONRequestBody, reqEditors ...RequestEditorFn) (*PowerIndexResponse, error)
 
 	// ApplicationServersReinstallWithResponse request
 	ApplicationServersReinstallWithResponse(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*ApplicationServersReinstallResponse, error)
@@ -6407,6 +7067,220 @@ func (r ApplicationServersViewResponse) StatusCode() int {
 	return 0
 }
 
+type BackupIndexResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]interface{}
+	JSON403      *AuthorizationException
+	JSON404      *ModelNotFoundException
+	JSON422      *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r BackupIndexResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BackupIndexResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BackupStoreResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]interface{}
+	JSON403      *AuthorizationException
+	JSON404      *ModelNotFoundException
+	JSON422      *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r BackupStoreResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BackupStoreResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BackupDeleteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON204      *[]string
+	JSON403      *AuthorizationException
+	JSON404      *ModelNotFoundException
+	JSON422      *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r BackupDeleteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BackupDeleteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BackupViewResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]interface{}
+	JSON403      *AuthorizationException
+	JSON404      *ModelNotFoundException
+	JSON422      *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r BackupViewResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BackupViewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BackupDownloadResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Attributes struct {
+			Url string `json:"url"`
+		} `json:"attributes"`
+		Object BackupDownload200Object `json:"object"`
+	}
+	JSON400 *struct {
+		// Message Error overview.
+		Message string `json:"message"`
+	}
+	JSON403 *AuthorizationException
+	JSON404 *ModelNotFoundException
+	JSON422 *ValidationException
+}
+type BackupDownload200Object string
+
+// Status returns HTTPResponse.Status
+func (r BackupDownloadResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BackupDownloadResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BackupToggleLockResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]interface{}
+	JSON403      *AuthorizationException
+	JSON404      *ModelNotFoundException
+	JSON422      *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r BackupToggleLockResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BackupToggleLockResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BackupRenameResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]interface{}
+	JSON403      *AuthorizationException
+	JSON404      *ModelNotFoundException
+	JSON422      *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r BackupRenameResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BackupRenameResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type BackupRestoreResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON204      *[]string
+	JSON400      *struct {
+		// Message Error overview.
+		Message string `json:"message"`
+	}
+	JSON403 *AuthorizationException
+	JSON404 *ModelNotFoundException
+	JSON422 *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r BackupRestoreResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BackupRestoreResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ApplicationServersBuildResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -6426,6 +7300,34 @@ func (r ApplicationServersBuildResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ApplicationServersBuildResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CommandIndexResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *AuthorizationException
+	JSON404      *ModelNotFoundException
+	JSON422      *ValidationException
+	JSON502      *struct {
+		// Message Error overview.
+		Message string `json:"message"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r CommandIndexResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CommandIndexResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -6627,7 +7529,7 @@ func (r PowerHealthResponse) StatusCode() int {
 	return 0
 }
 
-type PowerPowerResponse struct {
+type PowerIndexResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON403      *AuthorizationException
@@ -6636,7 +7538,7 @@ type PowerPowerResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r PowerPowerResponse) Status() string {
+func (r PowerIndexResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -6644,7 +7546,7 @@ func (r PowerPowerResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r PowerPowerResponse) StatusCode() int {
+func (r PowerIndexResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -7494,6 +8396,102 @@ func (c *ClientWithResponses) ApplicationServersViewWithResponse(ctx context.Con
 	return ParseApplicationServersViewResponse(rsp)
 }
 
+// BackupIndexWithResponse request returning *BackupIndexResponse
+func (c *ClientWithResponses) BackupIndexWithResponse(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*BackupIndexResponse, error) {
+	rsp, err := c.BackupIndex(ctx, server, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupIndexResponse(rsp)
+}
+
+// BackupStoreWithBodyWithResponse request with arbitrary body returning *BackupStoreResponse
+func (c *ClientWithResponses) BackupStoreWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BackupStoreResponse, error) {
+	rsp, err := c.BackupStoreWithBody(ctx, server, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupStoreResponse(rsp)
+}
+
+func (c *ClientWithResponses) BackupStoreWithResponse(ctx context.Context, server int, body BackupStoreJSONRequestBody, reqEditors ...RequestEditorFn) (*BackupStoreResponse, error) {
+	rsp, err := c.BackupStore(ctx, server, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupStoreResponse(rsp)
+}
+
+// BackupDeleteWithResponse request returning *BackupDeleteResponse
+func (c *ClientWithResponses) BackupDeleteWithResponse(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*BackupDeleteResponse, error) {
+	rsp, err := c.BackupDelete(ctx, server, backup, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupDeleteResponse(rsp)
+}
+
+// BackupViewWithResponse request returning *BackupViewResponse
+func (c *ClientWithResponses) BackupViewWithResponse(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*BackupViewResponse, error) {
+	rsp, err := c.BackupView(ctx, server, backup, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupViewResponse(rsp)
+}
+
+// BackupDownloadWithResponse request returning *BackupDownloadResponse
+func (c *ClientWithResponses) BackupDownloadWithResponse(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*BackupDownloadResponse, error) {
+	rsp, err := c.BackupDownload(ctx, server, backup, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupDownloadResponse(rsp)
+}
+
+// BackupToggleLockWithResponse request returning *BackupToggleLockResponse
+func (c *ClientWithResponses) BackupToggleLockWithResponse(ctx context.Context, server int, backup string, reqEditors ...RequestEditorFn) (*BackupToggleLockResponse, error) {
+	rsp, err := c.BackupToggleLock(ctx, server, backup, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupToggleLockResponse(rsp)
+}
+
+// BackupRenameWithBodyWithResponse request with arbitrary body returning *BackupRenameResponse
+func (c *ClientWithResponses) BackupRenameWithBodyWithResponse(ctx context.Context, server int, backup string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BackupRenameResponse, error) {
+	rsp, err := c.BackupRenameWithBody(ctx, server, backup, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupRenameResponse(rsp)
+}
+
+func (c *ClientWithResponses) BackupRenameWithResponse(ctx context.Context, server int, backup string, body BackupRenameJSONRequestBody, reqEditors ...RequestEditorFn) (*BackupRenameResponse, error) {
+	rsp, err := c.BackupRename(ctx, server, backup, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupRenameResponse(rsp)
+}
+
+// BackupRestoreWithBodyWithResponse request with arbitrary body returning *BackupRestoreResponse
+func (c *ClientWithResponses) BackupRestoreWithBodyWithResponse(ctx context.Context, server int, backup string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BackupRestoreResponse, error) {
+	rsp, err := c.BackupRestoreWithBody(ctx, server, backup, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupRestoreResponse(rsp)
+}
+
+func (c *ClientWithResponses) BackupRestoreWithResponse(ctx context.Context, server int, backup string, body BackupRestoreJSONRequestBody, reqEditors ...RequestEditorFn) (*BackupRestoreResponse, error) {
+	rsp, err := c.BackupRestore(ctx, server, backup, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBackupRestoreResponse(rsp)
+}
+
 // ApplicationServersBuildWithBodyWithResponse request with arbitrary body returning *ApplicationServersBuildResponse
 func (c *ClientWithResponses) ApplicationServersBuildWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplicationServersBuildResponse, error) {
 	rsp, err := c.ApplicationServersBuildWithBody(ctx, server, contentType, body, reqEditors...)
@@ -7509,6 +8507,23 @@ func (c *ClientWithResponses) ApplicationServersBuildWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseApplicationServersBuildResponse(rsp)
+}
+
+// CommandIndexWithBodyWithResponse request with arbitrary body returning *CommandIndexResponse
+func (c *ClientWithResponses) CommandIndexWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CommandIndexResponse, error) {
+	rsp, err := c.CommandIndexWithBody(ctx, server, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCommandIndexResponse(rsp)
+}
+
+func (c *ClientWithResponses) CommandIndexWithResponse(ctx context.Context, server int, body CommandIndexJSONRequestBody, reqEditors ...RequestEditorFn) (*CommandIndexResponse, error) {
+	rsp, err := c.CommandIndex(ctx, server, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCommandIndexResponse(rsp)
 }
 
 // ApplicationServersDatabasesWithResponse request returning *ApplicationServersDatabasesResponse
@@ -7590,21 +8605,21 @@ func (c *ClientWithResponses) PowerHealthWithResponse(ctx context.Context, serve
 	return ParsePowerHealthResponse(rsp)
 }
 
-// PowerPowerWithBodyWithResponse request with arbitrary body returning *PowerPowerResponse
-func (c *ClientWithResponses) PowerPowerWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error) {
-	rsp, err := c.PowerPowerWithBody(ctx, server, contentType, body, reqEditors...)
+// PowerIndexWithBodyWithResponse request with arbitrary body returning *PowerIndexResponse
+func (c *ClientWithResponses) PowerIndexWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PowerIndexResponse, error) {
+	rsp, err := c.PowerIndexWithBody(ctx, server, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePowerPowerResponse(rsp)
+	return ParsePowerIndexResponse(rsp)
 }
 
-func (c *ClientWithResponses) PowerPowerWithResponse(ctx context.Context, server int, body PowerPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error) {
-	rsp, err := c.PowerPower(ctx, server, body, reqEditors...)
+func (c *ClientWithResponses) PowerIndexWithResponse(ctx context.Context, server int, body PowerIndexJSONRequestBody, reqEditors ...RequestEditorFn) (*PowerIndexResponse, error) {
+	rsp, err := c.PowerIndex(ctx, server, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePowerPowerResponse(rsp)
+	return ParsePowerIndexResponse(rsp)
 }
 
 // ApplicationServersReinstallWithResponse request returning *ApplicationServersReinstallResponse
@@ -9717,6 +10732,407 @@ func ParseApplicationServersViewResponse(rsp *http.Response) (*ApplicationServer
 	return response, nil
 }
 
+// ParseBackupIndexResponse parses an HTTP response from a BackupIndexWithResponse call
+func ParseBackupIndexResponse(rsp *http.Response) (*BackupIndexResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BackupIndexResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBackupStoreResponse parses an HTTP response from a BackupStoreWithResponse call
+func ParseBackupStoreResponse(rsp *http.Response) (*BackupStoreResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BackupStoreResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBackupDeleteResponse parses an HTTP response from a BackupDeleteWithResponse call
+func ParseBackupDeleteResponse(rsp *http.Response) (*BackupDeleteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BackupDeleteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 204:
+		var dest []string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON204 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBackupViewResponse parses an HTTP response from a BackupViewWithResponse call
+func ParseBackupViewResponse(rsp *http.Response) (*BackupViewResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BackupViewResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBackupDownloadResponse parses an HTTP response from a BackupDownloadWithResponse call
+func ParseBackupDownloadResponse(rsp *http.Response) (*BackupDownloadResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BackupDownloadResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Attributes struct {
+				Url string `json:"url"`
+			} `json:"attributes"`
+			Object BackupDownload200Object `json:"object"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			// Message Error overview.
+			Message string `json:"message"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBackupToggleLockResponse parses an HTTP response from a BackupToggleLockWithResponse call
+func ParseBackupToggleLockResponse(rsp *http.Response) (*BackupToggleLockResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BackupToggleLockResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBackupRenameResponse parses an HTTP response from a BackupRenameWithResponse call
+func ParseBackupRenameResponse(rsp *http.Response) (*BackupRenameResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BackupRenameResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseBackupRestoreResponse parses an HTTP response from a BackupRestoreWithResponse call
+func ParseBackupRestoreResponse(rsp *http.Response) (*BackupRestoreResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BackupRestoreResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 204:
+		var dest []string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON204 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest struct {
+			// Message Error overview.
+			Message string `json:"message"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseApplicationServersBuildResponse parses an HTTP response from a ApplicationServersBuildWithResponse call
 func ParseApplicationServersBuildResponse(rsp *http.Response) (*ApplicationServersBuildResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -9758,6 +11174,56 @@ func ParseApplicationServersBuildResponse(rsp *http.Response) (*ApplicationServe
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCommandIndexResponse parses an HTTP response from a CommandIndexWithResponse call
+func ParseCommandIndexResponse(rsp *http.Response) (*CommandIndexResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CommandIndexResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest struct {
+			// Message Error overview.
+			Message string `json:"message"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
 
 	}
 
@@ -10107,15 +11573,15 @@ func ParsePowerHealthResponse(rsp *http.Response) (*PowerHealthResponse, error) 
 	return response, nil
 }
 
-// ParsePowerPowerResponse parses an HTTP response from a PowerPowerWithResponse call
-func ParsePowerPowerResponse(rsp *http.Response) (*PowerPowerResponse, error) {
+// ParsePowerIndexResponse parses an HTTP response from a PowerIndexWithResponse call
+func ParsePowerIndexResponse(rsp *http.Response) (*PowerIndexResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &PowerPowerResponse{
+	response := &PowerIndexResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

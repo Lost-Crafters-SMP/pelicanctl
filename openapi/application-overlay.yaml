@@ -151,3 +151,18 @@ actions:
   - target: $["components"]["schemas"]["UpdateServerDetailsRequest"]["properties"]["description"]
     update:
       "nullable": true
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["name"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["name"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["is_locked"]["type"]
+    update: "boolean"
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["is_locked"]
+    update:
+      "nullable": true
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["ignored"]["type"]
+    update: "string"
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["ignored"]
+    update:
+      "nullable": true

@@ -44,6 +44,15 @@ backups, databases, and more.`,
 				return nil
 			}
 
+			// Suppress Cobra's default error and usage output when --json is enabled
+			// This ensures only JSON is output, not plain text errors and usage
+			// Read flag directly from command to ensure it's detected (flags are parsed before PersistentPreRunE)
+			jsonFlag, _ := cmd.Root().PersistentFlags().GetBool("json")
+			if jsonFlag {
+				cmd.Root().SilenceErrors = true
+				cmd.Root().SilenceUsage = true
+			}
+
 			// Load configuration
 			_, err := config.Load(cfg.configPath)
 			if err != nil {
@@ -96,7 +105,14 @@ func main() {
 	rootCmd := setupRootCmd(cfg)
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		if cfg.json {
+			// Output error as JSON when --json flag is set
+			formatter := output.NewFormatter(output.OutputFormatJSON, os.Stderr)
+			formatter.PrintError("%v", err)
+		} else {
+			// Output error as plain text
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		}
 		os.Exit(1)
 	}
 }

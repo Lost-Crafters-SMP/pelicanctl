@@ -59,7 +59,7 @@ func createPowerSubcommand(config powerCommandConfig) *cobra.Command {
 		}
 		return completions, cobra.ShellCompDirectiveNoFileComp
 	}
-	// Note: carapace.Gen will be called after command is added to parent
+	// Note: carapace.Gen will be called after command is added to parent.
 	return cmd
 }
 

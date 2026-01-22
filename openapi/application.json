@@ -20,6 +20,9 @@
       "name": "Server"
     },
     {
+      "name": "Server - Backup"
+    },
+    {
       "name": "Node - Allocation"
     },
     {
@@ -1191,7 +1194,7 @@
     },
     "/servers/{server}/power": {
       "post": {
-        "operationId": "power.power",
+        "operationId": "power.index",
         "summary": "Send power action\r\n\r\nSend a power action to a server",
         "tags": [
           "Server"
@@ -1380,6 +1383,70 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
+    "/servers/{server}/command": {
+      "post": {
+        "operationId": "command.index",
+        "summary": "Send command\r\n\r\nSend a command to a running server",
+        "tags": [
+          "Server"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendCommandRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          },
+          "502": {
+            "description": "An error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error overview.",
+                      "example": ""
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -1595,6 +1662,493 @@
           },
           "406": {
             "description": "Server is not transferring"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
+    "/servers/{server}/backups": {
+      "get": {
+        "operationId": "backup.index",
+        "summary": "List backups\r\n\r\nReturns all the backups for a given server instance in a paginated result set",
+        "tags": [
+          "Server - Backup"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      },
+      "post": {
+        "operationId": "backup.store",
+        "summary": "Create backup\r\n\r\nStarts the backup process for a server",
+        "tags": [
+          "Server - Backup"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreBackupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
+    "/servers/{server}/backups/{backup}": {
+      "get": {
+        "operationId": "backup.view",
+        "summary": "View backup\r\n\r\nReturns information about a single backup",
+        "tags": [
+          "Server - Backup"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "backup",
+            "in": "path",
+            "required": true,
+            "description": "The backup UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "backup.delete",
+        "summary": "Delete backup\r\n\r\nDeletes a backup from the panel as well as the remote source where it is currently\r\nbeing stored",
+        "tags": [
+          "Server - Backup"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "backup",
+            "in": "path",
+            "required": true,
+            "description": "The backup UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "additionalItems": false
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
+    "/servers/{server}/backups/{backup}/download": {
+      "get": {
+        "operationId": "backup.download",
+        "summary": "Download backup\r\n\r\nDownload the backup for a given server instance. For daemon local files, the file\r\nwill be streamed back through the Panel. For AWS S3 files, a signed URL will be generated\r\nwhich the user is redirected to",
+        "tags": [
+          "Server - Backup"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "backup",
+            "in": "path",
+            "required": true,
+            "description": "The backup UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "enum": [
+                        "signed_url"
+                      ]
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "attributes"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error overview.",
+                      "example": ""
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
+    "/servers/{server}/backups/{backup}/rename": {
+      "put": {
+        "operationId": "backup.rename",
+        "summary": "Rename backup\r\n\r\nUpdates the name of a backup for a server instance",
+        "tags": [
+          "Server - Backup"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "backup",
+            "in": "path",
+            "required": true,
+            "description": "The backup UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameBackupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
+    "/servers/{server}/backups/{backup}/lock": {
+      "post": {
+        "operationId": "backup.toggleLock",
+        "summary": "Toggle lock\r\n\r\nToggles the lock status of a given backup for a server",
+        "tags": [
+          "Server - Backup"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "backup",
+            "in": "path",
+            "required": true,
+            "description": "The backup UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
+    "/servers/{server}/backups/{backup}/restore": {
+      "post": {
+        "operationId": "backup.restore",
+        "summary": "Restore backup\r\n\r\nHandles restoring a backup by making a request to the daemon instance telling it\r\nto begin the process of finding (or downloading) the backup and unpacking it\r\nover the server files.\r\n\r\nIf the \"truncate\" flag is passed through in this request then all the\r\nfiles that currently exist on the server will be deleted before restoring.\r\nOtherwise, the archive will simply be unpacked over the existing files",
+        "tags": [
+          "Server - Backup"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "backup",
+            "in": "path",
+            "required": true,
+            "description": "The backup UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreBackupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "additionalItems": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error overview.",
+                      "example": ""
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
           },
           "422": {
             "$ref": "#/components/responses/ValidationException"
@@ -3276,6 +3830,44 @@
         ],
         "title": "AssignUserRolesRequest"
       },
+      "RenameBackupRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "RenameBackupRequest"
+      },
+      "RestoreBackupRequest": {
+        "type": "object",
+        "properties": {
+          "truncate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "truncate"
+        ],
+        "title": "RestoreBackupRequest"
+      },
+      "SendCommandRequest": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "command"
+        ],
+        "title": "SendCommandRequest"
+      },
       "SendPowerRequest": {
         "type": "object",
         "properties": {
@@ -3323,6 +3915,31 @@
           "ports"
         ],
         "title": "StoreAllocationRequest"
+      },
+      "StoreBackupRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 255
+          },
+          "is_locked": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "ignored": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "title": "StoreBackupRequest"
       },
       "StoreDatabaseHostRequest": {
         "type": "object",

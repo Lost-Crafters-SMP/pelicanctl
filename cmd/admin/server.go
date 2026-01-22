@@ -36,18 +36,20 @@ func adminServerValidArgs(_ *cobra.Command, _ []string, toComplete string) ([]st
 	return completions, cobra.ShellCompDirectiveNoFileComp
 }
 
-func newServerCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "server",
-		Short: "Manage servers",
-		Long:  "List, view, and manage servers",
-	}
-
+func newServerBasicCommands() []*cobra.Command {
 	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all servers",
 		RunE:  runServerList,
 	}
+
+	createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create a new server",
+		Long:  "Create a new server. Provide server data as JSON via --data flag or stdin.",
+		RunE:  runServerCreate,
+	}
+	createCmd.Flags().String("data", "", "JSON data for the server (or read from stdin)")
 
 	viewCmd := &cobra.Command{
 		Use:   "view <id|uuid>",
@@ -58,6 +60,20 @@ func newServerCmd() *cobra.Command {
 	}
 	viewCmd.ValidArgsFunction = adminServerValidArgs
 
+	deleteCmd := &cobra.Command{
+		Use:   "delete <id|uuid>",
+		Short: "Delete a server",
+		Long:  "Delete a server by ID (integer) or UUID (string). Use --force to force delete.",
+		Args:  cobra.ExactArgs(1),
+		RunE:  runServerDelete,
+	}
+	deleteCmd.Flags().Bool("force", false, "Force delete the server")
+	deleteCmd.ValidArgsFunction = adminServerValidArgs
+
+	return []*cobra.Command{listCmd, createCmd, viewCmd, deleteCmd}
+}
+
+func newServerActionCommands() []*cobra.Command {
 	suspendCmd := &cobra.Command{
 		Use:   "suspend <id|uuid>...",
 		Short: "Suspend server(s)",
@@ -100,23 +116,41 @@ func newServerCmd() *cobra.Command {
 	healthCmd.ValidArgsFunction = adminServerValidArgs
 	carapace.Gen(healthCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
 
+	return []*cobra.Command{suspendCmd, unsuspendCmd, reinstallCmd, healthCmd}
+}
+
+func setupServerCommandCompletion(cmds []*cobra.Command) {
+	for _, cmd := range cmds {
+		if cmd.Use == "view" || cmd.Use == "delete" {
+			carapace.Gen(cmd).PositionalCompletion(carapace.ActionCallback(adminServerCompletionAction))
+		}
+	}
+}
+
+func newServerCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "server",
+		Short: "Manage servers",
+		Long:  "List, view, and manage servers",
+	}
+
+	basicCmds := newServerBasicCommands()
+	actionCmds := newServerActionCommands()
 	powerCmd := newPowerCmd()
+	backupCmd := newBackupCmd()
 
 	// Add all commands FIRST (matching carapace example pattern)
-	cmd.AddCommand(listCmd)
-	cmd.AddCommand(viewCmd)
-	cmd.AddCommand(suspendCmd)
-	cmd.AddCommand(unsuspendCmd)
-	cmd.AddCommand(reinstallCmd)
-	cmd.AddCommand(healthCmd)
+	for _, c := range basicCmds {
+		cmd.AddCommand(c)
+	}
+	for _, c := range actionCmds {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(powerCmd)
+	cmd.AddCommand(backupCmd)
 
 	// Set up carapace completion AFTER adding to parent (matching carapace example pattern)
-	carapace.Gen(viewCmd).PositionalCompletion(carapace.ActionCallback(adminServerCompletionAction))
-	carapace.Gen(suspendCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
-	carapace.Gen(unsuspendCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
-	carapace.Gen(reinstallCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
-	carapace.Gen(healthCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
+	setupServerCommandCompletion(basicCmds)
 
 	return cmd
 }
@@ -136,6 +170,16 @@ func runServerList(cmd *cobra.Command, _ []string) error {
 	return formatter.PrintWithConfig(servers, output.ResourceTypeAdminServer)
 }
 
+func runServerCreate(cmd *cobra.Command, _ []string) error {
+	return runCreateCommand(
+		cmd,
+		func(c *api.ApplicationAPI, data map[string]any) (map[string]any, error) {
+			return c.CreateServer(data)
+		},
+		"Server created successfully",
+	)
+}
+
 func runServerView(cmd *cobra.Command, args []string) error {
 	uuid := args[0]
 
@@ -151,6 +195,25 @@ func runServerView(cmd *cobra.Command, args []string) error {
 
 	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
 	return formatter.Print(server)
+}
+
+func runServerDelete(cmd *cobra.Command, args []string) error {
+	identifier := args[0]
+	force, _ := cmd.Flags().GetBool("force")
+
+	client, err := api.NewApplicationAPI()
+	if err != nil {
+		return err
+	}
+
+	deleteErr := client.DeleteServer(identifier, force)
+	if deleteErr != nil {
+		return fmt.Errorf("%s", apierrors.HandleError(deleteErr))
+	}
+
+	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
+	formatter.PrintSuccess("Server deleted successfully")
+	return nil
 }
 
 func runSuspendServer(cmd *cobra.Command, args []string) error {
@@ -830,6 +893,383 @@ func extractServerID(server map[string]any) any {
 			return id
 		}
 	}
+	return nil
+}
+
+func newBackupCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "backup",
+		Short: "Manage server backups",
+		Long:  "List, create, view, and manage server backups",
+	}
+
+	listCmd := &cobra.Command{
+		Use:   "list <server-id|uuid>",
+		Short: "List backups for a server",
+		Long:  "List all backups for a server by ID (integer) or UUID (string)",
+		Args:  cobra.ExactArgs(1),
+		RunE:  runBackupList,
+	}
+	listCmd.ValidArgsFunction = adminServerValidArgs
+
+	createCmd := &cobra.Command{
+		Use:   "create <server-id|uuid>...",
+		Short: "Create backup(s) for server(s)",
+		Long:  "Create backup(s) for server(s) by ID (integer) or UUID (string). Supports bulk operations with --all or --from-file.",
+		RunE:  runBackupCreate,
+	}
+	addBulkFlags(createCmd)
+	createCmd.Flags().String("ignore", "", "Comma-separated list of files/patterns to ignore")
+	createCmd.Flags().String("ignore-file", "", "File containing ignore patterns (newline-separated, like .gitignore)")
+	createCmd.Flags().String("name", "", "Backup name")
+	createCmd.Flags().Bool("locked", false, "Lock the backup after creation")
+	createCmd.Flags().String("save-pairs", "", "Save server+backup pairs to file (format: server-id,backup-uuid)")
+	createCmd.ValidArgsFunction = adminServerValidArgs
+	carapace.Gen(createCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
+
+	viewCmd := &cobra.Command{
+		Use:   "view [<server-id|uuid> <backup-uuid>]... | --from-file <file>",
+		Short: "View backup details",
+		Long:  "View one or more backups. Can specify server+backup pairs as alternating arguments, or use --from-file to load pairs from a file (comma-separated format: server-id,backup-uuid).",
+		Args: func(cmd *cobra.Command, args []string) error {
+			fromFile, _ := cmd.Flags().GetString("from-file")
+			if fromFile != "" {
+				return cobra.NoArgs(cmd, args)
+			}
+			if len(args)%2 != 0 {
+				return errors.New("requires server+backup pairs (even number of arguments)")
+			}
+			return cobra.MinimumNArgs(minBackupViewArgs)(cmd, args)
+		},
+		RunE: runBackupView,
+	}
+	viewCmd.Flags().String("from-file", "", "File containing server+backup pairs (one per line: server-id,backup-uuid)")
+
+	deleteCmd := &cobra.Command{
+		Use:   "delete <server-id|uuid> <backup-uuid>",
+		Short: "Delete a backup",
+		Long:  "Delete a backup by server ID/UUID and backup UUID",
+		Args:  cobra.ExactArgs(minBackupViewArgs),
+		RunE:  runBackupDelete,
+	}
+	deleteCmd.ValidArgsFunction = adminServerValidArgs
+
+	// Add subcommands
+	cmd.AddCommand(listCmd)
+	cmd.AddCommand(createCmd)
+	cmd.AddCommand(viewCmd)
+	cmd.AddCommand(deleteCmd)
+
+	// Set up carapace completion
+	carapace.Gen(listCmd).PositionalCompletion(carapace.ActionCallback(adminServerCompletionAction))
+	carapace.Gen(deleteCmd).PositionalCompletion(carapace.ActionCallback(adminServerCompletionAction))
+
+	return cmd
+}
+
+func runBackupList(cmd *cobra.Command, args []string) error {
+	serverIdentifier := args[0]
+
+	client, err := api.NewApplicationAPI()
+	if err != nil {
+		return err
+	}
+
+	backups, err := client.ListBackups(serverIdentifier)
+	if err != nil {
+		return fmt.Errorf("%s", apierrors.HandleError(err))
+	}
+
+	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
+	return formatter.PrintWithConfig(backups, output.ResourceTypeAdminBackup)
+}
+
+// processIgnorePatterns processes ignore patterns from file or string flag.
+func processIgnorePatterns(ignoreFile, ignoreStr string) (string, error) {
+	if ignoreFile != "" {
+		data, err := os.ReadFile(ignoreFile)
+		if err != nil {
+			return "", fmt.Errorf("failed to read ignore file: %w", err)
+		}
+		// Process file: trim whitespace, filter empty lines, join with newlines
+		lines := strings.Split(string(data), "\n")
+		var nonEmptyLines []string
+		for _, line := range lines {
+			trimmed := strings.TrimSpace(line)
+			if trimmed != "" {
+				nonEmptyLines = append(nonEmptyLines, trimmed)
+			}
+		}
+		return strings.Join(nonEmptyLines, "\n"), nil
+	}
+	return ignoreStr, nil
+}
+
+// buildBackupData builds the backup request data map from flags.
+func buildBackupData(name, ignorePatterns string, locked bool) map[string]any {
+	backupData := make(map[string]any)
+	if name != "" {
+		backupData["name"] = name
+	}
+	if ignorePatterns != "" {
+		backupData["ignored"] = ignorePatterns
+	}
+	if locked {
+		backupData["is_locked"] = true
+	}
+	return backupData
+}
+
+// getBackupCreateServerUUIDs gets server UUIDs for backup creation.
+func getBackupCreateServerUUIDs(cmd *cobra.Command, args []string, flags bulkFlags) ([]string, error) {
+	uuids := args
+	if flags.all || flags.fromFile != "" {
+		var err error
+		uuids, err = getServerUUIDs(cmd, args, flags.all, flags.fromFile)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if len(uuids) == 0 {
+		return nil, errors.New("no servers specified")
+	}
+	return uuids, nil
+}
+
+// createBackupOperations creates bulk operations for backup creation.
+func createBackupOperations(
+	client *api.ApplicationAPI,
+	uuids []string,
+	backupData map[string]any,
+	pairs *[]backupPair,
+) []bulk.Operation {
+	operations := make([]bulk.Operation, len(uuids))
+	for i, uuid := range uuids {
+		operations[i] = bulk.Operation{
+			ID:   uuid,
+			Name: uuid,
+			Exec: func() error {
+				backup, createErr := client.CreateBackup(uuid, backupData)
+				if createErr != nil {
+					return createErr
+				}
+				// Extract backup UUID from response
+				if backupUUID, ok := backup["uuid"].(string); ok {
+					*pairs = append(*pairs, backupPair{ServerID: uuid, BackupUUID: backupUUID})
+				}
+				return nil
+			},
+		}
+	}
+	return operations
+}
+
+// printBackupCreateResults prints the results of backup creation operations.
+func printBackupCreateResults(formatter *output.Formatter, results []bulk.Result) {
+	for _, result := range results {
+		if result.Success {
+			formatter.PrintSuccess("%s: backup created", result.Operation.ID)
+		} else {
+			formatter.PrintError("%s: %v", result.Operation.ID, result.Error)
+		}
+	}
+}
+
+// saveBackupPairs saves server+backup pairs to a file if requested.
+func saveBackupPairs(formatter *output.Formatter, pairs []backupPair, savePairs string) error {
+	if savePairs == "" || len(pairs) == 0 {
+		return nil
+	}
+
+	var lines []string
+	for _, pair := range pairs {
+		lines = append(lines, fmt.Sprintf("%s,%s", pair.ServerID, pair.BackupUUID))
+	}
+
+	if writeErr := os.WriteFile(savePairs, []byte(strings.Join(lines, "\n")), 0600); writeErr != nil {
+		formatter.PrintError("Failed to save pairs to file: %v", writeErr)
+		return writeErr
+	}
+
+	formatter.PrintSuccess("Saved %d server+backup pairs to %s", len(pairs), savePairs)
+	return nil
+}
+
+func runBackupCreate(cmd *cobra.Command, args []string) error {
+	flags := getBulkFlags(cmd)
+
+	// Get flags
+	ignoreStr, _ := cmd.Flags().GetString("ignore")
+	ignoreFile, _ := cmd.Flags().GetString("ignore-file")
+	name, _ := cmd.Flags().GetString("name")
+	locked, _ := cmd.Flags().GetBool("locked")
+	savePairs, _ := cmd.Flags().GetString("save-pairs")
+
+	// Process ignore patterns
+	ignorePatterns, err := processIgnorePatterns(ignoreFile, ignoreStr)
+	if err != nil {
+		return err
+	}
+
+	// Build backup request data
+	backupData := buildBackupData(name, ignorePatterns, locked)
+
+	// Get server identifiers
+	uuids, err := getBackupCreateServerUUIDs(cmd, args, flags)
+	if err != nil {
+		return err
+	}
+
+	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
+
+	// Handle dry run
+	if flags.dryRun {
+		formatter.PrintInfo("Dry run - would create backups for %d server(s):", len(uuids))
+		for _, uuid := range uuids {
+			formatter.PrintInfo("  - %s", uuid)
+		}
+		return nil
+	}
+
+	// Create API client
+	client, err := api.NewApplicationAPI()
+	if err != nil {
+		return err
+	}
+
+	// Store pairs for saving
+	var pairs []backupPair
+
+	// Create and execute operations
+	ctx := context.Background()
+	operations := createBackupOperations(client, uuids, backupData, &pairs)
+	executor := bulk.NewExecutor(flags.maxConcurrency, flags.continueOnError, flags.failFast)
+	results := executor.Execute(ctx, operations)
+
+	// Print results
+	printBackupCreateResults(formatter, results)
+
+	// Save pairs if requested
+	_ = saveBackupPairs(formatter, pairs, savePairs)
+
+	// Print summary
+	summary := bulk.GetSummary(results)
+	if summary.Failed > 0 {
+		return fmt.Errorf("%d backup creation(s) failed", summary.Failed)
+	}
+
+	return nil
+}
+
+type backupPair struct {
+	ServerID   string
+	BackupUUID string
+}
+
+func parseBackupPairsFromFile(fromFile string) ([]backupPair, error) {
+	data, err := os.ReadFile(fromFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %w", err)
+	}
+
+	var pairs []backupPair
+	lines := strings.Split(string(data), "\n")
+	for i, line := range lines {
+		line = strings.TrimSpace(line)
+		// Ignore empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.Split(line, ",")
+		if len(parts) != backupPairPartsCount {
+			return nil, fmt.Errorf("line %d: expected format 'server-id,backup-uuid', got '%s'", i+1, line)
+		}
+
+		pairs = append(pairs, backupPair{
+			ServerID:   strings.TrimSpace(parts[0]),
+			BackupUUID: strings.TrimSpace(parts[1]),
+		})
+	}
+	return pairs, nil
+}
+
+func parseBackupPairsFromArgs(args []string) ([]backupPair, error) {
+	var pairs []backupPair
+	for i := 0; i < len(args); i += 2 {
+		if i+1 >= len(args) {
+			return nil, errors.New("requires server+backup pairs (even number of arguments)")
+		}
+		pairs = append(pairs, backupPair{
+			ServerID:   args[i],
+			BackupUUID: args[i+1],
+		})
+	}
+	return pairs, nil
+}
+
+func runBackupView(cmd *cobra.Command, args []string) error {
+	fromFile, _ := cmd.Flags().GetString("from-file")
+
+	var pairs []backupPair
+	var err error
+	if fromFile != "" {
+		pairs, err = parseBackupPairsFromFile(fromFile)
+	} else {
+		pairs, err = parseBackupPairsFromArgs(args)
+	}
+	if err != nil {
+		return err
+	}
+
+	if len(pairs) == 0 {
+		return errors.New("no backup pairs specified")
+	}
+
+	client, err := api.NewApplicationAPI()
+	if err != nil {
+		return err
+	}
+
+	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
+
+	// Fetch all backups
+	var allBackups []map[string]any
+	for _, pair := range pairs {
+		backup, getErr := client.GetBackup(pair.ServerID, pair.BackupUUID)
+		if getErr != nil {
+			formatter.PrintError("%s/%s: %v", pair.ServerID, pair.BackupUUID, getErr)
+			continue
+		}
+		allBackups = append(allBackups, backup)
+	}
+
+	if len(allBackups) == 0 {
+		return errors.New("no backups found")
+	}
+
+	return formatter.PrintWithConfig(allBackups, output.ResourceTypeAdminBackup)
+}
+
+func runBackupDelete(cmd *cobra.Command, args []string) error {
+	serverIdentifier := args[0]
+	backupUUID := args[1]
+
+	client, err := api.NewApplicationAPI()
+	if err != nil {
+		return err
+	}
+
+	err = client.DeleteBackup(serverIdentifier, backupUUID)
+	if err != nil {
+		// Return formatted error message directly to avoid duplicate printing
+		return errors.New(apierrors.HandleError(err))
+	}
+
+	// Only show success message if no error was returned.
+	// API returns 204 No Content on success, so if we get here, deletion succeeded.
+	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
+	formatter.PrintSuccess("Backup deleted successfully")
 	return nil
 }
 
