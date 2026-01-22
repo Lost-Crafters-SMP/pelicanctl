@@ -7,10 +7,10 @@ import (
 	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
-	"go.lostcrafters.com/pelican-cli/internal/api"
-	"go.lostcrafters.com/pelican-cli/internal/completion"
-	apierrors "go.lostcrafters.com/pelican-cli/internal/errors"
-	"go.lostcrafters.com/pelican-cli/internal/output"
+	"go.lostcrafters.com/pelicanctl/internal/api"
+	"go.lostcrafters.com/pelicanctl/internal/completion"
+	apierrors "go.lostcrafters.com/pelicanctl/internal/errors"
+	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
 func newDatabaseCmd() *cobra.Command {

@@ -1,12 +1,12 @@
-# Agent Guidelines for Pelican CLI
+# Agent Guidelines for pelicanctl
 
-This document provides essential guidelines for agentic coding in the Pelican CLI repository.
+This document provides essential guidelines for agentic coding in the pelicanctl repository.
 
 ## Development Commands
 
 ### Building and Testing
 ```bash
-just build              # Build the pelican binary
+just build              # Build the pelicanctl binary
 just test               # Run all tests
 just test -run TestName # Run a specific test
 just fmt                # Format code with go fmt
@@ -28,7 +28,7 @@ just generate-application # Generate Application API only (includes post-process
 ### Import Order
 1. Standard library
 2. Third-party packages
-3. Internal packages (`go.lostcrafters.com/pelican-cli/...`)
+3. Internal packages (`go.lostcrafters.com/pelicanctl/...`)
 
 ```go
 import (
@@ -38,8 +38,8 @@ import (
     "github.com/spf13/cobra"
     "github.com/spf13/viper"
 
-    "go.lostcrafters.com/pelican-cli/internal/config"
-    apierrors "go.lostcrafters.com/pelican-cli/internal/errors"
+    "go.lostcrafters.com/pelicanctl/internal/config"
+    apierrors "go.lostcrafters.com/pelicanctl/internal/errors"
 )
 ```
 
@@ -124,7 +124,7 @@ type Config struct {
 
 ## Project Structure
 ```
-cmd/              # CLI commands (pelican/main.go, admin/, client/)
+cmd/              # CLI commands (pelicanctl/main.go, admin/, client/)
 internal/         # Core logic
   api/            # Adapter layer wrapping generated clients (client_api.go, application_api.go)
   client/         # Generated Client API client (client.gen.go)
@@ -172,5 +172,5 @@ func TestFunction(t *testing.T) {
 
 ## Configuration
 - Config loaded in `PersistentPreRunE` via `config.Load()`
-- Viper manages env vars: `PELICAN_CLIENT_TOKEN`, `PELICAN_ADMIN_TOKEN`, `PELICAN_API_BASE_URL`
-- Config file: `~/.config/pelican/config.yaml` (Linux/macOS), `%APPDATA%\pelican\config.yaml` (Windows)
+- Viper manages env vars: `PELICANCTL_CLIENT_TOKEN`, `PELICANCTL_ADMIN_TOKEN`, `PELICANCTL_API_BASE_URL`
+- Config file: `~/.config/pelicanctl/config.yaml` (Linux/macOS), `%APPDATA%\pelicanctl\config.yaml` (Windows)

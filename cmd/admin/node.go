@@ -3,9 +3,9 @@ package admin
 import (
 	"github.com/spf13/cobra"
 
-	"go.lostcrafters.com/pelican-cli/internal/api"
-	"go.lostcrafters.com/pelican-cli/internal/completion"
-	"go.lostcrafters.com/pelican-cli/internal/output"
+	"go.lostcrafters.com/pelicanctl/internal/api"
+	"go.lostcrafters.com/pelicanctl/internal/completion"
+	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
 func newNodeCmd() *cobra.Command {

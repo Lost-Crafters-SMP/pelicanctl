@@ -32,13 +32,16 @@ func getCached(key string) []string {
 		return nil
 	}
 
-	cacheEntry := entry.(cacheEntry)
-	if time.Since(cacheEntry.timestamp) > cacheTTL {
+	ce, ok := entry.(cacheEntry)
+	if !ok {
+		return nil
+	}
+	if time.Since(ce.timestamp) > cacheTTL {
 		cache.Delete(key)
 		return nil
 	}
 
-	return cacheEntry.data
+	return ce.data
 }
 
 // setCached stores data in the cache.
@@ -46,14 +49,6 @@ func setCached(key string, data []string) {
 	cache.Store(key, cacheEntry{
 		data:      data,
 		timestamp: time.Now(),
-	})
-}
-
-// clearCache removes all cached entries.
-func clearCache() {
-	cache.Range(func(key, value any) bool {
-		cache.Delete(key)
-		return true
 	})
 }
 

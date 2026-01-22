@@ -1,4 +1,4 @@
-module go.lostcrafters.com/pelican-cli
+module go.lostcrafters.com/pelicanctl
 
 go 1.25.6
 

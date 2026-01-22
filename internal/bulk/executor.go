@@ -1,4 +1,4 @@
-// Package bulk provides bulk operation execution for the Pelican CLI.
+// Package bulk provides bulk operation execution for pelicanctl.
 package bulk
 
 import (

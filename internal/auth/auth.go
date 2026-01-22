@@ -1,4 +1,4 @@
-// Package auth provides authentication and token management for the Pelican CLI.
+// Package auth provides authentication and token management for pelicanctl.
 package auth
 
 import (
@@ -13,11 +13,11 @@ import (
 	"github.com/zalando/go-keyring"
 	"golang.org/x/term"
 
-	"go.lostcrafters.com/pelican-cli/internal/config"
+	"go.lostcrafters.com/pelicanctl/internal/config"
 )
 
 const (
-	keyringService = "pelican-cli"
+	keyringService = "pelicanctl"
 	apiTypeClient  = "client"
 	apiTypeAdmin   = "admin"
 )
@@ -50,7 +50,7 @@ func warnIfTokenInConfig(apiType string) {
 	warnedAPITypes[apiType] = true
 	_, _ = fmt.Fprintf(os.Stderr,
 		"⚠ Warning: Token found in config file. Consider migrating to system keyring for better security.\n"+
-			"  Run 'pelican auth login %s' to migrate.\n",
+			"  Run 'pelicanctl auth login %s' to migrate.\n",
 		apiType)
 }
 
@@ -62,7 +62,7 @@ func GetToken(apiType string) (string, error) {
 	}
 
 	// 1. Check environment variable first (highest priority)
-	envVar := fmt.Sprintf("PELICAN_%s_TOKEN", strings.ToUpper(apiType))
+	envVar := fmt.Sprintf("PELICANCTL_%s_TOKEN", strings.ToUpper(apiType))
 	if envToken := os.Getenv(envVar); envToken != "" {
 		return envToken, nil
 	}

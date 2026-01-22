@@ -1,4 +1,4 @@
-// Package config provides configuration management for the Pelican CLI.
+// Package config provides configuration management for pelicanctl.
 package config
 
 import (
@@ -65,16 +65,16 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Environment variables
-	v.SetEnvPrefix("PELICAN")
+	v.SetEnvPrefix("PELICANCTL")
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(stringReplacer())
-	if err := v.BindEnv("client.token", "PELICAN_CLIENT_TOKEN"); err != nil {
+	if err := v.BindEnv("client.token", "PELICANCTL_CLIENT_TOKEN"); err != nil {
 		return nil, fmt.Errorf("failed to bind env var: %w", err)
 	}
-	if err := v.BindEnv("admin.token", "PELICAN_ADMIN_TOKEN"); err != nil {
+	if err := v.BindEnv("admin.token", "PELICANCTL_ADMIN_TOKEN"); err != nil {
 		return nil, fmt.Errorf("failed to bind env var: %w", err)
 	}
-	if err := v.BindEnv("api.base_url", "PELICAN_API_BASE_URL"); err != nil {
+	if err := v.BindEnv("api.base_url", "PELICANCTL_API_BASE_URL"); err != nil {
 		return nil, fmt.Errorf("failed to bind env var: %w", err)
 	}
 
@@ -143,7 +143,7 @@ func getConfigDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(configDir, "pelican"), nil
+	return filepath.Join(configDir, "pelicanctl"), nil
 }
 
 // GetConfigPath returns the full path to the config file.

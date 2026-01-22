@@ -1233,6 +1233,157 @@
         }
       }
     },
+    "/servers/{server}/health": {
+      "get": {
+        "operationId": "power.health",
+        "summary": "Get server health\r\n\r\nGet the current health status of a server, including container status\r\nand optional crash detection within a time window",
+        "tags": [
+          "Server"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1,
+              "maximum": 1440
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "server": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "uuid": {
+                          "type": "string"
+                        },
+                        "uuid_short": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "external_id": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "server_status": {
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "uuid",
+                        "uuid_short",
+                        "name",
+                        "external_id",
+                        "server_status",
+                        "node_id"
+                      ]
+                    },
+                    "container": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string"
+                        },
+                        "healthy": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "healthy"
+                      ]
+                    },
+                    "crashed": {
+                      "type": "boolean"
+                    },
+                    "crash_details": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": {
+                          "type": "string"
+                        },
+                        "exit_code": {
+                          "type": "string"
+                        },
+                        "oom_killed": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "timestamp",
+                        "exit_code",
+                        "oom_killed"
+                      ]
+                    },
+                    "checked_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "server",
+                    "container",
+                    "crashed",
+                    "crash_details",
+                    "checked_at"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
     "/servers/{server}/suspend": {
       "post": {
         "operationId": "application.servers.suspend",

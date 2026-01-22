@@ -1,4 +1,4 @@
-// Package output provides output formatting for the Pelican CLI.
+// Package output provides output formatting for pelicanctl.
 package output
 
 import (

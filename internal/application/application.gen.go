@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -864,6 +865,12 @@ type ApplicationServersParams struct {
 	Search *string `form:"search,omitempty" json:"search,omitempty"`
 }
 
+// PowerHealthParams defines parameters for PowerHealth.
+type PowerHealthParams struct {
+	Since  *time.Time `form:"since,omitempty" json:"since,omitempty"`
+	Window *int       `form:"window,omitempty" json:"window,omitempty"`
+}
+
 // ApplicationServersTransferJSONBody defines parameters for ApplicationServersTransfer.
 type ApplicationServersTransferJSONBody struct {
 	AllocationAdditional *[]int `json:"allocation_additional"`
@@ -1177,6 +1184,9 @@ type ClientInterface interface {
 	ApplicationServersDetailsWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ApplicationServersDetails(ctx context.Context, server int, body ApplicationServersDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PowerHealth request
+	PowerHealth(ctx context.Context, server int, params *PowerHealthParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PowerPowerWithBody request with any body
 	PowerPowerWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1997,6 +2007,18 @@ func (c *Client) ApplicationServersDetailsWithBody(ctx context.Context, server i
 
 func (c *Client) ApplicationServersDetails(ctx context.Context, server int, body ApplicationServersDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewApplicationServersDetailsRequest(c.Server, server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PowerHealth(ctx context.Context, server int, params *PowerHealthParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPowerHealthRequest(c.Server, server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -4291,6 +4313,78 @@ func NewApplicationServersDetailsRequestWithBody(server string, serverID int, co
 	return req, nil
 }
 
+// NewPowerHealthRequest generates requests for PowerHealth
+func NewPowerHealthRequest(server string, serverID int, params *PowerHealthParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/health", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Since != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "since", runtime.ParamLocationQuery, *params.Since); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Window != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "window", runtime.ParamLocationQuery, *params.Window); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPowerPowerRequest calls the generic PowerPower builder with application/json body
 func NewPowerPowerRequest(server string, serverID int, body PowerPowerJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -5128,6 +5222,9 @@ type ClientWithResponsesInterface interface {
 	ApplicationServersDetailsWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplicationServersDetailsResponse, error)
 
 	ApplicationServersDetailsWithResponse(ctx context.Context, server int, body ApplicationServersDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*ApplicationServersDetailsResponse, error)
+
+	// PowerHealthWithResponse request
+	PowerHealthWithResponse(ctx context.Context, server int, params *PowerHealthParams, reqEditors ...RequestEditorFn) (*PowerHealthResponse, error)
 
 	// PowerPowerWithBodyWithResponse request with any body
 	PowerPowerWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error)
@@ -6484,6 +6581,52 @@ func (r ApplicationServersDetailsResponse) StatusCode() int {
 	return 0
 }
 
+type PowerHealthResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		CheckedAt string `json:"checked_at"`
+		Container struct {
+			Healthy bool   `json:"healthy"`
+			Status  string `json:"status"`
+		} `json:"container"`
+		CrashDetails struct {
+			ExitCode  string `json:"exit_code"`
+			OomKilled string `json:"oom_killed"`
+			Timestamp string `json:"timestamp"`
+		} `json:"crash_details"`
+		Crashed bool `json:"crashed"`
+		Server  struct {
+			ExternalId   *string `json:"external_id"`
+			Id           int     `json:"id"`
+			Name         string  `json:"name"`
+			NodeId       int     `json:"node_id"`
+			ServerStatus string  `json:"server_status"`
+			Uuid         string  `json:"uuid"`
+			UuidShort    string  `json:"uuid_short"`
+		} `json:"server"`
+	}
+	JSON403 *AuthorizationException
+	JSON404 *ModelNotFoundException
+	JSON422 *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r PowerHealthResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PowerHealthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type PowerPowerResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -7436,6 +7579,15 @@ func (c *ClientWithResponses) ApplicationServersDetailsWithResponse(ctx context.
 		return nil, err
 	}
 	return ParseApplicationServersDetailsResponse(rsp)
+}
+
+// PowerHealthWithResponse request returning *PowerHealthResponse
+func (c *ClientWithResponses) PowerHealthWithResponse(ctx context.Context, server int, params *PowerHealthParams, reqEditors ...RequestEditorFn) (*PowerHealthResponse, error) {
+	rsp, err := c.PowerHealth(ctx, server, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePowerHealthResponse(rsp)
 }
 
 // PowerPowerWithBodyWithResponse request with arbitrary body returning *PowerPowerResponse
@@ -9856,6 +10008,74 @@ func ParseApplicationServersDetailsResponse(rsp *http.Response) (*ApplicationSer
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePowerHealthResponse parses an HTTP response from a PowerHealthWithResponse call
+func ParsePowerHealthResponse(rsp *http.Response) (*PowerHealthResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PowerHealthResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			CheckedAt string `json:"checked_at"`
+			Container struct {
+				Healthy bool   `json:"healthy"`
+				Status  string `json:"status"`
+			} `json:"container"`
+			CrashDetails struct {
+				ExitCode  string `json:"exit_code"`
+				OomKilled string `json:"oom_killed"`
+				Timestamp string `json:"timestamp"`
+			} `json:"crash_details"`
+			Crashed bool `json:"crashed"`
+			Server  struct {
+				ExternalId   *string `json:"external_id"`
+				Id           int     `json:"id"`
+				Name         string  `json:"name"`
+				NodeId       int     `json:"node_id"`
+				ServerStatus string  `json:"server_status"`
+				Uuid         string  `json:"uuid"`
+				UuidShort    string  `json:"uuid_short"`
+			} `json:"server"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

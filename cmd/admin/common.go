@@ -7,9 +7,9 @@ import (
 	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
-	"go.lostcrafters.com/pelican-cli/internal/api"
-	apierrors "go.lostcrafters.com/pelican-cli/internal/errors"
-	"go.lostcrafters.com/pelican-cli/internal/output"
+	"go.lostcrafters.com/pelicanctl/internal/api"
+	apierrors "go.lostcrafters.com/pelicanctl/internal/errors"
+	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
 // getOutputFormat gets the output format from command flags.

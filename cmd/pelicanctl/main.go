@@ -1,4 +1,4 @@
-// Package main provides the Pelican CLI application entry point.
+// Package main provides the pelicanctl application entry point.
 package main
 
 import (
@@ -8,11 +8,11 @@ import (
 	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
-	"go.lostcrafters.com/pelican-cli/cmd/admin"
-	"go.lostcrafters.com/pelican-cli/cmd/client"
-	"go.lostcrafters.com/pelican-cli/internal/auth"
-	"go.lostcrafters.com/pelican-cli/internal/config"
-	"go.lostcrafters.com/pelican-cli/internal/output"
+	"go.lostcrafters.com/pelicanctl/cmd/admin"
+	"go.lostcrafters.com/pelicanctl/cmd/client"
+	"go.lostcrafters.com/pelicanctl/internal/auth"
+	"go.lostcrafters.com/pelicanctl/internal/config"
+	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
 type appConfig struct {
@@ -24,13 +24,13 @@ type appConfig struct {
 
 func setupRootCmd(cfg *appConfig) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "pelican",
-		Short: "Pelican CLI - Manage your Pelican panel servers",
-		Long: `Pelican CLI is a command-line tool for managing servers on the Pelican panel.
+		Use:   "pelicanctl",
+		Short: "pelicanctl - Manage your Pelican panel servers",
+		Long: `pelicanctl is a command-line tool for managing servers on the Pelican panel.
 
 It provides both client and admin interfaces for server management, file operations,
 backups, databases, and more.`,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// Skip PersistentPreRunE entirely for _carapace command to avoid interfering with completion
 			// The _carapace command is a hidden subcommand added by carapace.Gen() and needs direct access
 			if cmd.Name() == "_carapace" {
@@ -60,7 +60,7 @@ backups, databases, and more.`,
 
 	rootCmd.PersistentFlags().StringVar(
 		&cfg.configPath, "config", "",
-		"config file (default is $XDG_CONFIG_HOME/pelican/config.yaml)")
+		"config file (default is $XDG_CONFIG_HOME/pelicanctl/config.yaml)")
 	rootCmd.PersistentFlags().BoolVar(&cfg.json, "json", false, "output in JSON format")
 	rootCmd.PersistentFlags().BoolVar(&cfg.verbose, "verbose", false, "enable verbose logging")
 	rootCmd.PersistentFlags().BoolVar(&cfg.quiet, "quiet", false, "minimal output (errors only)")
@@ -178,7 +178,7 @@ func authLogin(apiType string, cfg *appConfig) error {
 	currentURL := appCfg.API.BaseURL
 	if currentURL == "" {
 		// Check environment variable
-		if envURL := os.Getenv("PELICAN_API_BASE_URL"); envURL != "" {
+		if envURL := os.Getenv("PELICANCTL_API_BASE_URL"); envURL != "" {
 			currentURL = envURL
 		}
 	}

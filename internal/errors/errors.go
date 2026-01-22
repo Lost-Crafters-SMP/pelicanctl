@@ -1,4 +1,4 @@
-// Package errors provides error handling for the Pelican CLI.
+// Package errors provides error handling for pelicanctl.
 //
 //nolint:revive // Package name conflicts with stdlib but is intentional for domain-specific errors
 package errors
@@ -56,7 +56,7 @@ func HandleError(err error) string {
 			return fmt.Sprintf("Resource not found: %s", apiErr.Message)
 		case apiErr.IsUnauthorized():
 			return fmt.Sprintf(
-				"Authentication failed: %s\n  Tip: Run 'pelican auth login' to configure your API token",
+				"Authentication failed: %s\n  Tip: Run 'pelicanctl auth login' to configure your API token",
 				apiErr.Message)
 		case apiErr.StatusCode >= http.StatusInternalServerError:
 			return fmt.Sprintf("Server error: %s\n  The Pelican panel may be experiencing issues", apiErr.Message)

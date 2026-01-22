@@ -1,3 +1,4 @@
+// Package completion provides completions for the CLI.
 package completion
 
 import (
@@ -6,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"go.lostcrafters.com/pelican-cli/internal/api"
+	"go.lostcrafters.com/pelicanctl/internal/api"
 )
 
 // CompleteServers returns server UUIDs and IDs for client or admin API.
@@ -20,27 +21,24 @@ func CompleteServers(apiType string, toComplete string) ([]string, error) {
 	var err error
 
 	if apiType == "client" {
-		client, err := api.NewClientAPI()
+		var client *api.ClientAPI
+		client, err = api.NewClientAPI()
 		if err != nil {
-			// Log for debugging - this will help us see if API client creation is failing
 			fmt.Fprintf(os.Stderr, "completion debug: NewClientAPI failed: %v\n", err)
-			// Don't fail completion if API client creation fails
 			return nil, nil
 		}
 		servers, err = client.ListServers()
 	} else {
-		client, err := api.NewApplicationAPI()
+		var client *api.ApplicationAPI
+		client, err = api.NewApplicationAPI()
 		if err != nil {
-			// Log for debugging
 			fmt.Fprintf(os.Stderr, "completion debug: NewApplicationAPI failed: %v\n", err)
-			// Don't fail completion if API client creation fails
 			return nil, nil
 		}
 		servers, err = client.ListServers()
 	}
 
 	if err != nil {
-		// Log error to stderr but don't fail completion
 		fmt.Fprintf(os.Stderr, "completion error: failed to list servers: %v\n", err)
 		return nil, nil
 	}
@@ -71,7 +69,8 @@ func CompleteNodes(toComplete string) ([]string, error) {
 		return nil, nil
 	}
 
-	nodes, err := client.ListNodes()
+	var nodes []map[string]any
+	nodes, err = client.ListNodes()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "completion error: failed to list nodes: %v\n", err)
 		return nil, nil
@@ -100,7 +99,8 @@ func CompleteUsers(toComplete string) ([]string, error) {
 		return nil, nil
 	}
 
-	users, err := client.ListUsers()
+	var users []map[string]any
+	users, err = client.ListUsers()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "completion error: failed to list users: %v\n", err)
 		return nil, nil
@@ -129,8 +129,8 @@ func CompleteBackups(serverIdentifier, toComplete string) ([]string, error) {
 		return nil, nil
 	}
 
-	// Convert server identifier to UUID if needed
-	serverUUID, err := getServerUUID(client, serverIdentifier)
+	var serverUUID string
+	serverUUID, err = getServerUUID(client, serverIdentifier)
 	if err != nil {
 		return nil, nil
 	}
@@ -145,7 +145,7 @@ func CompleteBackups(serverIdentifier, toComplete string) ([]string, error) {
 	for _, backup := range backups {
 		if uuid, ok := backup["uuid"].(string); ok {
 			identifiers = append(identifiers, uuid)
-		} else if name, ok := backup["name"].(string); ok {
+		} else if name, okName := backup["name"].(string); okName {
 			identifiers = append(identifiers, name)
 		}
 	}
@@ -166,8 +166,8 @@ func CompleteDatabases(serverIdentifier, toComplete string) ([]string, error) {
 		return nil, nil
 	}
 
-	// Convert server identifier to UUID if needed
-	serverUUID, err := getServerUUID(client, serverIdentifier)
+	var serverUUID string
+	serverUUID, err = getServerUUID(client, serverIdentifier)
 	if err != nil {
 		return nil, nil
 	}
@@ -197,8 +197,8 @@ func CompleteFiles(serverIdentifier, directory, toComplete string) ([]string, er
 		return nil, nil
 	}
 
-	// Convert server identifier to UUID if needed
-	serverUUID, err := getServerUUID(client, serverIdentifier)
+	var serverUUID string
+	serverUUID, err = getServerUUID(client, serverIdentifier)
 	if err != nil {
 		return nil, nil
 	}
@@ -233,7 +233,7 @@ func getServerUUID(client *api.ClientAPI, identifier string) (string, error) {
 	}
 
 	// Try to parse as integer ID - if it fails, assume it's a UUID
-	if _, err := strconv.Atoi(identifier); err != nil {
+	if _, atoiErr := strconv.Atoi(identifier); atoiErr != nil {
 		return identifier, nil
 	}
 
@@ -264,8 +264,8 @@ func getServerUUID(client *api.ClientAPI, identifier string) (string, error) {
 		case float64:
 			idInt = int(v)
 		case string:
-			parsed, err := strconv.Atoi(v)
-			if err != nil {
+			parsed, parseErr := strconv.Atoi(v)
+			if parseErr != nil {
 				continue
 			}
 			idInt = parsed

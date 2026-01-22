@@ -36,7 +36,7 @@ formatters:
       # with the given prefixes are grouped after 3rd-party packages.
       # Default: []
       local-prefixes:
-        - go.lostcrafters.com/pelican-cli
+        - go.lostcrafters.com/pelicanctl
 
     golines:
       # Target maximum line length.
@@ -456,8 +456,8 @@ linters:
         linters: [revive]
       - text: 'exported \S+ \S+ should have comment( \(or a comment on this block\))? or be unexported'
         linters: [revive]
-      # Allow global variables for package-level state (config, logger, formatter styles)
-      - path: "internal/(config|output)/.*"
+      # Allow global variables for package-level state (config, logger, formatter styles, completion cache)
+      - path: "internal/(config|output|completion)/.*"
         linters: [gochecknoglobals]
       # Allow duplicate code in API clients (similar but different implementations)
       - path: "internal/api/.*"
@@ -466,6 +466,9 @@ linters:
       - path: "internal/output/formatter.go"
         text: "printf-like formatting function"
         linters: [goprintffuncname]
+      # Completion intentionally returns nil,nil on API errors to avoid failing shell completion
+      - path: "internal/completion/.*"
+        linters: [nilerr]
       # Allow shadowing in common error handling patterns
       - path: "internal/api/.*"
         text: 'shadow: declaration of "err"'
@@ -490,5 +493,9 @@ linters:
           - noctx
           - wrapcheck
       - path: '\.gen\.go$'
+        linters:
+          - all
+      # Exclude reference/carapace (vendored example code from upstream)
+      - path: 'reference/.*'
         linters:
           - all

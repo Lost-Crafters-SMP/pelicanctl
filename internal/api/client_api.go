@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"strings"
 
-	"go.lostcrafters.com/pelican-cli/internal/auth"
-	"go.lostcrafters.com/pelican-cli/internal/client"
-	"go.lostcrafters.com/pelican-cli/internal/config"
-	apierrors "go.lostcrafters.com/pelican-cli/internal/errors"
+	"go.lostcrafters.com/pelicanctl/internal/auth"
+	"go.lostcrafters.com/pelicanctl/internal/client"
+	"go.lostcrafters.com/pelicanctl/internal/config"
+	apierrors "go.lostcrafters.com/pelicanctl/internal/errors"
 )
 
 // ClientAPI wraps the Client API endpoints using the generated OpenAPI client.
@@ -37,7 +37,7 @@ func NewClientAPI() (*ClientAPI, error) {
 	baseURL := cfg.API.BaseURL
 	if baseURL == "" {
 		return nil, fmt.Errorf(
-			"API base URL not configured. Set PELICAN_API_BASE_URL or run 'pelican auth login %s'",
+			"API base URL not configured. Set PELICANCTL_API_BASE_URL or run 'pelicanctl auth login %s'",
 			"client",
 		)
 	}

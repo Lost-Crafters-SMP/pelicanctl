@@ -6,16 +6,33 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
-	"go.lostcrafters.com/pelican-cli/internal/api"
-	"go.lostcrafters.com/pelican-cli/internal/bulk"
-	"go.lostcrafters.com/pelican-cli/internal/completion"
-	apierrors "go.lostcrafters.com/pelican-cli/internal/errors"
-	"go.lostcrafters.com/pelican-cli/internal/output"
+	"go.lostcrafters.com/pelicanctl/internal/api"
+	"go.lostcrafters.com/pelicanctl/internal/bulk"
+	"go.lostcrafters.com/pelicanctl/internal/completion"
+	apierrors "go.lostcrafters.com/pelicanctl/internal/errors"
+	"go.lostcrafters.com/pelicanctl/internal/output"
 )
+
+func adminServerCompletionAction(c carapace.Context) carapace.Action {
+	completions, err := completion.CompleteServers("admin", c.Value)
+	if err != nil || len(completions) == 0 {
+		return carapace.ActionValues()
+	}
+	return carapace.ActionValues(completions...)
+}
+
+func adminServerValidArgs(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	completions, err := completion.CompleteServers("admin", toComplete)
+	if err != nil || len(completions) == 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	return completions, cobra.ShellCompDirectiveNoFileComp
+}
 
 func newServerCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -37,13 +54,7 @@ func newServerCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  runServerView,
 	}
-	viewCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		completions, err := completion.CompleteServers("admin", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
-	}
+	viewCmd.ValidArgsFunction = adminServerValidArgs
 
 	suspendCmd := &cobra.Command{
 		Use:   "suspend <id|uuid>...",
@@ -52,22 +63,8 @@ func newServerCmd() *cobra.Command {
 		RunE:  runSuspendServer,
 	}
 	addBulkFlags(suspendCmd)
-	suspendCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		completions, err := completion.CompleteServers("admin", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
-	}
-	carapace.Gen(suspendCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
+	suspendCmd.ValidArgsFunction = adminServerValidArgs
+	carapace.Gen(suspendCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
 
 	unsuspendCmd := &cobra.Command{
 		Use:   "unsuspend <id|uuid>...",
@@ -76,22 +73,8 @@ func newServerCmd() *cobra.Command {
 		RunE:  runUnsuspendServer,
 	}
 	addBulkFlags(unsuspendCmd)
-	unsuspendCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		completions, err := completion.CompleteServers("admin", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
-	}
-	carapace.Gen(unsuspendCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
+	unsuspendCmd.ValidArgsFunction = adminServerValidArgs
+	carapace.Gen(unsuspendCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
 
 	reinstallCmd := &cobra.Command{
 		Use:   "reinstall <id|uuid>...",
@@ -100,22 +83,20 @@ func newServerCmd() *cobra.Command {
 		RunE:  runReinstallServer,
 	}
 	addBulkFlags(reinstallCmd)
-	reinstallCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		completions, err := completion.CompleteServers("admin", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
+	reinstallCmd.ValidArgsFunction = adminServerValidArgs
+	carapace.Gen(reinstallCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
+
+	healthCmd := &cobra.Command{
+		Use:   "health <id|uuid>...",
+		Short: "Get server health status",
+		Long:  "Get the health status of server(s) by ID (integer) or UUID (string), including container status and optional crash detection",
+		RunE:  runServerHealth,
 	}
-	carapace.Gen(reinstallCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
+	addBulkFlags(healthCmd)
+	healthCmd.Flags().String("since", "", "check for crashes since this date-time (RFC3339 format)")
+	healthCmd.Flags().Int("window", 0, "time window in minutes (1-1440) for crash detection")
+	healthCmd.ValidArgsFunction = adminServerValidArgs
+	carapace.Gen(healthCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
 
 	powerCmd := newPowerCmd()
 
@@ -125,45 +106,15 @@ func newServerCmd() *cobra.Command {
 	cmd.AddCommand(suspendCmd)
 	cmd.AddCommand(unsuspendCmd)
 	cmd.AddCommand(reinstallCmd)
+	cmd.AddCommand(healthCmd)
 	cmd.AddCommand(powerCmd)
 
 	// Set up carapace completion AFTER adding to parent (matching carapace example pattern)
-	carapace.Gen(viewCmd).PositionalCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
-	carapace.Gen(suspendCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
-	carapace.Gen(unsuspendCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
-	carapace.Gen(reinstallCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
+	carapace.Gen(viewCmd).PositionalCompletion(carapace.ActionCallback(adminServerCompletionAction))
+	carapace.Gen(suspendCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
+	carapace.Gen(unsuspendCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
+	carapace.Gen(reinstallCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
+	carapace.Gen(healthCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
 
 	return cmd
 }
@@ -216,6 +167,242 @@ func runReinstallServer(cmd *cobra.Command, args []string) error {
 	return runServerAction(cmd, args, "reinstall", func(client *api.ApplicationAPI, uuid string) error {
 		return client.ReinstallServer(uuid)
 	})
+}
+
+func runServerHealth(cmd *cobra.Command, args []string) error {
+	flags := getBulkFlags(cmd)
+
+	// Parse --since flag
+	var since *time.Time
+	sinceStr, _ := cmd.Flags().GetString("since")
+	if sinceStr != "" {
+		parsedSince, err := time.Parse(time.RFC3339, sinceStr)
+		if err != nil {
+			return fmt.Errorf("invalid --since format: %w (expected RFC3339 format, e.g., 2006-01-02T15:04:05Z07:00)", err)
+		}
+		since = &parsedSince
+	}
+
+	// Parse and validate --window flag
+	var window *int
+	windowVal, _ := cmd.Flags().GetInt("window")
+	if windowVal != 0 {
+		if windowVal < 1 || windowVal > 1440 {
+			return fmt.Errorf("--window must be between 1 and 1440 minutes")
+		}
+		window = &windowVal
+	}
+
+	// Validate that we have either positional args or bulk flags
+	if len(args) == 0 && !flags.all && flags.fromFile == "" {
+		return errors.New("no servers specified")
+	}
+
+	// Get server UUIDs
+	uuids := args
+	if flags.all || flags.fromFile != "" {
+		var err error
+		uuids, err = getServerUUIDs(cmd, args, flags.all, flags.fromFile)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(uuids) == 0 {
+		return fmt.Errorf("no servers found - try 'pelicanctl admin server list' to see available servers")
+	}
+
+	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
+
+	if flags.dryRun {
+		formatter.PrintInfo("Dry run - would check health for %d server(s):", len(uuids))
+		for _, uuid := range uuids {
+			formatter.PrintInfo("  - %s", uuid)
+		}
+		return nil
+	}
+
+	client, err := api.NewApplicationAPI()
+	if err != nil {
+		return err
+	}
+
+	// Single server - simple output
+	if len(uuids) == 1 {
+		health, err := client.GetServerHealth(uuids[0], since, window)
+		if err != nil {
+			return fmt.Errorf("%s", apierrors.HandleError(err))
+		}
+		return formatter.Print(health)
+	}
+
+	// Multiple servers - bulk operation
+	ctx := context.Background()
+	results := executeHealthOperations(ctx, client, uuids, since, window, flags)
+
+	// Format results based on output format
+	if getOutputFormat(cmd) == output.OutputFormatJSON {
+		return printHealthResultsJSON(formatter, results)
+	}
+
+	return printHealthResultsTable(formatter, results)
+}
+
+type healthResult struct {
+	Server string
+	Health map[string]any
+	Error  error
+}
+
+func executeHealthOperations(
+	ctx context.Context,
+	client *api.ApplicationAPI,
+	uuids []string,
+	since *time.Time,
+	window *int,
+	flags bulkFlags,
+) []healthResult {
+	operations := make([]bulk.Operation, len(uuids))
+	resultsMap := make(map[string]*healthResult, len(uuids))
+
+	// Initialize results map
+	for _, uuid := range uuids {
+		resultsMap[uuid] = &healthResult{Server: uuid}
+	}
+
+	// Create operations
+	for i, uuid := range uuids {
+		uuid := uuid // capture loop variable
+		result := resultsMap[uuid]
+		operations[i] = bulk.Operation{
+			ID:   uuid,
+			Name: uuid,
+			Exec: func() error {
+				health, err := client.GetServerHealth(uuid, since, window)
+				if err != nil {
+					result.Error = err
+					return err
+				}
+				result.Health = health
+				return nil
+			},
+		}
+	}
+
+	executor := bulk.NewExecutor(flags.maxConcurrency, flags.continueOnError, flags.failFast)
+	bulkResults := executor.Execute(ctx, operations)
+
+	// Update results with errors from bulk executor if not already set
+	for _, bulkResult := range bulkResults {
+		if !bulkResult.Success {
+			if result, ok := resultsMap[bulkResult.Operation.ID]; ok && result.Error == nil {
+				result.Error = bulkResult.Error
+			}
+		}
+	}
+
+	// Convert map to slice maintaining order
+	results := make([]healthResult, len(uuids))
+	for i, uuid := range uuids {
+		results[i] = *resultsMap[uuid]
+	}
+
+	return results
+}
+
+func printHealthResultsJSON(formatter *output.Formatter, results []healthResult) error {
+	outputData := make([]map[string]any, 0, len(results))
+
+	for _, result := range results {
+		if result.Error != nil {
+			// Include error in JSON output
+			outputData = append(outputData, map[string]any{
+				"server_identifier": result.Server,
+				"error":             result.Error.Error(),
+			})
+		} else {
+			// Copy all health data (includes nested server, container, crash_details objects)
+			healthData := make(map[string]any)
+			for k, v := range result.Health {
+				healthData[k] = v
+			}
+			// Add the query identifier separately to preserve the full server object from API
+			healthData["server_identifier"] = result.Server
+			outputData = append(outputData, healthData)
+		}
+	}
+
+	return formatter.Print(outputData)
+}
+
+func printHealthResultsTable(formatter *output.Formatter, results []healthResult) error {
+	headers := []string{"Server", "Name", "Container Status", "Healthy", "Crashed", "Checked At"}
+	rows := make([][]string, 0, len(results))
+
+	for _, result := range results {
+		if result.Error != nil {
+			rows = append(rows, []string{
+				result.Server,
+				"",
+				"error",
+				"",
+				"",
+				"",
+			})
+			formatter.PrintError("%s: %v", result.Server, result.Error)
+		} else {
+			// Extract server name
+			serverName := "unknown"
+			if server, ok := result.Health["server"].(map[string]any); ok {
+				if name, ok := server["name"].(string); ok {
+					serverName = name
+				}
+			}
+
+			// Extract container status and healthy
+			containerStatus := "unknown"
+			healthy := "unknown"
+			if container, ok := result.Health["container"].(map[string]any); ok {
+				if s, ok := container["status"].(string); ok {
+					containerStatus = s
+				}
+				if h, ok := container["healthy"].(bool); ok {
+					if h {
+						healthy = "true"
+					} else {
+						healthy = "false"
+					}
+				}
+			}
+
+			// Extract crashed
+			crashed := "unknown"
+			if c, ok := result.Health["crashed"].(bool); ok {
+				if c {
+					crashed = "true"
+				} else {
+					crashed = "false"
+				}
+			}
+
+			// Extract checked_at
+			checkedAt := "unknown"
+			if ca, ok := result.Health["checked_at"].(string); ok {
+				checkedAt = ca
+			}
+
+			rows = append(rows, []string{
+				result.Server,
+				serverName,
+				containerStatus,
+				healthy,
+				crashed,
+				checkedAt,
+			})
+		}
+	}
+
+	return formatter.PrintTable(headers, rows)
 }
 
 func newPowerCmd() *cobra.Command {
@@ -529,10 +716,37 @@ func getServerUUIDs(_ *cobra.Command, args []string, all bool, fromFile string) 
 			return nil, err
 		}
 
+		if len(servers) == 0 {
+			return nil, fmt.Errorf("no servers found in the system")
+		}
+
 		for _, server := range servers {
-			if uuid, ok := server["uuid"].(string); ok {
+			// Try UUID first
+			if uuid, ok := server["uuid"].(string); ok && uuid != "" {
 				uuids = append(uuids, uuid)
+				continue
 			}
+			// Fallback to ID if UUID not available
+			if id := extractServerID(server); id != nil {
+				var idStr string
+				switch v := id.(type) {
+				case int:
+					idStr = fmt.Sprintf("%d", v)
+				case int64:
+					idStr = fmt.Sprintf("%d", v)
+				case float64:
+					idStr = fmt.Sprintf("%.0f", v)
+				case string:
+					idStr = v
+				default:
+					continue
+				}
+				uuids = append(uuids, idStr)
+			}
+		}
+
+		if len(uuids) == 0 {
+			return nil, fmt.Errorf("no valid server identifiers found (servers may be missing uuid or id fields)")
 		}
 	case fromFile != "":
 		data, err := os.ReadFile(fromFile)
@@ -548,10 +762,34 @@ func getServerUUIDs(_ *cobra.Command, args []string, all bool, fromFile string) 
 			}
 		}
 	default:
-		uuids = args
+		// Support both space-separated and comma-separated arguments
+		// e.g., "123 456" or "123,456" or "123,456 789" (mixed)
+		for _, arg := range args {
+			// Split by comma and trim whitespace
+			parts := strings.Split(arg, ",")
+			for _, part := range parts {
+				part = strings.TrimSpace(part)
+				if part != "" {
+					uuids = append(uuids, part)
+				}
+			}
+		}
 	}
 
 	return uuids, nil
+}
+
+// extractServerID extracts the server ID from a server map, checking both root and attributes.
+func extractServerID(server map[string]any) any {
+	if id, hasID := server["id"]; hasID {
+		return id
+	}
+	if attrs, hasAttrs := server["attributes"].(map[string]any); hasAttrs {
+		if id, hasID := attrs["id"]; hasID {
+			return id
+		}
+	}
+	return nil
 }
 
 // getOutputFormat is defined in common.go

@@ -10,10 +10,10 @@ import (
 	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
-	"go.lostcrafters.com/pelican-cli/internal/api"
-	"go.lostcrafters.com/pelican-cli/internal/bulk"
-	"go.lostcrafters.com/pelican-cli/internal/completion"
-	"go.lostcrafters.com/pelican-cli/internal/output"
+	"go.lostcrafters.com/pelicanctl/internal/api"
+	"go.lostcrafters.com/pelicanctl/internal/bulk"
+	"go.lostcrafters.com/pelicanctl/internal/completion"
+	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
 func setupBulkFlags(cmd *cobra.Command) {
@@ -256,7 +256,18 @@ func getServerUUIDs(_ *cobra.Command, args []string, all bool, fromFile string) 
 			}
 		}
 	default:
-		uuids = args
+		// Support both space-separated and comma-separated arguments
+		// e.g., "123 456" or "123,456" or "123,456 789" (mixed)
+		for _, arg := range args {
+			// Split by comma and trim whitespace
+			parts := strings.Split(arg, ",")
+			for _, part := range parts {
+				part = strings.TrimSpace(part)
+				if part != "" {
+					uuids = append(uuids, part)
+				}
+			}
+		}
 	}
 
 	return uuids, nil

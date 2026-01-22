@@ -2573,7 +2573,7 @@ func NewBackupStoreRequest(server string, serverID string, body BackupStoreJSONR
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewBackupStoreRequestWithBody(server, server, "application/json", bodyReader)
+	return NewBackupStoreRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewBackupStoreRequestWithBody generates requests for BackupStore with any type of body
@@ -2784,7 +2784,7 @@ func NewBackupRenameRequest(server string, serverID string, backup string, body 
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewBackupRenameRequestWithBody(server, server, backup, "application/json", bodyReader)
+	return NewBackupRenameRequestWithBody(server, serverID, backup, "application/json", bodyReader)
 }
 
 // NewBackupRenameRequestWithBody generates requests for BackupRename with any type of body
@@ -2838,7 +2838,7 @@ func NewBackupRestoreRequest(server string, serverID string, backup string, body
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewBackupRestoreRequestWithBody(server, server, backup, "application/json", bodyReader)
+	return NewBackupRestoreRequestWithBody(server, serverID, backup, "application/json", bodyReader)
 }
 
 // NewBackupRestoreRequestWithBody generates requests for BackupRestore with any type of body
@@ -2892,7 +2892,7 @@ func NewCommandIndexRequest(server string, serverID string, body CommandIndexJSO
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCommandIndexRequestWithBody(server, server, "application/json", bodyReader)
+	return NewCommandIndexRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewCommandIndexRequestWithBody generates requests for CommandIndex with any type of body
@@ -2973,7 +2973,7 @@ func NewDatabaseStoreRequest(server string, serverID string, body DatabaseStoreJ
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewDatabaseStoreRequestWithBody(server, server, "application/json", bodyReader)
+	return NewDatabaseStoreRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewDatabaseStoreRequestWithBody generates requests for DatabaseStore with any type of body
@@ -3102,7 +3102,7 @@ func NewFileChmodRequest(server string, serverID string, body FileChmodJSONReque
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFileChmodRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFileChmodRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFileChmodRequestWithBody generates requests for FileChmod with any type of body
@@ -3149,7 +3149,7 @@ func NewFileCompressRequest(server string, serverID string, body FileCompressJSO
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFileCompressRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFileCompressRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFileCompressRequestWithBody generates requests for FileCompress with any type of body
@@ -3248,7 +3248,7 @@ func NewFileCopyRequest(server string, serverID string, body FileCopyJSONRequest
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFileCopyRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFileCopyRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFileCopyRequestWithBody generates requests for FileCopy with any type of body
@@ -3295,7 +3295,7 @@ func NewFileCreateRequest(server string, serverID string, body FileCreateJSONReq
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFileCreateRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFileCreateRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFileCreateRequestWithBody generates requests for FileCreate with any type of body
@@ -3342,7 +3342,7 @@ func NewFileDecompressRequest(server string, serverID string, body FileDecompres
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFileDecompressRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFileDecompressRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFileDecompressRequestWithBody generates requests for FileDecompress with any type of body
@@ -3389,7 +3389,7 @@ func NewFileDeleteRequest(server string, serverID string, body FileDeleteJSONReq
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFileDeleteRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFileDeleteRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFileDeleteRequestWithBody generates requests for FileDelete with any type of body
@@ -3544,7 +3544,7 @@ func NewFilePullRequest(server string, serverID string, body FilePullJSONRequest
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFilePullRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFilePullRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFilePullRequestWithBody generates requests for FilePull with any type of body
@@ -3591,7 +3591,7 @@ func NewFileRenameRequest(server string, serverID string, body FileRenameJSONReq
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFileRenameRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFileRenameRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFileRenameRequestWithBody generates requests for FileRename with any type of body
@@ -3672,7 +3672,7 @@ func NewFileWriteRequest(server string, serverID string, body FileWriteJSONReque
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewFileWriteRequestWithBody(server, server, "application/json", bodyReader)
+	return NewFileWriteRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewFileWriteRequestWithBody generates requests for FileWrite with any type of body
@@ -3828,7 +3828,7 @@ func NewNetworkAllocationUpdateRequest(server string, serverID string, allocatio
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewNetworkAllocationUpdateRequestWithBody(server, server, allocation, "application/json", bodyReader)
+	return NewNetworkAllocationUpdateRequestWithBody(server, serverID, allocation, "application/json", bodyReader)
 }
 
 // NewNetworkAllocationUpdateRequestWithBody generates requests for NetworkAllocationUpdate with any type of body
@@ -3923,7 +3923,7 @@ func NewPowerIndexRequest(server string, serverID string, body PowerIndexJSONReq
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPowerIndexRequestWithBody(server, server, "application/json", bodyReader)
+	return NewPowerIndexRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewPowerIndexRequestWithBody generates requests for PowerIndex with any type of body
@@ -4038,7 +4038,7 @@ func NewScheduleStoreRequest(server string, serverID string, body ScheduleStoreJ
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewScheduleStoreRequestWithBody(server, server, "application/json", bodyReader)
+	return NewScheduleStoreRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewScheduleStoreRequestWithBody generates requests for ScheduleStore with any type of body
@@ -4167,7 +4167,7 @@ func NewScheduleUpdateRequest(server string, serverID string, schedule int, body
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewScheduleUpdateRequestWithBody(server, server, schedule, "application/json", bodyReader)
+	return NewScheduleUpdateRequestWithBody(server, serverID, schedule, "application/json", bodyReader)
 }
 
 // NewScheduleUpdateRequestWithBody generates requests for ScheduleUpdate with any type of body
@@ -4262,7 +4262,7 @@ func NewScheduleTaskStoreRequest(server string, serverID string, schedule int, b
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewScheduleTaskStoreRequestWithBody(server, server, schedule, "application/json", bodyReader)
+	return NewScheduleTaskStoreRequestWithBody(server, serverID, schedule, "application/json", bodyReader)
 }
 
 // NewScheduleTaskStoreRequestWithBody generates requests for ScheduleTaskStore with any type of body
@@ -4364,7 +4364,7 @@ func NewScheduleTaskUpdateRequest(server string, serverID string, schedule int, 
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewScheduleTaskUpdateRequestWithBody(server, server, schedule, task, "application/json", bodyReader)
+	return NewScheduleTaskUpdateRequestWithBody(server, serverID, schedule, task, "application/json", bodyReader)
 }
 
 // NewScheduleTaskUpdateRequestWithBody generates requests for ScheduleTaskUpdate with any type of body
@@ -4425,7 +4425,7 @@ func NewSettingsDescriptionRequest(server string, serverID string, body Settings
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSettingsDescriptionRequestWithBody(server, server, "application/json", bodyReader)
+	return NewSettingsDescriptionRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewSettingsDescriptionRequestWithBody generates requests for SettingsDescription with any type of body
@@ -4472,7 +4472,7 @@ func NewSettingsDockerImageRequest(server string, serverID string, body Settings
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSettingsDockerImageRequestWithBody(server, server, "application/json", bodyReader)
+	return NewSettingsDockerImageRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewSettingsDockerImageRequestWithBody generates requests for SettingsDockerImage with any type of body
@@ -4553,7 +4553,7 @@ func NewSettingsRenameRequest(server string, serverID string, body SettingsRenam
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSettingsRenameRequestWithBody(server, server, "application/json", bodyReader)
+	return NewSettingsRenameRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewSettingsRenameRequestWithBody generates requests for SettingsRename with any type of body
@@ -4634,7 +4634,7 @@ func NewStartupUpdateRequest(server string, serverID string, body StartupUpdateJ
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewStartupUpdateRequestWithBody(server, server, "application/json", bodyReader)
+	return NewStartupUpdateRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewStartupUpdateRequestWithBody generates requests for StartupUpdate with any type of body
@@ -4715,7 +4715,7 @@ func NewSubuserStoreRequest(server string, serverID string, body SubuserStoreJSO
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSubuserStoreRequestWithBody(server, server, "application/json", bodyReader)
+	return NewSubuserStoreRequestWithBody(server, serverID, "application/json", bodyReader)
 }
 
 // NewSubuserStoreRequestWithBody generates requests for SubuserStore with any type of body
@@ -4844,7 +4844,7 @@ func NewSubuserUpdateRequest(server string, serverID string, user string, body S
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSubuserUpdateRequestWithBody(server, server, user, "application/json", bodyReader)
+	return NewSubuserUpdateRequestWithBody(server, serverID, user, "application/json", bodyReader)
 }
 
 // NewSubuserUpdateRequestWithBody generates requests for SubuserUpdate with any type of body

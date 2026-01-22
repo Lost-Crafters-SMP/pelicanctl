@@ -11,11 +11,12 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
-	"go.lostcrafters.com/pelican-cli/internal/application"
-	"go.lostcrafters.com/pelican-cli/internal/auth"
-	"go.lostcrafters.com/pelican-cli/internal/config"
-	apierrors "go.lostcrafters.com/pelican-cli/internal/errors"
+	"go.lostcrafters.com/pelicanctl/internal/application"
+	"go.lostcrafters.com/pelicanctl/internal/auth"
+	"go.lostcrafters.com/pelicanctl/internal/config"
+	apierrors "go.lostcrafters.com/pelicanctl/internal/errors"
 )
 
 // ApplicationAPI wraps the Application API endpoints using the generated OpenAPI client.
@@ -38,7 +39,7 @@ func NewApplicationAPI() (*ApplicationAPI, error) {
 	baseURL := cfg.API.BaseURL
 	if baseURL == "" {
 		return nil, fmt.Errorf(
-			"API base URL not configured. Set PELICAN_API_BASE_URL or run 'pelican auth login %s'",
+			"API base URL not configured. Set PELICANCTL_API_BASE_URL or run 'pelicanctl auth login %s'",
 			"admin",
 		)
 	}
@@ -415,6 +416,51 @@ func (a *ApplicationAPI) SendPowerCommand(identifier, command string) error {
 	}
 
 	return nil
+}
+
+// GetServerHealth gets the health status of a server by UUID or integer ID.
+func (a *ApplicationAPI) GetServerHealth(identifier string, since *time.Time, window *int) (map[string]any, error) {
+	ctx := context.Background()
+
+	// Convert identifier (UUID or integer ID) to integer ID
+	serverID, err := a.getServerIDFromIdentifier(ctx, identifier)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get server ID: %w", err)
+	}
+
+	// Build parameters
+	params := &application.PowerHealthParams{
+		Since:  since,
+		Window: window,
+	}
+
+	httpResp, err := a.genClient.PowerHealthWithResponse(ctx, serverID, params)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer httpResp.HTTPResponse.Body.Close()
+
+	if httpResp.HTTPResponse.StatusCode != http.StatusOK {
+		return nil, handleApplicationErrorResponse(httpResp.HTTPResponse, httpResp.Body)
+	}
+
+	// The response is already parsed into JSON200, convert it to map[string]any
+	if httpResp.JSON200 == nil {
+		return nil, errors.New("health response data is nil")
+	}
+
+	// Convert the typed response to map[string]any via JSON marshaling/unmarshaling
+	jsonData, err := json.Marshal(httpResp.JSON200)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal health response: %w", err)
+	}
+
+	var healthData map[string]any
+	if err := json.Unmarshal(jsonData, &healthData); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal health response: %w", err)
+	}
+
+	return healthData, nil
 }
 
 // ListUsers lists all users.

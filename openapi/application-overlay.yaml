@@ -31,6 +31,21 @@ actions:
   - target: $["paths"]["/eggs/uuid/{egg}"]["delete"]["parameters"][0]["schema"]
     update:
       "nullable": true
+  - target: $["paths"]["/servers/{server}/health"]["get"]["parameters"][1]["schema"]["type"]
+    update: "string"
+  - target: $["paths"]["/servers/{server}/health"]["get"]["parameters"][1]["schema"]
+    update:
+      "nullable": true
+  - target: $["paths"]["/servers/{server}/health"]["get"]["parameters"][2]["schema"]["type"]
+    update: "integer"
+  - target: $["paths"]["/servers/{server}/health"]["get"]["parameters"][2]["schema"]
+    update:
+      "nullable": true
+  - target: $["paths"]["/servers/{server}/health"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["server"]["properties"]["external_id"]["type"]
+    update: "string"
+  - target: $["paths"]["/servers/{server}/health"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["server"]["properties"]["external_id"]
+    update:
+      "nullable": true
   - target: $["components"]["schemas"]["StoreAllocationRequest"]["properties"]["alias"]["type"]
     update: "string"
   - target: $["components"]["schemas"]["StoreAllocationRequest"]["properties"]["alias"]

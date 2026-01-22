@@ -1,6 +1,6 @@
 set unstable := true
 
-# Pelican CLI Justfile
+# pelicanctl Justfile
 # Command runner for development tasks
 # Infer Git home directory from git executable location
 # git.exe is typically at <git_home>/cmd/git.exe or <git_home>/bin/git.exe
@@ -18,7 +18,7 @@ set windows-shell := ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypas
 
 # Go parameters
 
-binary_name := "pelican"
+binary_name := "pelicanctl"
 
 # Add .exe extension when targeting Windows (check GOOS first for cross-compilation, fallback to current OS)
 
@@ -66,12 +66,12 @@ generate-application:
 # Supports cross-compilation via GOOS/GOARCH environment variables
 build:
     @echo "Building {{ binary_name }}..."
-    @go build -o bin/{{ binary_name }}{{ exe_suffix }} ./cmd/pelican
+    @go build -o bin/{{ binary_name }}{{ exe_suffix }} ./cmd/pelicanctl
 
 # Install the binary
 install:
     @echo "Installing {{ binary_name }}..."
-    @go install ./cmd/pelican
+    @go install ./cmd/pelicanctl
 
 # Clean generated files
 clean:
