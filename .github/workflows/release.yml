@@ -41,6 +41,7 @@ jobs:
         with:
           app-id: ${{ secrets.LC_RELEASER_APP_ID }}
           private-key: ${{ secrets.LC_RELEASER_APP_KEY }}
+          owner: ${{ github.repository_owner }}
 
       - name: Run goreleaser
         uses: goreleaser/goreleaser-action@v6
