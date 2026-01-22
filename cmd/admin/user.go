@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"go.lostcrafters.com/pelican-cli/internal/api"
+	"go.lostcrafters.com/pelican-cli/internal/completion"
 	"go.lostcrafters.com/pelican-cli/internal/output"
 )
 
@@ -21,5 +22,6 @@ func newUserCmd() *cobra.Command {
 		viewRunE: makeViewRunE(func(c *api.ApplicationAPI, id string) (any, error) {
 			return c.GetUser(id)
 		}),
+		completeFunc: completion.CompleteUsers,
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
 	"go.lostcrafters.com/pelican-cli/internal/api"
@@ -79,14 +80,15 @@ func makeViewRunE(viewFunc func(*api.ApplicationAPI, string) (any, error)) func(
 }
 
 type resourceCommandConfig struct {
-	name      string
-	short     string
-	long      string
-	listShort string
-	listRunE  func(*cobra.Command, []string) error
-	viewUse   string
-	viewShort string
-	viewRunE  func(*cobra.Command, []string) error
+	name         string
+	short        string
+	long         string
+	listShort    string
+	listRunE     func(*cobra.Command, []string) error
+	viewUse      string
+	viewShort    string
+	viewRunE     func(*cobra.Command, []string) error
+	completeFunc func(string) ([]string, error)
 }
 
 func newResourceCmd(config resourceCommandConfig) *cobra.Command {
@@ -108,9 +110,33 @@ func newResourceCmd(config resourceCommandConfig) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  config.viewRunE,
 	}
+	// Add completion if provided
+	if config.completeFunc != nil {
+		viewCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			completions, err := config.completeFunc(toComplete)
+			if err != nil || len(completions) == 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			return completions, cobra.ShellCompDirectiveNoFileComp
+		}
+	}
 
+	// Add subcommands FIRST (matching carapace example pattern)
 	cmd.AddCommand(listCmd)
 	cmd.AddCommand(viewCmd)
+
+	// Set up carapace completion AFTER adding to parent (matching carapace example pattern)
+	if config.completeFunc != nil {
+		carapace.Gen(viewCmd).PositionalCompletion(
+			carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+				completions, err := config.completeFunc(c.Value)
+				if err != nil || len(completions) == 0 {
+					return carapace.ActionValues()
+				}
+				return carapace.ActionValues(completions...)
+			}),
+		)
+	}
 
 	return cmd
 }

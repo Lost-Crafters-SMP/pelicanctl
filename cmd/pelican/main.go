@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
 	"go.lostcrafters.com/pelican-cli/cmd/admin"
@@ -29,14 +30,22 @@ func setupRootCmd(cfg *appConfig) *cobra.Command {
 
 It provides both client and admin interfaces for server management, file operations,
 backups, databases, and more.`,
-		PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// Skip PersistentPreRunE entirely for _carapace command to avoid interfering with completion
+			// The _carapace command is a hidden subcommand added by carapace.Gen() and needs direct access
+			if cmd.Name() == "_carapace" {
+				// Still load config for API clients in completions, but don't initialize logger
+				_, _ = config.Load(cfg.configPath)
+				return nil
+			}
+
 			// Load configuration
 			_, err := config.Load(cfg.configPath)
 			if err != nil {
 				return fmt.Errorf("failed to load config: %w", err)
 			}
 
-			// Initialize logger
+			// Initialize logger for normal commands
 			var format output.OutputFormat
 			if cfg.json {
 				format = output.OutputFormatJSON
@@ -56,10 +65,22 @@ backups, databases, and more.`,
 	rootCmd.PersistentFlags().BoolVar(&cfg.verbose, "verbose", false, "enable verbose logging")
 	rootCmd.PersistentFlags().BoolVar(&cfg.quiet, "quiet", false, "minimal output (errors only)")
 
-	// Add subcommands
+	// Disable Cobra's default completion command to avoid conflicts with carapace
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+
+	// Initialize carapace - this sets up the completion infrastructure
+	// Carapace automatically adds a hidden _carapace subcommand that carapace-bin uses
+	// We call this before adding subcommands to initialize the infrastructure
+	carapace.Gen(rootCmd)
+
+	// Add subcommands - PositionalCompletion setups will be discovered by carapace
 	rootCmd.AddCommand(client.NewClientCmd())
 	rootCmd.AddCommand(admin.NewAdminCmd())
 	rootCmd.AddCommand(newAuthCmd(cfg))
+
+	// Call carapace.Gen again after all subcommands are added to ensure discovery
+	// This matches the pattern in reference examples where Gen is called multiple times
+	carapace.Gen(rootCmd)
 
 	return rootCmd
 }
@@ -96,6 +117,9 @@ func newAuthCmd(cfg *appConfig) *cobra.Command {
 			return authLogin(apiType, cfg)
 		},
 	}
+	loginCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+		return []string{"client", "admin"}, cobra.ShellCompDirectiveNoFileComp
+	}
 
 	logoutCmd := &cobra.Command{
 		Use:   "logout [client|admin]",
@@ -111,9 +135,23 @@ func newAuthCmd(cfg *appConfig) *cobra.Command {
 			return authLogout(apiType, cfg)
 		},
 	}
+	logoutCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+		return []string{"client", "admin"}, cobra.ShellCompDirectiveNoFileComp
+	}
 
+	// Add subcommands FIRST (matching carapace example pattern)
 	cmd.AddCommand(loginCmd)
 	cmd.AddCommand(logoutCmd)
+
+	// Set up carapace completion AFTER adding to parent (matching carapace example pattern)
+	// Using direct ActionValues (no ActionCallback) to test basic functionality
+	carapace.Gen(loginCmd).PositionalCompletion(
+		carapace.ActionValues("client", "admin"),
+	)
+	carapace.Gen(logoutCmd).PositionalCompletion(
+		carapace.ActionValues("client", "admin"),
+	)
+
 	return cmd
 }
 

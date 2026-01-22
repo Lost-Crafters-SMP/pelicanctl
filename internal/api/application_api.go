@@ -375,6 +375,48 @@ func (a *ApplicationAPI) ReinstallServer(identifier string) error {
 	return nil
 }
 
+// SendPowerCommand sends a power command to a server by UUID or integer ID.
+func (a *ApplicationAPI) SendPowerCommand(identifier, command string) error {
+	ctx := context.Background()
+
+	// Convert identifier (UUID or integer ID) to integer ID
+	serverID, err := a.getServerIDFromIdentifier(ctx, identifier)
+	if err != nil {
+		return fmt.Errorf("failed to get server ID: %w", err)
+	}
+
+	// Map command string to the generated type
+	var signal application.SendPowerRequestSignal
+	switch command {
+	case "start":
+		signal = application.Start
+	case "stop":
+		signal = application.Stop
+	case "restart":
+		signal = application.Restart
+	case "kill":
+		signal = application.Kill
+	default:
+		return fmt.Errorf("invalid power command: %s", command)
+	}
+
+	body := application.SendPowerRequest{
+		Signal: signal,
+	}
+
+	httpResp, err := a.genClient.PowerPowerWithResponse(ctx, serverID, body)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer httpResp.HTTPResponse.Body.Close()
+
+	if httpResp.HTTPResponse.StatusCode >= http.StatusBadRequest {
+		return handleApplicationErrorResponse(httpResp.HTTPResponse, httpResp.Body)
+	}
+
+	return nil
+}
+
 // ListUsers lists all users.
 func (a *ApplicationAPI) ListUsers() ([]map[string]any, error) {
 	ctx := context.Background()

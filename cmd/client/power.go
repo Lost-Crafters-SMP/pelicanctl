@@ -7,10 +7,12 @@ import (
 	"os"
 	"strings"
 
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
 	"go.lostcrafters.com/pelican-cli/internal/api"
 	"go.lostcrafters.com/pelican-cli/internal/bulk"
+	"go.lostcrafters.com/pelican-cli/internal/completion"
 	"go.lostcrafters.com/pelican-cli/internal/output"
 )
 
@@ -50,6 +52,14 @@ func createPowerSubcommand(config powerCommandConfig) *cobra.Command {
 		},
 	}
 	setupBulkFlags(cmd)
+	cmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("client", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+	// Note: carapace.Gen will be called after command is added to parent
 	return cmd
 }
 
@@ -69,6 +79,20 @@ func newPowerCmd() *cobra.Command {
 
 	for _, pc := range powerCommands {
 		cmd.AddCommand(createPowerSubcommand(pc))
+	}
+
+	// Set up carapace completion AFTER subcommands are added (matching carapace example pattern)
+	// Use PositionalAnyCompletion for commands that accept multiple server arguments
+	for _, subCmd := range cmd.Commands() {
+		carapace.Gen(subCmd).PositionalAnyCompletion(
+			carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+				completions, err := completion.CompleteServers("client", c.Value)
+				if err != nil || len(completions) == 0 {
+					return carapace.ActionValues()
+				}
+				return carapace.ActionValues(completions...)
+			}),
+		)
 	}
 
 	return cmd

@@ -1189,6 +1189,50 @@
         }
       }
     },
+    "/servers/{server}/power": {
+      "post": {
+        "operationId": "power.power",
+        "summary": "Send power action\r\n\r\nSend a power action to a server",
+        "tags": [
+          "Server"
+        ],
+        "parameters": [
+          {
+            "name": "server",
+            "in": "path",
+            "required": true,
+            "description": "The server ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendPowerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationException"
+          },
+          "404": {
+            "$ref": "#/components/responses/ModelNotFoundException"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationException"
+          }
+        }
+      }
+    },
     "/servers/{server}/suspend": {
       "post": {
         "operationId": "application.servers.suspend",
@@ -3081,6 +3125,24 @@
         ],
         "title": "AssignUserRolesRequest"
       },
+      "SendPowerRequest": {
+        "type": "object",
+        "properties": {
+          "signal": {
+            "type": "string",
+            "enum": [
+              "start",
+              "stop",
+              "restart",
+              "kill"
+            ]
+          }
+        },
+        "required": [
+          "signal"
+        ],
+        "title": "SendPowerRequest"
+      },
       "ServerWriteRequest": {
         "type": "object",
         "title": "ServerWriteRequest"
@@ -4278,6 +4340,25 @@
       }
     },
     "responses": {
+      "ModelNotFoundException": {
+        "description": "Not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Error overview."
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
+          }
+        }
+      },
       "ValidationException": {
         "description": "Validation error",
         "content": {
@@ -4310,25 +4391,6 @@
       },
       "AuthorizationException": {
         "description": "Authorization error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "description": "Error overview."
-                }
-              },
-              "required": [
-                "message"
-              ]
-            }
-          }
-        }
-      },
-      "ModelNotFoundException": {
-        "description": "Not found",
         "content": {
           "application/json": {
             "schema": {

@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
 	"go.lostcrafters.com/pelican-cli/internal/api"
+	"go.lostcrafters.com/pelican-cli/internal/completion"
 	apierrors "go.lostcrafters.com/pelican-cli/internal/errors"
 	"go.lostcrafters.com/pelican-cli/internal/output"
 )
@@ -31,6 +33,13 @@ func newServerCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  runServerView,
 	}
+	viewCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("client", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
 
 	resourcesCmd := &cobra.Command{
 		Use:   "resources <id|uuid>",
@@ -39,10 +48,38 @@ func newServerCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  runServerResources,
 	}
+	resourcesCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("client", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
 
+	// Add subcommands FIRST (matching carapace example pattern)
 	cmd.AddCommand(listCmd)
 	cmd.AddCommand(viewCmd)
 	cmd.AddCommand(resourcesCmd)
+
+	// Set up carapace completion AFTER adding to parent (matching carapace example pattern)
+	carapace.Gen(viewCmd).PositionalCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("client", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
+	carapace.Gen(resourcesCmd).PositionalCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("client", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
 
 	return cmd
 }

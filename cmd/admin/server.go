@@ -7,10 +7,12 @@ import (
 	"os"
 	"strings"
 
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 
 	"go.lostcrafters.com/pelican-cli/internal/api"
 	"go.lostcrafters.com/pelican-cli/internal/bulk"
+	"go.lostcrafters.com/pelican-cli/internal/completion"
 	apierrors "go.lostcrafters.com/pelican-cli/internal/errors"
 	"go.lostcrafters.com/pelican-cli/internal/output"
 )
@@ -35,6 +37,13 @@ func newServerCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  runServerView,
 	}
+	viewCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("admin", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
 
 	suspendCmd := &cobra.Command{
 		Use:   "suspend <id|uuid>...",
@@ -43,6 +52,22 @@ func newServerCmd() *cobra.Command {
 		RunE:  runSuspendServer,
 	}
 	addBulkFlags(suspendCmd)
+	suspendCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("admin", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+	carapace.Gen(suspendCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
 
 	unsuspendCmd := &cobra.Command{
 		Use:   "unsuspend <id|uuid>...",
@@ -51,6 +76,22 @@ func newServerCmd() *cobra.Command {
 		RunE:  runUnsuspendServer,
 	}
 	addBulkFlags(unsuspendCmd)
+	unsuspendCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("admin", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+	carapace.Gen(unsuspendCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
 
 	reinstallCmd := &cobra.Command{
 		Use:   "reinstall <id|uuid>...",
@@ -59,12 +100,70 @@ func newServerCmd() *cobra.Command {
 		RunE:  runReinstallServer,
 	}
 	addBulkFlags(reinstallCmd)
+	reinstallCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("admin", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+	carapace.Gen(reinstallCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
 
+	powerCmd := newPowerCmd()
+
+	// Add all commands FIRST (matching carapace example pattern)
 	cmd.AddCommand(listCmd)
 	cmd.AddCommand(viewCmd)
 	cmd.AddCommand(suspendCmd)
 	cmd.AddCommand(unsuspendCmd)
 	cmd.AddCommand(reinstallCmd)
+	cmd.AddCommand(powerCmd)
+
+	// Set up carapace completion AFTER adding to parent (matching carapace example pattern)
+	carapace.Gen(viewCmd).PositionalCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
+	carapace.Gen(suspendCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
+	carapace.Gen(unsuspendCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
+	carapace.Gen(reinstallCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
 
 	return cmd
 }
@@ -119,6 +218,141 @@ func runReinstallServer(cmd *cobra.Command, args []string) error {
 	})
 }
 
+func newPowerCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "power",
+		Short: "Control server power",
+		Long:  "Start, stop, restart, or kill servers",
+	}
+
+	startCmd := &cobra.Command{
+		Use:   "start <id|uuid>...",
+		Short: "Start server(s)",
+		Long:  "Start server(s) by ID (integer) or UUID (string)",
+		RunE:  runPowerStart,
+	}
+	addBulkFlags(startCmd)
+	startCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("admin", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	stopCmd := &cobra.Command{
+		Use:   "stop <id|uuid>...",
+		Short: "Stop server(s)",
+		Long:  "Stop server(s) by ID (integer) or UUID (string)",
+		RunE:  runPowerStop,
+	}
+	addBulkFlags(stopCmd)
+	stopCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("admin", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	restartCmd := &cobra.Command{
+		Use:   "restart <id|uuid>...",
+		Short: "Restart server(s)",
+		Long:  "Restart server(s) by ID (integer) or UUID (string)",
+		RunE:  runPowerRestart,
+	}
+	addBulkFlags(restartCmd)
+	restartCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("admin", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	killCmd := &cobra.Command{
+		Use:   "kill <id|uuid>...",
+		Short: "Kill server(s)",
+		Long:  "Kill server(s) by ID (integer) or UUID (string)",
+		RunE:  runPowerKill,
+	}
+	addBulkFlags(killCmd)
+	killCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteServers("admin", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	cmd.AddCommand(startCmd)
+	cmd.AddCommand(stopCmd)
+	cmd.AddCommand(restartCmd)
+	cmd.AddCommand(killCmd)
+
+	// Set up carapace completion AFTER adding to parent
+	carapace.Gen(startCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
+	carapace.Gen(stopCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
+	carapace.Gen(restartCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
+	carapace.Gen(killCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			completions, err := completion.CompleteServers("admin", c.Value)
+			if err != nil || len(completions) == 0 {
+				return carapace.ActionValues()
+			}
+			return carapace.ActionValues(completions...)
+		}),
+	)
+
+	return cmd
+}
+
+func runPowerCommand(cmd *cobra.Command, args []string, command string) error {
+	return runServerAction(cmd, args, command, func(client *api.ApplicationAPI, identifier string) error {
+		return client.SendPowerCommand(identifier, command)
+	})
+}
+
+func runPowerStart(cmd *cobra.Command, args []string) error {
+	return runPowerCommand(cmd, args, "start")
+}
+
+func runPowerStop(cmd *cobra.Command, args []string) error {
+	return runPowerCommand(cmd, args, "stop")
+}
+
+func runPowerRestart(cmd *cobra.Command, args []string) error {
+	return runPowerCommand(cmd, args, "restart")
+}
+
+func runPowerKill(cmd *cobra.Command, args []string) error {
+	return runPowerCommand(cmd, args, "kill")
+}
+
 type serverActionFunc func(client *api.ApplicationAPI, uuid string) error
 
 type bulkFlags struct {
@@ -156,7 +390,9 @@ func handleConfirmation(formatter *output.Formatter, actionName string, uuidCoun
 		return true, nil
 	}
 
-	if actionName != "reinstall" {
+	// Require confirmation for destructive actions
+	needsConfirmation := actionName == "reinstall" || actionName == "kill" || (actionName == "stop" && uuidCount > 1)
+	if !needsConfirmation {
 		return true, nil
 	}
 

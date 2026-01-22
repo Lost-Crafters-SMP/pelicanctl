@@ -21,6 +21,14 @@ const (
 	HttpScopes = "http.Scopes"
 )
 
+// Defines values for SendPowerRequestSignal.
+const (
+	Kill    SendPowerRequestSignal = "kill"
+	Restart SendPowerRequestSignal = "restart"
+	Start   SendPowerRequestSignal = "start"
+	Stop    SendPowerRequestSignal = "stop"
+)
+
 // Defines values for StoreNodeRequestScheme.
 const (
 	Http  StoreNodeRequestScheme = "http"
@@ -604,6 +612,14 @@ type AssignUserRolesRequest struct {
 	Roles []int `json:"roles"`
 }
 
+// SendPowerRequest defines model for SendPowerRequest.
+type SendPowerRequest struct {
+	Signal SendPowerRequestSignal `json:"signal"`
+}
+
+// SendPowerRequestSignal defines model for SendPowerRequest.Signal.
+type SendPowerRequestSignal string
+
 // ServerWriteRequest defines model for ServerWriteRequest.
 type ServerWriteRequest = map[string]interface{}
 
@@ -891,6 +907,9 @@ type DatabaseStoreJSONRequestBody = StoreServerDatabaseRequest
 // ApplicationServersDetailsJSONRequestBody defines body for ApplicationServersDetails for application/json ContentType.
 type ApplicationServersDetailsJSONRequestBody = UpdateServerDetailsRequest
 
+// PowerPowerJSONRequestBody defines body for PowerPower for application/json ContentType.
+type PowerPowerJSONRequestBody = SendPowerRequest
+
 // ApplicationServersStartupJSONRequestBody defines body for ApplicationServersStartup for application/json ContentType.
 type ApplicationServersStartupJSONRequestBody = UpdateServerStartupRequest
 
@@ -1158,6 +1177,11 @@ type ClientInterface interface {
 	ApplicationServersDetailsWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ApplicationServersDetails(ctx context.Context, server int, body ApplicationServersDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PowerPowerWithBody request with any body
+	PowerPowerWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PowerPower(ctx context.Context, server int, body PowerPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ApplicationServersReinstall request
 	ApplicationServersReinstall(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1973,6 +1997,30 @@ func (c *Client) ApplicationServersDetailsWithBody(ctx context.Context, server i
 
 func (c *Client) ApplicationServersDetails(ctx context.Context, server int, body ApplicationServersDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewApplicationServersDetailsRequest(c.Server, server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PowerPowerWithBody(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPowerPowerRequestWithBody(c.Server, server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PowerPower(ctx context.Context, server int, body PowerPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPowerPowerRequest(c.Server, server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4243,6 +4291,53 @@ func NewApplicationServersDetailsRequestWithBody(server string, serverID int, co
 	return req, nil
 }
 
+// NewPowerPowerRequest calls the generic PowerPower builder with application/json body
+func NewPowerPowerRequest(server string, serverID int, body PowerPowerJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPowerPowerRequestWithBody(server, serverID, "application/json", bodyReader)
+}
+
+// NewPowerPowerRequestWithBody generates requests for PowerPower with any type of body
+func NewPowerPowerRequestWithBody(server string, serverID int, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "server", runtime.ParamLocationPath, serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/power", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewApplicationServersReinstallRequest generates requests for ApplicationServersReinstall
 func NewApplicationServersReinstallRequest(server string, serverID int) (*http.Request, error) {
 	var err error
@@ -5033,6 +5128,11 @@ type ClientWithResponsesInterface interface {
 	ApplicationServersDetailsWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplicationServersDetailsResponse, error)
 
 	ApplicationServersDetailsWithResponse(ctx context.Context, server int, body ApplicationServersDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*ApplicationServersDetailsResponse, error)
+
+	// PowerPowerWithBodyWithResponse request with any body
+	PowerPowerWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error)
+
+	PowerPowerWithResponse(ctx context.Context, server int, body PowerPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error)
 
 	// ApplicationServersReinstallWithResponse request
 	ApplicationServersReinstallWithResponse(ctx context.Context, server int, reqEditors ...RequestEditorFn) (*ApplicationServersReinstallResponse, error)
@@ -6384,6 +6484,30 @@ func (r ApplicationServersDetailsResponse) StatusCode() int {
 	return 0
 }
 
+type PowerPowerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON403      *AuthorizationException
+	JSON404      *ModelNotFoundException
+	JSON422      *ValidationException
+}
+
+// Status returns HTTPResponse.Status
+func (r PowerPowerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PowerPowerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ApplicationServersReinstallResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -7312,6 +7436,23 @@ func (c *ClientWithResponses) ApplicationServersDetailsWithResponse(ctx context.
 		return nil, err
 	}
 	return ParseApplicationServersDetailsResponse(rsp)
+}
+
+// PowerPowerWithBodyWithResponse request with arbitrary body returning *PowerPowerResponse
+func (c *ClientWithResponses) PowerPowerWithBodyWithResponse(ctx context.Context, server int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error) {
+	rsp, err := c.PowerPowerWithBody(ctx, server, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePowerPowerResponse(rsp)
+}
+
+func (c *ClientWithResponses) PowerPowerWithResponse(ctx context.Context, server int, body PowerPowerJSONRequestBody, reqEditors ...RequestEditorFn) (*PowerPowerResponse, error) {
+	rsp, err := c.PowerPower(ctx, server, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePowerPowerResponse(rsp)
 }
 
 // ApplicationServersReinstallWithResponse request returning *ApplicationServersReinstallResponse
@@ -9720,6 +9861,46 @@ func ParseApplicationServersDetailsResponse(rsp *http.Response) (*ApplicationSer
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest AuthorizationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ModelNotFoundException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ValidationException
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePowerPowerResponse parses an HTTP response from a PowerPowerWithResponse call
+func ParsePowerPowerResponse(rsp *http.Response) (*PowerPowerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PowerPowerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
 		var dest AuthorizationException
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
