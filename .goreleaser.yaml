@@ -60,7 +60,7 @@ release:
 
     Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
 
-homebrew:
+homebrew_casks:
   - name: pelicanctl
     repository:
       owner: Lost-Crafters-SMP
