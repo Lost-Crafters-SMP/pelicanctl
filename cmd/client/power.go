@@ -222,53 +222,66 @@ func runPowerCommand(
 	return handlePowerSummary(formatter, results)
 }
 
-func getServerUUIDs(_ *cobra.Command, args []string, all bool, fromFile string) ([]string, error) {
+func getClientServerUUIDsFromAll() ([]string, error) {
+	client, err := api.NewClientAPI()
+	if err != nil {
+		return nil, err
+	}
+
+	servers, err := client.ListServers()
+	if err != nil {
+		return nil, err
+	}
+
 	var uuids []string
+	for _, server := range servers {
+		if uuid, ok := server["uuid"].(string); ok {
+			uuids = append(uuids, uuid)
+		}
+	}
+	return uuids, nil
+}
 
-	switch {
-	case all:
-		client, err := api.NewClientAPI()
-		if err != nil {
-			return nil, err
-		}
+func getClientServerUUIDsFromFile(fromFile string) ([]string, error) {
+	data, err := os.ReadFile(fromFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %w", err)
+	}
 
-		servers, err := client.ListServers()
-		if err != nil {
-			return nil, err
+	var uuids []string
+	for line := range strings.SplitSeq(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			uuids = append(uuids, line)
 		}
+	}
+	return uuids, nil
+}
 
-		for _, server := range servers {
-			if uuid, ok := server["uuid"].(string); ok {
-				uuids = append(uuids, uuid)
-			}
-		}
-	case fromFile != "":
-		data, err := os.ReadFile(fromFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read file: %w", err)
-		}
-
-		lines := strings.Split(string(data), "\n")
-		for _, line := range lines {
-			line = strings.TrimSpace(line)
-			if line != "" {
-				uuids = append(uuids, line)
-			}
-		}
-	default:
-		// Support both space-separated and comma-separated arguments
-		// e.g., "123 456" or "123,456" or "123,456 789" (mixed)
-		for _, arg := range args {
-			// Split by comma and trim whitespace
-			parts := strings.Split(arg, ",")
-			for _, part := range parts {
-				part = strings.TrimSpace(part)
-				if part != "" {
-					uuids = append(uuids, part)
-				}
+func getClientServerUUIDsFromArgs(args []string) []string {
+	var uuids []string
+	// Support both space-separated and comma-separated arguments
+	// e.g., "123 456" or "123,456" or "123,456 789" (mixed)
+	for _, arg := range args {
+		// Split by comma and trim whitespace
+		parts := strings.SplitSeq(arg, ",")
+		for part := range parts {
+			part = strings.TrimSpace(part)
+			if part != "" {
+				uuids = append(uuids, part)
 			}
 		}
 	}
+	return uuids
+}
 
-	return uuids, nil
+func getServerUUIDs(_ *cobra.Command, args []string, all bool, fromFile string) ([]string, error) {
+	switch {
+	case all:
+		return getClientServerUUIDsFromAll()
+	case fromFile != "":
+		return getClientServerUUIDsFromFile(fromFile)
+	default:
+		return getClientServerUUIDsFromArgs(args), nil
+	}
 }

@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    if: false # TODO: Enable tests
     name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:

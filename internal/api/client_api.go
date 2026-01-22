@@ -1,4 +1,3 @@
-//nolint:revive // Package name 'api' is intentionally generic
 package api
 
 import (

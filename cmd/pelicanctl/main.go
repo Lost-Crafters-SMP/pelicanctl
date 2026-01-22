@@ -15,7 +15,9 @@ import (
 	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
-// Version is set during build via ldflags
+// Version is set during build via ldflags.
+//
+//nolint:gochecknoglobals // Version is a build-time constant set via ldflags
 var Version = "dev"
 
 type appConfig struct {
@@ -250,7 +252,8 @@ func newVersionCmd() *cobra.Command {
 		Short: "Print version information",
 		Long:  "Print the version number of pelicanctl",
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Printf("pelicanctl version %s\n", Version)
+			formatter := output.NewFormatter(output.OutputFormatTable, os.Stdout)
+			formatter.PrintInfo("pelicanctl version %s", Version)
 		},
 	}
 }

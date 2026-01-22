@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -169,47 +171,108 @@ func runReinstallServer(cmd *cobra.Command, args []string) error {
 	})
 }
 
-func runServerHealth(cmd *cobra.Command, args []string) error {
-	flags := getBulkFlags(cmd)
-
-	// Parse --since flag
-	var since *time.Time
+func parseSinceFlag(cmd *cobra.Command) (*time.Time, error) {
 	sinceStr, _ := cmd.Flags().GetString("since")
-	if sinceStr != "" {
-		parsedSince, err := time.Parse(time.RFC3339, sinceStr)
-		if err != nil {
-			return fmt.Errorf("invalid --since format: %w (expected RFC3339 format, e.g., 2006-01-02T15:04:05Z07:00)", err)
-		}
-		since = &parsedSince
+	if sinceStr == "" {
+		//nolint:nilnil // Optional flag - returning nil, nil is correct when flag is not provided
+		return nil, nil
 	}
+	parsedSince, err := time.Parse(time.RFC3339, sinceStr)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"invalid --since format: %w (expected RFC3339 format, e.g., 2006-01-02T15:04:05Z07:00)",
+			err,
+		)
+	}
+	return &parsedSince, nil
+}
 
-	// Parse and validate --window flag
-	var window *int
+func parseWindowFlag(cmd *cobra.Command) (*int, error) {
 	windowVal, _ := cmd.Flags().GetInt("window")
-	if windowVal != 0 {
-		if windowVal < 1 || windowVal > 1440 {
-			return fmt.Errorf("--window must be between 1 and 1440 minutes")
-		}
-		window = &windowVal
+	if windowVal == 0 {
+		//nolint:nilnil // Optional flag - returning nil, nil is correct when flag is not provided
+		return nil, nil
 	}
+	if windowVal < 1 || windowVal > 1440 {
+		return nil, errors.New("--window must be between 1 and 1440 minutes")
+	}
+	return &windowVal, nil
+}
 
-	// Validate that we have either positional args or bulk flags
+func validateHealthArgs(args []string, flags bulkFlags) error {
 	if len(args) == 0 && !flags.all && flags.fromFile == "" {
 		return errors.New("no servers specified")
 	}
+	return nil
+}
 
-	// Get server UUIDs
+func getHealthServerUUIDs(cmd *cobra.Command, args []string, flags bulkFlags) ([]string, error) {
 	uuids := args
 	if flags.all || flags.fromFile != "" {
 		var err error
 		uuids, err = getServerUUIDs(cmd, args, flags.all, flags.fromFile)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-
 	if len(uuids) == 0 {
-		return fmt.Errorf("no servers found - try 'pelicanctl admin server list' to see available servers")
+		return nil, errors.New("no servers found - try 'pelicanctl admin server list' to see available servers")
+	}
+	return uuids, nil
+}
+
+func runServerHealthSingle(
+	client *api.ApplicationAPI,
+	formatter *output.Formatter,
+	uuid string,
+	since *time.Time,
+	window *int,
+) error {
+	health, healthErr := client.GetServerHealth(uuid, since, window)
+	if healthErr != nil {
+		return fmt.Errorf("%s", apierrors.HandleError(healthErr))
+	}
+	return formatter.Print(health)
+}
+
+func runServerHealthMultiple(
+	cmd *cobra.Command,
+	client *api.ApplicationAPI,
+	formatter *output.Formatter,
+	uuids []string,
+	since *time.Time,
+	window *int,
+	flags bulkFlags,
+) error {
+	ctx := context.Background()
+	results := executeHealthOperations(ctx, client, uuids, since, window, flags)
+
+	if getOutputFormat(cmd) == output.OutputFormatJSON {
+		return printHealthResultsJSON(formatter, results)
+	}
+	return printHealthResultsTable(formatter, results)
+}
+
+func runServerHealth(cmd *cobra.Command, args []string) error {
+	flags := getBulkFlags(cmd)
+
+	since, err := parseSinceFlag(cmd)
+	if err != nil {
+		return err
+	}
+
+	window, err := parseWindowFlag(cmd)
+	if err != nil {
+		return err
+	}
+
+	if err = validateHealthArgs(args, flags); err != nil {
+		return err
+	}
+
+	uuids, err := getHealthServerUUIDs(cmd, args, flags)
+	if err != nil {
+		return err
 	}
 
 	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
@@ -227,25 +290,11 @@ func runServerHealth(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Single server - simple output
 	if len(uuids) == 1 {
-		health, err := client.GetServerHealth(uuids[0], since, window)
-		if err != nil {
-			return fmt.Errorf("%s", apierrors.HandleError(err))
-		}
-		return formatter.Print(health)
+		return runServerHealthSingle(client, formatter, uuids[0], since, window)
 	}
 
-	// Multiple servers - bulk operation
-	ctx := context.Background()
-	results := executeHealthOperations(ctx, client, uuids, since, window, flags)
-
-	// Format results based on output format
-	if getOutputFormat(cmd) == output.OutputFormatJSON {
-		return printHealthResultsJSON(formatter, results)
-	}
-
-	return printHealthResultsTable(formatter, results)
+	return runServerHealthMultiple(cmd, client, formatter, uuids, since, window, flags)
 }
 
 type healthResult struct {
@@ -272,7 +321,6 @@ func executeHealthOperations(
 
 	// Create operations
 	for i, uuid := range uuids {
-		uuid := uuid // capture loop variable
 		result := resultsMap[uuid]
 		operations[i] = bulk.Operation{
 			ID:   uuid,
@@ -323,9 +371,7 @@ func printHealthResultsJSON(formatter *output.Formatter, results []healthResult)
 		} else {
 			// Copy all health data (includes nested server, container, crash_details objects)
 			healthData := make(map[string]any)
-			for k, v := range result.Health {
-				healthData[k] = v
-			}
+			maps.Copy(healthData, result.Health)
 			// Add the query identifier separately to preserve the full server object from API
 			healthData["server_identifier"] = result.Server
 			outputData = append(outputData, healthData)
@@ -335,74 +381,128 @@ func printHealthResultsJSON(formatter *output.Formatter, results []healthResult)
 	return formatter.Print(outputData)
 }
 
+const unknownStatus = "unknown"
+
+func extractServerName(health map[string]any) string {
+	server, ok := health["server"].(map[string]any)
+	if !ok {
+		return unknownStatus
+	}
+	name, ok := server["name"].(string)
+	if !ok {
+		return unknownStatus
+	}
+	return name
+}
+
+func extractContainerInfo(health map[string]any) (string, string) {
+	container, ok := health["container"].(map[string]any)
+	if !ok {
+		return unknownStatus, unknownStatus
+	}
+	status := unknownStatus
+	if s, okStatus := container["status"].(string); okStatus {
+		status = s
+	}
+	healthy := unknownStatus
+	if h, okHealthy := container["healthy"].(bool); okHealthy {
+		if h {
+			healthy = "true"
+		} else {
+			healthy = "false"
+		}
+	}
+	return status, healthy
+}
+
+func extractCrashedStatus(health map[string]any) string {
+	c, ok := health["crashed"].(bool)
+	if !ok {
+		return unknownStatus
+	}
+	if c {
+		return "true"
+	}
+	return "false"
+}
+
+func extractCheckedAt(health map[string]any) string {
+	ca, ok := health["checked_at"].(string)
+	if !ok {
+		return unknownStatus
+	}
+	return ca
+}
+
+func buildHealthRow(result healthResult) []string {
+	if result.Error != nil {
+		return []string{
+			result.Server,
+			"",
+			"error",
+			"",
+			"",
+			"",
+		}
+	}
+
+	serverName := extractServerName(result.Health)
+	containerStatus, healthy := extractContainerInfo(result.Health)
+	crashed := extractCrashedStatus(result.Health)
+	checkedAt := extractCheckedAt(result.Health)
+
+	return []string{
+		result.Server,
+		serverName,
+		containerStatus,
+		healthy,
+		crashed,
+		checkedAt,
+	}
+}
+
 func printHealthResultsTable(formatter *output.Formatter, results []healthResult) error {
 	headers := []string{"Server", "Name", "Container Status", "Healthy", "Crashed", "Checked At"}
 	rows := make([][]string, 0, len(results))
 
 	for _, result := range results {
 		if result.Error != nil {
-			rows = append(rows, []string{
-				result.Server,
-				"",
-				"error",
-				"",
-				"",
-				"",
-			})
 			formatter.PrintError("%s: %v", result.Server, result.Error)
-		} else {
-			// Extract server name
-			serverName := "unknown"
-			if server, ok := result.Health["server"].(map[string]any); ok {
-				if name, ok := server["name"].(string); ok {
-					serverName = name
-				}
-			}
-
-			// Extract container status and healthy
-			containerStatus := "unknown"
-			healthy := "unknown"
-			if container, ok := result.Health["container"].(map[string]any); ok {
-				if s, ok := container["status"].(string); ok {
-					containerStatus = s
-				}
-				if h, ok := container["healthy"].(bool); ok {
-					if h {
-						healthy = "true"
-					} else {
-						healthy = "false"
-					}
-				}
-			}
-
-			// Extract crashed
-			crashed := "unknown"
-			if c, ok := result.Health["crashed"].(bool); ok {
-				if c {
-					crashed = "true"
-				} else {
-					crashed = "false"
-				}
-			}
-
-			// Extract checked_at
-			checkedAt := "unknown"
-			if ca, ok := result.Health["checked_at"].(string); ok {
-				checkedAt = ca
-			}
-
-			rows = append(rows, []string{
-				result.Server,
-				serverName,
-				containerStatus,
-				healthy,
-				crashed,
-				checkedAt,
-			})
 		}
+		rows = append(rows, buildHealthRow(result))
 	}
 
 	return formatter.PrintTable(headers, rows)
+}
+
+func adminServerValidArgsFunction(
+	_ *cobra.Command,
+	_ []string,
+	toComplete string,
+) ([]string, cobra.ShellCompDirective) {
+	completions, err := completion.CompleteServers("admin", toComplete)
+	if err != nil || len(completions) == 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	return completions, cobra.ShellCompDirectiveNoFileComp
+}
+
+func createPowerSubcommand(use, short, long string, runE func(*cobra.Command, []string) error) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   use,
+		Short: short,
+		Long:  long,
+		RunE:  runE,
+	}
+	addBulkFlags(cmd)
+	cmd.ValidArgsFunction = adminServerValidArgsFunction
+	return cmd
+}
+
+func setupPowerCommandCompletion(cmd *cobra.Command) {
+	carapace.Gen(cmd).PositionalAnyCompletion(
+		carapace.ActionCallback(adminServerCompletionAction),
+	)
 }
 
 func newPowerCmd() *cobra.Command {
@@ -412,108 +512,28 @@ func newPowerCmd() *cobra.Command {
 		Long:  "Start, stop, restart, or kill servers",
 	}
 
-	startCmd := &cobra.Command{
-		Use:   "start <id|uuid>...",
-		Short: "Start server(s)",
-		Long:  "Start server(s) by ID (integer) or UUID (string)",
-		RunE:  runPowerStart,
-	}
-	addBulkFlags(startCmd)
-	startCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		completions, err := completion.CompleteServers("admin", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
-	}
-
-	stopCmd := &cobra.Command{
-		Use:   "stop <id|uuid>...",
-		Short: "Stop server(s)",
-		Long:  "Stop server(s) by ID (integer) or UUID (string)",
-		RunE:  runPowerStop,
-	}
-	addBulkFlags(stopCmd)
-	stopCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		completions, err := completion.CompleteServers("admin", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
+	powerCommands := []struct {
+		use   string
+		short string
+		long  string
+		runE  func(*cobra.Command, []string) error
+	}{
+		{"start <id|uuid>...", "Start server(s)", "Start server(s) by ID (integer) or UUID (string)", runPowerStart},
+		{"stop <id|uuid>...", "Stop server(s)", "Stop server(s) by ID (integer) or UUID (string)", runPowerStop},
+		{
+			"restart <id|uuid>...",
+			"Restart server(s)",
+			"Restart server(s) by ID (integer) or UUID (string)",
+			runPowerRestart,
+		},
+		{"kill <id|uuid>...", "Kill server(s)", "Kill server(s) by ID (integer) or UUID (string)", runPowerKill},
 	}
 
-	restartCmd := &cobra.Command{
-		Use:   "restart <id|uuid>...",
-		Short: "Restart server(s)",
-		Long:  "Restart server(s) by ID (integer) or UUID (string)",
-		RunE:  runPowerRestart,
+	for _, pc := range powerCommands {
+		subCmd := createPowerSubcommand(pc.use, pc.short, pc.long, pc.runE)
+		cmd.AddCommand(subCmd)
+		setupPowerCommandCompletion(subCmd)
 	}
-	addBulkFlags(restartCmd)
-	restartCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		completions, err := completion.CompleteServers("admin", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
-	}
-
-	killCmd := &cobra.Command{
-		Use:   "kill <id|uuid>...",
-		Short: "Kill server(s)",
-		Long:  "Kill server(s) by ID (integer) or UUID (string)",
-		RunE:  runPowerKill,
-	}
-	addBulkFlags(killCmd)
-	killCmd.ValidArgsFunction = func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		completions, err := completion.CompleteServers("admin", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
-	}
-
-	cmd.AddCommand(startCmd)
-	cmd.AddCommand(stopCmd)
-	cmd.AddCommand(restartCmd)
-	cmd.AddCommand(killCmd)
-
-	// Set up carapace completion AFTER adding to parent
-	carapace.Gen(startCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
-	carapace.Gen(stopCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
-	carapace.Gen(restartCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
-	carapace.Gen(killCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			completions, err := completion.CompleteServers("admin", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-	)
 
 	return cmd
 }
@@ -701,82 +721,103 @@ func addBulkFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("yes", false, "skip confirmation prompts")
 }
 
-func getServerUUIDs(_ *cobra.Command, args []string, all bool, fromFile string) ([]string, error) {
-	var uuids []string
-
-	switch {
-	case all:
-		client, err := api.NewApplicationAPI()
-		if err != nil {
-			return nil, err
-		}
-
-		servers, err := client.ListServers()
-		if err != nil {
-			return nil, err
-		}
-
-		if len(servers) == 0 {
-			return nil, fmt.Errorf("no servers found in the system")
-		}
-
-		for _, server := range servers {
-			// Try UUID first
-			if uuid, ok := server["uuid"].(string); ok && uuid != "" {
-				uuids = append(uuids, uuid)
-				continue
-			}
-			// Fallback to ID if UUID not available
-			if id := extractServerID(server); id != nil {
-				var idStr string
-				switch v := id.(type) {
-				case int:
-					idStr = fmt.Sprintf("%d", v)
-				case int64:
-					idStr = fmt.Sprintf("%d", v)
-				case float64:
-					idStr = fmt.Sprintf("%.0f", v)
-				case string:
-					idStr = v
-				default:
-					continue
-				}
-				uuids = append(uuids, idStr)
-			}
-		}
-
-		if len(uuids) == 0 {
-			return nil, fmt.Errorf("no valid server identifiers found (servers may be missing uuid or id fields)")
-		}
-	case fromFile != "":
-		data, err := os.ReadFile(fromFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read file: %w", err)
-		}
-
-		lines := strings.Split(string(data), "\n")
-		for _, line := range lines {
-			line = strings.TrimSpace(line)
-			if line != "" {
-				uuids = append(uuids, line)
-			}
-		}
+func convertServerIDToString(id any) string {
+	switch v := id.(type) {
+	case int:
+		return strconv.Itoa(v)
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case float64:
+		return fmt.Sprintf("%.0f", v)
+	case string:
+		return v
 	default:
-		// Support both space-separated and comma-separated arguments
-		// e.g., "123 456" or "123,456" or "123,456 789" (mixed)
-		for _, arg := range args {
-			// Split by comma and trim whitespace
-			parts := strings.Split(arg, ",")
-			for _, part := range parts {
-				part = strings.TrimSpace(part)
-				if part != "" {
-					uuids = append(uuids, part)
-				}
+		return ""
+	}
+}
+
+func extractUUIDsFromServers(servers []map[string]any) ([]string, error) {
+	if len(servers) == 0 {
+		return nil, errors.New("no servers found in the system")
+	}
+
+	var uuids []string
+	for _, server := range servers {
+		// Try UUID first
+		if uuid, ok := server["uuid"].(string); ok && uuid != "" {
+			uuids = append(uuids, uuid)
+			continue
+		}
+		// Fallback to ID if UUID not available
+		if id := extractServerID(server); id != nil {
+			if idStr := convertServerIDToString(id); idStr != "" {
+				uuids = append(uuids, idStr)
 			}
 		}
 	}
 
+	if len(uuids) == 0 {
+		return nil, errors.New("no valid server identifiers found (servers may be missing uuid or id fields)")
+	}
 	return uuids, nil
+}
+
+func getServerUUIDsFromAll() ([]string, error) {
+	client, err := api.NewApplicationAPI()
+	if err != nil {
+		return nil, err
+	}
+
+	servers, err := client.ListServers()
+	if err != nil {
+		return nil, err
+	}
+
+	return extractUUIDsFromServers(servers)
+}
+
+func getServerUUIDsFromFile(fromFile string) ([]string, error) {
+	data, err := os.ReadFile(fromFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %w", err)
+	}
+
+	var uuids []string
+	for line := range strings.SplitSeq(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			uuids = append(uuids, line)
+		}
+	}
+	return uuids, nil
+}
+
+func getServerUUIDsFromArgs(args []string) []string {
+	var uuids []string
+	// Support both space-separated and comma-separated arguments
+	// e.g., "123 456" or "123,456" or "123,456 789" (mixed)
+	for _, arg := range args {
+		// Split by comma and trim whitespace
+		parts := strings.SplitSeq(arg, ",")
+		for part := range parts {
+			part = strings.TrimSpace(part)
+			if part != "" {
+				uuids = append(uuids, part)
+			}
+		}
+	}
+	return uuids
+}
+
+func getServerUUIDs(_ *cobra.Command, args []string, all bool, fromFile string) ([]string, error) {
+	switch {
+	case all:
+		return getServerUUIDsFromAll()
+	case fromFile != "":
+		return getServerUUIDsFromFile(fromFile)
+	default:
+		return getServerUUIDsFromArgs(args), nil
+	}
 }
 
 // extractServerID extracts the server ID from a server map, checking both root and attributes.

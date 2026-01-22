@@ -15,6 +15,73 @@ import (
 	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
+func clientServerCompletionAction(c carapace.Context) carapace.Action {
+	completions, err := completion.CompleteServers("client", c.Value)
+	if err != nil || len(completions) == 0 {
+		return carapace.ActionValues()
+	}
+	return carapace.ActionValues(completions...)
+}
+
+func clientFileCompletionAction(serverUUID string) carapace.Action {
+	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+		completions, err := completion.CompleteFiles(serverUUID, "", c.Value)
+		if err != nil || len(completions) == 0 {
+			return carapace.ActionValues()
+		}
+		return carapace.ActionValues(completions...)
+	})
+}
+
+func clientServerValidArgsFunction(
+	_ *cobra.Command,
+	_ []string,
+	toComplete string,
+) ([]string, cobra.ShellCompDirective) {
+	completions, err := completion.CompleteServers("client", toComplete)
+	if err != nil || len(completions) == 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	return completions, cobra.ShellCompDirectiveNoFileComp
+}
+
+func clientFileValidArgsFunction(
+	serverUUID string,
+) func(*cobra.Command, []string, string) ([]string, cobra.ShellCompDirective) {
+	return func(_ *cobra.Command, _ []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		completions, err := completion.CompleteFiles(serverUUID, "", toComplete)
+		if err != nil || len(completions) == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return completions, cobra.ShellCompDirectiveNoFileComp
+	}
+}
+
+func setupListCmdCompletion(cmd *cobra.Command) {
+	carapace.Gen(cmd).PositionalCompletion(
+		carapace.ActionCallback(clientServerCompletionAction),
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			if len(c.Args) > 0 {
+				return clientFileCompletionAction(c.Args[0])
+			}
+			return carapace.ActionValues()
+		}),
+	)
+}
+
+func setupDownloadCmdCompletion(cmd *cobra.Command) {
+	carapace.Gen(cmd).PositionalCompletion(
+		carapace.ActionCallback(clientServerCompletionAction),
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			if len(c.Args) > 0 {
+				return clientFileCompletionAction(c.Args[0])
+			}
+			return carapace.ActionValues()
+		}),
+		carapace.ActionFiles(), // Third argument: local path (file system)
+	)
+}
+
 func newFileCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "file",
@@ -31,19 +98,9 @@ func newFileCmd() *cobra.Command {
 	}
 	listCmd.ValidArgsFunction = func(_ *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
-			// First argument: server identifier
-			completions, err := completion.CompleteServers("client", toComplete)
-			if err != nil || len(completions) == 0 {
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			}
-			return completions, cobra.ShellCompDirectiveNoFileComp
+			return clientServerValidArgsFunction(nil, nil, toComplete)
 		}
-		// Second argument: directory path
-		completions, err := completion.CompleteFiles(args[0], "", toComplete)
-		if err != nil || len(completions) == 0 {
-			return nil, cobra.ShellCompDirectiveNoFileComp
-		}
-		return completions, cobra.ShellCompDirectiveNoFileComp
+		return clientFileValidArgsFunction(args[0])(nil, nil, toComplete)
 	}
 
 	downloadCmd := &cobra.Command{
@@ -55,22 +112,11 @@ func newFileCmd() *cobra.Command {
 	}
 	downloadCmd.ValidArgsFunction = func(_ *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		if len(args) == 0 {
-			// First argument: server identifier
-			completions, err := completion.CompleteServers("client", toComplete)
-			if err != nil || len(completions) == 0 {
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			}
-			return completions, cobra.ShellCompDirectiveNoFileComp
+			return clientServerValidArgsFunction(nil, nil, toComplete)
 		}
 		if len(args) == 1 {
-			// Second argument: file path
-			completions, err := completion.CompleteFiles(args[0], "", toComplete)
-			if err != nil || len(completions) == 0 {
-				return nil, cobra.ShellCompDirectiveNoFileComp
-			}
-			return completions, cobra.ShellCompDirectiveNoFileComp
+			return clientFileValidArgsFunction(args[0])(nil, nil, toComplete)
 		}
-		// Third argument: local path (file system)
 		return nil, cobra.ShellCompDirectiveDefault
 	}
 
@@ -79,49 +125,8 @@ func newFileCmd() *cobra.Command {
 	cmd.AddCommand(downloadCmd)
 
 	// Set up carapace completion AFTER adding to parent (matching carapace example pattern)
-	carapace.Gen(listCmd).PositionalCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			// First argument: server identifier
-			completions, err := completion.CompleteServers("client", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			// Second argument: directory path (only if first arg exists)
-			if len(c.Args) > 0 {
-				completions, err := completion.CompleteFiles(c.Args[0], "", c.Value)
-				if err != nil || len(completions) == 0 {
-					return carapace.ActionValues()
-				}
-				return carapace.ActionValues(completions...)
-			}
-			return carapace.ActionValues()
-		}),
-	)
-	carapace.Gen(downloadCmd).PositionalCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			// First argument: server identifier
-			completions, err := completion.CompleteServers("client", c.Value)
-			if err != nil || len(completions) == 0 {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionValues(completions...)
-		}),
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			// Second argument: file path (only if first arg exists)
-			if len(c.Args) > 0 {
-				completions, err := completion.CompleteFiles(c.Args[0], "", c.Value)
-				if err != nil || len(completions) == 0 {
-					return carapace.ActionValues()
-				}
-				return carapace.ActionValues(completions...)
-			}
-			return carapace.ActionValues()
-		}),
-		carapace.ActionFiles(), // Third argument: local path (file system)
-	)
+	setupListCmdCompletion(listCmd)
+	setupDownloadCmdCompletion(downloadCmd)
 
 	return cmd
 }
