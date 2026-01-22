@@ -15,6 +15,9 @@ import (
 	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
+// Version is set during build via ldflags
+var Version = "dev"
+
 type appConfig struct {
 	configPath string
 	json       bool
@@ -77,6 +80,7 @@ backups, databases, and more.`,
 	rootCmd.AddCommand(client.NewClientCmd())
 	rootCmd.AddCommand(admin.NewAdminCmd())
 	rootCmd.AddCommand(newAuthCmd(cfg))
+	rootCmd.AddCommand(newVersionCmd())
 
 	// Call carapace.Gen again after all subcommands are added to ensure discovery
 	// This matches the pattern in reference examples where Gen is called multiple times
@@ -237,4 +241,16 @@ func authLogout(apiType string, cfg *appConfig) error {
 
 	formatter.PrintSuccess("%s token cleared successfully", apiType)
 	return nil
+}
+
+// newVersionCmd creates the version command.
+func newVersionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print version information",
+		Long:  "Print the version number of pelicanctl",
+		Run: func(_ *cobra.Command, _ []string) {
+			fmt.Printf("pelicanctl version %s\n", Version)
+		},
+	}
 }

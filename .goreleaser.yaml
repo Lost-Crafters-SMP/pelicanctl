@@ -1,0 +1,87 @@
+# GoReleaser configuration for pelicanctl
+# See https://goreleaser.com for documentation
+
+version: 2
+
+project_name: pelicanctl
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: pelicanctl
+    main: ./cmd/pelicanctl
+    binary: pelicanctl
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -X go.lostcrafters.com/pelicanctl/cmd/pelicanctl.Version={{.Version}}
+
+archives:
+  - id: default
+    formats:
+      - tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+release:
+  github:
+    owner: Lost-Crafters-SMP
+    name: pelicanctl
+  footer: >-
+
+    ---
+
+    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
+
+homebrew:
+  - name: pelicanctl
+    repository:
+      owner: Lost-Crafters-SMP
+      name: homebrew-tap
+    description: "Command-line tool for managing servers on the Pelican panel"
+    homepage: "https://github.com/Lost-Crafters-SMP/pelicanctl"
+    license: "MIT"
+    binaries:
+      - pelicanctl
+    commit_author:
+      name: goreleaser
+      email: goreleaser@users.noreply.github.com
+
+scoops:
+  - name: pelicanctl
+    repository:
+      owner: Lost-Crafters-SMP
+      name: scoop-bucket
+    description: "Command-line tool for managing servers on the Pelican panel"
+    homepage: "https://github.com/Lost-Crafters-SMP/pelicanctl"
+    license: "MIT"
+    commit_author:
+      name: goreleaser
+      email: goreleaser@users.noreply.github.com

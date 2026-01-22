@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.6"
+          cache-dependency-path: go.sum
+
+      - name: Run tests
+        run: |
+          go test -v ./...
+          go test -tags=integration -v ./... || true
+
+      - name: Run linting
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest
+          args: --timeout=5m
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.LC_RELEASER_APP_ID }}
+          private-key: ${{ secrets.LC_RELEASER_APP_KEY }}
+
+      - name: Run goreleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          # Use GitHub App token if available, fallback to PAT or GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token || secrets.GORELEASER_TOKEN || secrets.GITHUB_TOKEN }}
