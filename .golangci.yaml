@@ -462,6 +462,10 @@ linters:
       # Allow duplicate code in API clients (similar but different implementations)
       - path: "internal/api/.*"
         linters: [dupl]
+      # Allow "api" package name (common and meaningful in this context)
+      - path: "internal/api/.*"
+        text: "avoid meaningless package names"
+        linters: [revive]
       # Allow printf-style function names without 'f' suffix (API compatibility)
       - path: "internal/output/formatter.go"
         text: "printf-like formatting function"

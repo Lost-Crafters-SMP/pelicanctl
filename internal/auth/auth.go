@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"syscall"
 
 	"github.com/zalando/go-keyring"
 	"golang.org/x/term"
@@ -190,7 +189,7 @@ func PromptToken(apiType string) (string, error) {
 	_, _ = fmt.Fprintf(os.Stderr, "Enter %s API token: ", apiType)
 
 	// Read from stdin with password masking - supports pasting
-	tokenBytes, err := term.ReadPassword(int(syscall.Stdin))
+	tokenBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return "", fmt.Errorf("failed to read token: %w", err)
 	}
