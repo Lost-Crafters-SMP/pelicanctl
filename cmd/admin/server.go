@@ -920,7 +920,9 @@ func runServerAction(
 		}
 	}
 
-	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
+	// Store output format to ensure consistency
+	outputFormat := getOutputFormat(cmd)
+	formatter := output.NewFormatter(outputFormat, os.Stdout)
 
 	shouldContinue, err := handleConfirmation(formatter, actionName, len(uuids), flags.yes)
 	if err != nil {
@@ -946,7 +948,7 @@ func runServerAction(
 	summary := bulk.GetSummary(results)
 
 	// Handle JSON output specially
-	if getOutputFormat(cmd) == output.OutputFormatJSON {
+	if outputFormat == output.OutputFormatJSON {
 		if minimalJSON {
 			return bulk.PrintBulkJSON(formatter, results, summary, flags.continueOnError)
 		}
