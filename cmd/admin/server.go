@@ -1535,6 +1535,55 @@ func parseBackupPairsFromArgs(args []string) ([]backupPair, error) {
 	return pairs, nil
 }
 
+// runBackupViewJSON fetches backups for each pair and prints bulk-style JSON.
+func runBackupViewJSON(client *api.ApplicationAPI, formatter *output.Formatter, pairs []backupPair) error {
+	results := make([]map[string]any, 0, len(pairs))
+	var succeeded, failed int
+	for _, pair := range pairs {
+		backup, getErr := client.GetBackup(pair.ServerID, pair.BackupUUID)
+		if getErr != nil {
+			results = append(results, map[string]any{
+				"server_identifier": pair.ServerID,
+				"backup_uuid":       pair.BackupUUID,
+				"status":            "failed",
+				"error":             getErr.Error(),
+			})
+			failed++
+			continue
+		}
+		status := "failed"
+		if attrs, okAttrs := backup["attributes"].(map[string]any); okAttrs {
+			if v, okSuccess := attrs["is_successful"].(bool); okSuccess && v {
+				status = "completed"
+			}
+		}
+		if status == "completed" {
+			succeeded++
+		} else {
+			failed++
+		}
+		results = append(results, map[string]any{
+			"server_identifier": pair.ServerID,
+			"backup_uuid":       pair.BackupUUID,
+			"status":            status,
+		})
+	}
+	response := map[string]any{
+		"results": results,
+		"summary": map[string]any{
+			"succeeded": succeeded,
+			"failed":    failed,
+		},
+	}
+	if printErr := formatter.Print(response); printErr != nil {
+		return printErr
+	}
+	if failed > 0 {
+		return fmt.Errorf("%d operation(s) failed", failed)
+	}
+	return nil
+}
+
 func runBackupView(cmd *cobra.Command, args []string) error {
 	fromFile, _ := cmd.Flags().GetString("from-file")
 
@@ -1560,7 +1609,11 @@ func runBackupView(cmd *cobra.Command, args []string) error {
 
 	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
 
-	// Fetch all backups
+	if getOutputFormat(cmd) == output.OutputFormatJSON {
+		return runBackupViewJSON(client, formatter, pairs)
+	}
+
+	// Table path: unchanged
 	var allBackups []map[string]any
 	for _, pair := range pairs {
 		backup, getErr := client.GetBackup(pair.ServerID, pair.BackupUUID)
