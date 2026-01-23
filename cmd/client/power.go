@@ -152,17 +152,6 @@ func executePowerOperations(
 	return executor.Execute(ctx, operations)
 }
 
-// printPowerResultsJSON prints power command results in structured JSON format.
-func printPowerResultsJSON(
-	formatter *output.Formatter,
-	results []bulk.Result,
-	command string,
-	summary bulk.Summary,
-	continueOnError bool,
-) error {
-	return printCommandResultsJSON(formatter, results, command, summary, continueOnError)
-}
-
 func printPowerResults(formatter *output.Formatter, results []bulk.Result, command string) {
 	for _, result := range results {
 		if result.Success {
@@ -232,7 +221,7 @@ func runPowerCommand(
 
 	// Handle JSON output specially
 	if getOutputFormat(cmd) == output.OutputFormatJSON {
-		return printPowerResultsJSON(formatter, results, command, summary, continueOnError)
+		return bulk.PrintBulkJSON(formatter, results, summary, continueOnError)
 	}
 
 	printPowerResults(formatter, results, command)

@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"sync"
+
+	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
 // Operation represents a single operation to execute.
@@ -120,4 +122,41 @@ func GetSummary(results []Result) Summary {
 	}
 
 	return summary
+}
+
+// PrintBulkJSON prints bulk operation results in minimal JSON format.
+// Each result contains only server_identifier, status ("success" | "error"), and optional error.
+func PrintBulkJSON(formatter *output.Formatter, results []Result, summary Summary, continueOnError bool) error {
+	outputData := make([]map[string]any, 0, len(results))
+
+	for _, result := range results {
+		resultData := map[string]any{
+			"server_identifier": result.Operation.ID,
+		}
+		if result.Success {
+			resultData["status"] = "success"
+		} else {
+			resultData["status"] = "error"
+			resultData["error"] = result.Error.Error()
+		}
+		outputData = append(outputData, resultData)
+	}
+
+	response := map[string]any{
+		"results": outputData,
+		"summary": map[string]any{
+			"succeeded": summary.Success,
+			"failed":    summary.Failed,
+		},
+	}
+
+	if err := formatter.Print(response); err != nil {
+		return err
+	}
+
+	if summary.Failed > 0 && !continueOnError {
+		return fmt.Errorf("%d operation(s) failed", summary.Failed)
+	}
+
+	return nil
 }

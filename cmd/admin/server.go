@@ -222,19 +222,19 @@ func runServerDelete(cmd *cobra.Command, args []string) error {
 func runSuspendServer(cmd *cobra.Command, args []string) error {
 	return runServerAction(cmd, args, "suspend", func(client *api.ApplicationAPI, uuid string) error {
 		return client.SuspendServer(uuid)
-	})
+	}, false)
 }
 
 func runUnsuspendServer(cmd *cobra.Command, args []string) error {
 	return runServerAction(cmd, args, "unsuspend", func(client *api.ApplicationAPI, uuid string) error {
 		return client.UnsuspendServer(uuid)
-	})
+	}, false)
 }
 
 func runReinstallServer(cmd *cobra.Command, args []string) error {
 	return runServerAction(cmd, args, "reinstall", func(client *api.ApplicationAPI, uuid string) error {
 		return client.ReinstallServer(uuid)
-	})
+	}, false)
 }
 
 func parseSinceFlag(cmd *cobra.Command) (*time.Time, error) {
@@ -426,25 +426,45 @@ func executeHealthOperations(
 
 func printHealthResultsJSON(formatter *output.Formatter, results []healthResult) error {
 	outputData := make([]map[string]any, 0, len(results))
+	var succeeded, failed int
 
 	for _, result := range results {
 		if result.Error != nil {
-			// Include error in JSON output
 			outputData = append(outputData, map[string]any{
 				"server_identifier": result.Server,
+				"status":            "error",
 				"error":             result.Error.Error(),
 			})
+			failed++
 		} else {
-			// Copy all health data (includes nested server, container, crash_details objects)
+			// Include full health data (checked_at, container, crash_details, crashed, server)
 			healthData := make(map[string]any)
 			maps.Copy(healthData, result.Health)
-			// Add the query identifier separately to preserve the full server object from API
+			// Add server_identifier and status to the health data
 			healthData["server_identifier"] = result.Server
+			healthData["status"] = "success"
 			outputData = append(outputData, healthData)
+			succeeded++
 		}
 	}
 
-	return formatter.Print(outputData)
+	response := map[string]any{
+		"results": outputData,
+		"summary": map[string]any{
+			"succeeded": succeeded,
+			"failed":    failed,
+		},
+	}
+
+	if err := formatter.Print(response); err != nil {
+		return err
+	}
+
+	if failed > 0 {
+		return fmt.Errorf("%d operation(s) failed", failed)
+	}
+
+	return nil
 }
 
 const unknownStatus = "unknown"
@@ -612,7 +632,7 @@ func newPowerCmd() *cobra.Command {
 func runPowerCommand(cmd *cobra.Command, args []string, command string) error {
 	return runServerAction(cmd, args, command, func(client *api.ApplicationAPI, identifier string) error {
 		return client.SendPowerCommand(identifier, command)
-	})
+	}, true)
 }
 
 func runPowerStart(cmd *cobra.Command, args []string) error {
@@ -878,7 +898,13 @@ func handleSummary(formatter *output.Formatter, results []bulk.Result, continueO
 	return nil
 }
 
-func runServerAction(cmd *cobra.Command, args []string, actionName string, action serverActionFunc) error {
+func runServerAction(
+	cmd *cobra.Command,
+	args []string,
+	actionName string,
+	action serverActionFunc,
+	minimalJSON bool,
+) error {
 	if len(args) == 0 {
 		return errors.New("no servers specified")
 	}
@@ -921,6 +947,9 @@ func runServerAction(cmd *cobra.Command, args []string, actionName string, actio
 
 	// Handle JSON output specially
 	if getOutputFormat(cmd) == output.OutputFormatJSON {
+		if minimalJSON {
+			return bulk.PrintBulkJSON(formatter, results, summary, flags.continueOnError)
+		}
 		return printResultsJSON(formatter, results, actionName, summary, flags.continueOnError)
 	}
 
