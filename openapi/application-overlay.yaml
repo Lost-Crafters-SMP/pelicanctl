@@ -166,3 +166,8 @@ actions:
   - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["ignored"]
     update:
       "nullable": true
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["override"]["type"]
+    update: "boolean"
+  - target: $["components"]["schemas"]["StoreBackupRequest"]["properties"]["override"]
+    update:
+      "nullable": true

@@ -447,6 +447,11 @@ func printHealthResultsJSON(formatter *output.Formatter, results []healthResult)
 
 const unknownStatus = "unknown"
 
+const (
+	statusSuccess = "success"
+	statusError   = "error"
+)
+
 func extractServerName(health map[string]any) string {
 	server, ok := health["server"].(map[string]any)
 	if !ok {
@@ -712,9 +717,9 @@ func printCommandResultsJSON(
 			"command":           command,
 		}
 		if result.Success {
-			resultData["status"] = "success"
+			resultData["status"] = statusSuccess
 		} else {
-			resultData["status"] = "error"
+			resultData["status"] = statusError
 			resultData["error"] = result.Error.Error()
 		}
 		outputData = append(outputData, resultData)
@@ -817,6 +822,41 @@ func executeBulkOperations(
 	return executor.Execute(ctx, operations)
 }
 
+// printResultsJSON prints bulk operation results in structured JSON format.
+func printResultsJSON(
+	formatter *output.Formatter,
+	results []bulk.Result,
+	actionName string,
+	summary bulk.Summary,
+) error {
+	outputData := make([]map[string]any, 0, len(results))
+
+	for _, result := range results {
+		resultData := map[string]any{
+			"server_identifier": result.Operation.ID,
+			"action":            actionName,
+		}
+		if result.Success {
+			resultData["status"] = statusSuccess
+		} else {
+			resultData["status"] = statusError
+			resultData["error"] = result.Error.Error()
+		}
+		outputData = append(outputData, resultData)
+	}
+
+	// Include summary in the output
+	response := map[string]any{
+		"results": outputData,
+		"summary": map[string]any{
+			"succeeded": summary.Success,
+			"failed":    summary.Failed,
+		},
+	}
+
+	return formatter.Print(response)
+}
+
 func printResults(formatter *output.Formatter, results []bulk.Result, actionName string) {
 	for _, result := range results {
 		if result.Success {
@@ -876,6 +916,13 @@ func runServerAction(cmd *cobra.Command, args []string, actionName string, actio
 
 	ctx := context.Background()
 	results := executeBulkOperations(ctx, client, uuids, action, flags)
+
+	summary := bulk.GetSummary(results)
+
+	// Handle JSON output specially
+	if getOutputFormat(cmd) == output.OutputFormatJSON {
+		return printResultsJSON(formatter, results, actionName, summary)
+	}
 
 	printResults(formatter, results, actionName)
 
@@ -1032,6 +1079,7 @@ func newBackupCmd() *cobra.Command {
 	createCmd.Flags().String("ignore-file", "", "File containing ignore patterns (newline-separated, like .gitignore)")
 	createCmd.Flags().String("name", "", "Backup name")
 	createCmd.Flags().Bool("locked", false, "Lock the backup after creation")
+	createCmd.Flags().Bool("override", false, "Override existing backup if one exists")
 	createCmd.Flags().String("save-pairs", "", "Save server+backup pairs to file (format: server-id,backup-uuid)")
 	createCmd.ValidArgsFunction = adminServerValidArgs
 	carapace.Gen(createCmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
@@ -1115,7 +1163,7 @@ func processIgnorePatterns(ignoreFile, ignoreStr string) (string, error) {
 }
 
 // buildBackupData builds the backup request data map from flags.
-func buildBackupData(name, ignorePatterns string, locked bool) map[string]any {
+func buildBackupData(name, ignorePatterns string, locked, override bool) map[string]any {
 	backupData := make(map[string]any)
 	if name != "" {
 		backupData["name"] = name
@@ -1125,6 +1173,9 @@ func buildBackupData(name, ignorePatterns string, locked bool) map[string]any {
 	}
 	if locked {
 		backupData["is_locked"] = true
+	}
+	if override {
+		backupData["override"] = true
 	}
 	return backupData
 }
@@ -1173,6 +1224,54 @@ func createBackupOperations(
 	return operations
 }
 
+// buildBackupPairsMap creates a map from server ID to backup UUID for quick lookup.
+func buildBackupPairsMap(pairs []backupPair) map[string]string {
+	pairsMap := make(map[string]string, len(pairs))
+	for _, pair := range pairs {
+		pairsMap[pair.ServerID] = pair.BackupUUID
+	}
+	return pairsMap
+}
+
+// printBackupCreateResultsJSON prints backup creation results in structured JSON format.
+func printBackupCreateResultsJSON(
+	formatter *output.Formatter,
+	results []bulk.Result,
+	pairs []backupPair,
+	summary bulk.Summary,
+) error {
+	pairsMap := buildBackupPairsMap(pairs)
+	outputData := make([]map[string]any, 0, len(results))
+
+	for _, result := range results {
+		resultData := map[string]any{
+			"server_identifier": result.Operation.ID,
+		}
+		if result.Success {
+			resultData["status"] = "success"
+			// Include backup UUID if available
+			if backupUUID, ok := pairsMap[result.Operation.ID]; ok {
+				resultData["backup_uuid"] = backupUUID
+			}
+		} else {
+			resultData["status"] = "error"
+			resultData["error"] = result.Error.Error()
+		}
+		outputData = append(outputData, resultData)
+	}
+
+	// Include summary in the output
+	response := map[string]any{
+		"results": outputData,
+		"summary": map[string]any{
+			"succeeded": summary.Success,
+			"failed":    summary.Failed,
+		},
+	}
+
+	return formatter.Print(response)
+}
+
 // printBackupCreateResults prints the results of backup creation operations.
 func printBackupCreateResults(formatter *output.Formatter, results []bulk.Result) {
 	for _, result := range results {
@@ -1212,6 +1311,7 @@ func runBackupCreate(cmd *cobra.Command, args []string) error {
 	ignoreFile, _ := cmd.Flags().GetString("ignore-file")
 	name, _ := cmd.Flags().GetString("name")
 	locked, _ := cmd.Flags().GetBool("locked")
+	override, _ := cmd.Flags().GetBool("override")
 	savePairs, _ := cmd.Flags().GetString("save-pairs")
 
 	// Process ignore patterns
@@ -1221,7 +1321,7 @@ func runBackupCreate(cmd *cobra.Command, args []string) error {
 	}
 
 	// Build backup request data
-	backupData := buildBackupData(name, ignorePatterns, locked)
+	backupData := buildBackupData(name, ignorePatterns, locked, override)
 
 	// Get server identifiers
 	uuids, err := getBackupCreateServerUUIDs(cmd, args, flags)
@@ -1255,6 +1355,13 @@ func runBackupCreate(cmd *cobra.Command, args []string) error {
 	executor := bulk.NewExecutor(flags.maxConcurrency, flags.continueOnError, flags.failFast)
 	results := executor.Execute(ctx, operations)
 
+	summary := bulk.GetSummary(results)
+
+	// Handle JSON output specially
+	if getOutputFormat(cmd) == output.OutputFormatJSON {
+		return printBackupCreateResultsJSON(formatter, results, pairs, summary)
+	}
+
 	// Print results
 	printBackupCreateResults(formatter, results)
 
@@ -1262,7 +1369,6 @@ func runBackupCreate(cmd *cobra.Command, args []string) error {
 	_ = saveBackupPairs(formatter, pairs, savePairs)
 
 	// Print summary
-	summary := bulk.GetSummary(results)
 	if summary.Failed > 0 {
 		return fmt.Errorf("%d backup creation(s) failed", summary.Failed)
 	}

@@ -16,6 +16,11 @@ import (
 	"go.lostcrafters.com/pelicanctl/internal/output"
 )
 
+const (
+	statusSuccess = "success"
+	statusError   = "error"
+)
+
 func newServerCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "server",
@@ -253,9 +258,9 @@ func printCommandResultsJSON(
 			"command":           command,
 		}
 		if result.Success {
-			resultData["status"] = "success"
+			resultData["status"] = statusSuccess
 		} else {
-			resultData["status"] = "error"
+			resultData["status"] = statusError
 			resultData["error"] = result.Error.Error()
 		}
 		outputData = append(outputData, resultData)

@@ -38,145 +38,875 @@ const (
 
 // Defines values for StoreUserRequestLanguage.
 const (
-	Af StoreUserRequestLanguage = "af"
-	Ak StoreUserRequestLanguage = "ak"
-	Am StoreUserRequestLanguage = "am"
-	Ar StoreUserRequestLanguage = "ar"
-	As StoreUserRequestLanguage = "as"
-	Az StoreUserRequestLanguage = "az"
-	Be StoreUserRequestLanguage = "be"
-	Bg StoreUserRequestLanguage = "bg"
-	Bm StoreUserRequestLanguage = "bm"
-	Bn StoreUserRequestLanguage = "bn"
-	Bo StoreUserRequestLanguage = "bo"
-	Br StoreUserRequestLanguage = "br"
-	Bs StoreUserRequestLanguage = "bs"
-	Ca StoreUserRequestLanguage = "ca"
-	Ce StoreUserRequestLanguage = "ce"
-	Cs StoreUserRequestLanguage = "cs"
-	Cv StoreUserRequestLanguage = "cv"
-	Cy StoreUserRequestLanguage = "cy"
-	Da StoreUserRequestLanguage = "da"
-	De StoreUserRequestLanguage = "de"
-	Dz StoreUserRequestLanguage = "dz"
-	Ee StoreUserRequestLanguage = "ee"
-	El StoreUserRequestLanguage = "el"
-	En StoreUserRequestLanguage = "en"
-	Eo StoreUserRequestLanguage = "eo"
-	Es StoreUserRequestLanguage = "es"
-	Et StoreUserRequestLanguage = "et"
-	Eu StoreUserRequestLanguage = "eu"
-	Fa StoreUserRequestLanguage = "fa"
-	Ff StoreUserRequestLanguage = "ff"
-	Fi StoreUserRequestLanguage = "fi"
-	Fo StoreUserRequestLanguage = "fo"
-	Fr StoreUserRequestLanguage = "fr"
-	Fy StoreUserRequestLanguage = "fy"
-	Ga StoreUserRequestLanguage = "ga"
-	Gd StoreUserRequestLanguage = "gd"
-	Gl StoreUserRequestLanguage = "gl"
-	Gu StoreUserRequestLanguage = "gu"
-	Gv StoreUserRequestLanguage = "gv"
-	Ha StoreUserRequestLanguage = "ha"
-	He StoreUserRequestLanguage = "he"
-	Hi StoreUserRequestLanguage = "hi"
-	Hr StoreUserRequestLanguage = "hr"
-	Hu StoreUserRequestLanguage = "hu"
-	Hy StoreUserRequestLanguage = "hy"
-	Ia StoreUserRequestLanguage = "ia"
-	Id StoreUserRequestLanguage = "id"
-	Ie StoreUserRequestLanguage = "ie"
-	Ig StoreUserRequestLanguage = "ig"
-	Ii StoreUserRequestLanguage = "ii"
-	Is StoreUserRequestLanguage = "is"
-	It StoreUserRequestLanguage = "it"
-	Ja StoreUserRequestLanguage = "ja"
-	Jv StoreUserRequestLanguage = "jv"
-	Ka StoreUserRequestLanguage = "ka"
-	Ki StoreUserRequestLanguage = "ki"
-	Kk StoreUserRequestLanguage = "kk"
-	Kl StoreUserRequestLanguage = "kl"
-	Km StoreUserRequestLanguage = "km"
-	Kn StoreUserRequestLanguage = "kn"
-	Ko StoreUserRequestLanguage = "ko"
-	Ks StoreUserRequestLanguage = "ks"
-	Ku StoreUserRequestLanguage = "ku"
-	Kw StoreUserRequestLanguage = "kw"
-	Ky StoreUserRequestLanguage = "ky"
-	Lb StoreUserRequestLanguage = "lb"
-	Lg StoreUserRequestLanguage = "lg"
-	Ln StoreUserRequestLanguage = "ln"
-	Lo StoreUserRequestLanguage = "lo"
-	Lt StoreUserRequestLanguage = "lt"
-	Lu StoreUserRequestLanguage = "lu"
-	Lv StoreUserRequestLanguage = "lv"
-	Mg StoreUserRequestLanguage = "mg"
-	Mi StoreUserRequestLanguage = "mi"
-	Mk StoreUserRequestLanguage = "mk"
-	Ml StoreUserRequestLanguage = "ml"
-	Mn StoreUserRequestLanguage = "mn"
-	Mr StoreUserRequestLanguage = "mr"
-	Ms StoreUserRequestLanguage = "ms"
-	Mt StoreUserRequestLanguage = "mt"
-	My StoreUserRequestLanguage = "my"
-	Nb StoreUserRequestLanguage = "nb"
-	Nd StoreUserRequestLanguage = "nd"
-	Ne StoreUserRequestLanguage = "ne"
-	Nl StoreUserRequestLanguage = "nl"
-	Nn StoreUserRequestLanguage = "nn"
-	No StoreUserRequestLanguage = "no"
-	Oc StoreUserRequestLanguage = "oc"
-	Om StoreUserRequestLanguage = "om"
-	Or StoreUserRequestLanguage = "or"
-	Os StoreUserRequestLanguage = "os"
-	Pa StoreUserRequestLanguage = "pa"
-	Pl StoreUserRequestLanguage = "pl"
-	Ps StoreUserRequestLanguage = "ps"
-	Pt StoreUserRequestLanguage = "pt"
-	Qu StoreUserRequestLanguage = "qu"
-	Rm StoreUserRequestLanguage = "rm"
-	Rn StoreUserRequestLanguage = "rn"
-	Ro StoreUserRequestLanguage = "ro"
-	Ru StoreUserRequestLanguage = "ru"
-	Rw StoreUserRequestLanguage = "rw"
-	Sa StoreUserRequestLanguage = "sa"
-	Sc StoreUserRequestLanguage = "sc"
-	Sd StoreUserRequestLanguage = "sd"
-	Se StoreUserRequestLanguage = "se"
-	Sg StoreUserRequestLanguage = "sg"
-	Si StoreUserRequestLanguage = "si"
-	Sk StoreUserRequestLanguage = "sk"
-	Sl StoreUserRequestLanguage = "sl"
-	Sn StoreUserRequestLanguage = "sn"
-	So StoreUserRequestLanguage = "so"
-	Sq StoreUserRequestLanguage = "sq"
-	Sr StoreUserRequestLanguage = "sr"
-	St StoreUserRequestLanguage = "st"
-	Su StoreUserRequestLanguage = "su"
-	Sv StoreUserRequestLanguage = "sv"
-	Sw StoreUserRequestLanguage = "sw"
-	Ta StoreUserRequestLanguage = "ta"
-	Te StoreUserRequestLanguage = "te"
-	Tg StoreUserRequestLanguage = "tg"
-	Th StoreUserRequestLanguage = "th"
-	Ti StoreUserRequestLanguage = "ti"
-	Tk StoreUserRequestLanguage = "tk"
-	Tn StoreUserRequestLanguage = "tn"
-	To StoreUserRequestLanguage = "to"
-	Tr StoreUserRequestLanguage = "tr"
-	Tt StoreUserRequestLanguage = "tt"
-	Ug StoreUserRequestLanguage = "ug"
-	Uk StoreUserRequestLanguage = "uk"
-	Ur StoreUserRequestLanguage = "ur"
-	Uz StoreUserRequestLanguage = "uz"
-	Vi StoreUserRequestLanguage = "vi"
-	Wo StoreUserRequestLanguage = "wo"
-	Xh StoreUserRequestLanguage = "xh"
-	Yi StoreUserRequestLanguage = "yi"
-	Yo StoreUserRequestLanguage = "yo"
-	Za StoreUserRequestLanguage = "za"
-	Zh StoreUserRequestLanguage = "zh"
-	Zu StoreUserRequestLanguage = "zu"
+	Af        StoreUserRequestLanguage = "af"
+	AfNA      StoreUserRequestLanguage = "af_NA"
+	AfZA      StoreUserRequestLanguage = "af_ZA"
+	Agq       StoreUserRequestLanguage = "agq"
+	AgqCM     StoreUserRequestLanguage = "agq_CM"
+	Ak        StoreUserRequestLanguage = "ak"
+	AkGH      StoreUserRequestLanguage = "ak_GH"
+	Am        StoreUserRequestLanguage = "am"
+	AmET      StoreUserRequestLanguage = "am_ET"
+	Ar        StoreUserRequestLanguage = "ar"
+	Ar001     StoreUserRequestLanguage = "ar_001"
+	ArAE      StoreUserRequestLanguage = "ar_AE"
+	ArBH      StoreUserRequestLanguage = "ar_BH"
+	ArDJ      StoreUserRequestLanguage = "ar_DJ"
+	ArDZ      StoreUserRequestLanguage = "ar_DZ"
+	ArEG      StoreUserRequestLanguage = "ar_EG"
+	ArEH      StoreUserRequestLanguage = "ar_EH"
+	ArER      StoreUserRequestLanguage = "ar_ER"
+	ArIL      StoreUserRequestLanguage = "ar_IL"
+	ArIQ      StoreUserRequestLanguage = "ar_IQ"
+	ArJO      StoreUserRequestLanguage = "ar_JO"
+	ArKM      StoreUserRequestLanguage = "ar_KM"
+	ArKW      StoreUserRequestLanguage = "ar_KW"
+	ArLB      StoreUserRequestLanguage = "ar_LB"
+	ArLY      StoreUserRequestLanguage = "ar_LY"
+	ArMA      StoreUserRequestLanguage = "ar_MA"
+	ArMR      StoreUserRequestLanguage = "ar_MR"
+	ArOM      StoreUserRequestLanguage = "ar_OM"
+	ArPS      StoreUserRequestLanguage = "ar_PS"
+	ArQA      StoreUserRequestLanguage = "ar_QA"
+	ArSA      StoreUserRequestLanguage = "ar_SA"
+	ArSD      StoreUserRequestLanguage = "ar_SD"
+	ArSO      StoreUserRequestLanguage = "ar_SO"
+	ArSS      StoreUserRequestLanguage = "ar_SS"
+	ArSY      StoreUserRequestLanguage = "ar_SY"
+	ArTD      StoreUserRequestLanguage = "ar_TD"
+	ArTN      StoreUserRequestLanguage = "ar_TN"
+	ArYE      StoreUserRequestLanguage = "ar_YE"
+	As        StoreUserRequestLanguage = "as"
+	AsIN      StoreUserRequestLanguage = "as_IN"
+	Asa       StoreUserRequestLanguage = "asa"
+	AsaTZ     StoreUserRequestLanguage = "asa_TZ"
+	Ast       StoreUserRequestLanguage = "ast"
+	AstES     StoreUserRequestLanguage = "ast_ES"
+	Az        StoreUserRequestLanguage = "az"
+	AzCyrl    StoreUserRequestLanguage = "az_Cyrl"
+	AzCyrlAZ  StoreUserRequestLanguage = "az_Cyrl_AZ"
+	AzLatn    StoreUserRequestLanguage = "az_Latn"
+	AzLatnAZ  StoreUserRequestLanguage = "az_Latn_AZ"
+	Bas       StoreUserRequestLanguage = "bas"
+	BasCM     StoreUserRequestLanguage = "bas_CM"
+	Be        StoreUserRequestLanguage = "be"
+	BeBY      StoreUserRequestLanguage = "be_BY"
+	Bem       StoreUserRequestLanguage = "bem"
+	BemZM     StoreUserRequestLanguage = "bem_ZM"
+	Bez       StoreUserRequestLanguage = "bez"
+	BezTZ     StoreUserRequestLanguage = "bez_TZ"
+	Bg        StoreUserRequestLanguage = "bg"
+	BgBG      StoreUserRequestLanguage = "bg_BG"
+	Bgc       StoreUserRequestLanguage = "bgc"
+	BgcIN     StoreUserRequestLanguage = "bgc_IN"
+	Bho       StoreUserRequestLanguage = "bho"
+	BhoIN     StoreUserRequestLanguage = "bho_IN"
+	Blo       StoreUserRequestLanguage = "blo"
+	BloBJ     StoreUserRequestLanguage = "blo_BJ"
+	Bm        StoreUserRequestLanguage = "bm"
+	BmML      StoreUserRequestLanguage = "bm_ML"
+	Bn        StoreUserRequestLanguage = "bn"
+	BnBD      StoreUserRequestLanguage = "bn_BD"
+	BnIN      StoreUserRequestLanguage = "bn_IN"
+	Bo        StoreUserRequestLanguage = "bo"
+	BoCN      StoreUserRequestLanguage = "bo_CN"
+	BoIN      StoreUserRequestLanguage = "bo_IN"
+	Br        StoreUserRequestLanguage = "br"
+	BrFR      StoreUserRequestLanguage = "br_FR"
+	Brx       StoreUserRequestLanguage = "brx"
+	BrxIN     StoreUserRequestLanguage = "brx_IN"
+	Bs        StoreUserRequestLanguage = "bs"
+	BsCyrl    StoreUserRequestLanguage = "bs_Cyrl"
+	BsCyrlBA  StoreUserRequestLanguage = "bs_Cyrl_BA"
+	BsLatn    StoreUserRequestLanguage = "bs_Latn"
+	BsLatnBA  StoreUserRequestLanguage = "bs_Latn_BA"
+	Ca        StoreUserRequestLanguage = "ca"
+	CaAD      StoreUserRequestLanguage = "ca_AD"
+	CaES      StoreUserRequestLanguage = "ca_ES"
+	CaFR      StoreUserRequestLanguage = "ca_FR"
+	CaIT      StoreUserRequestLanguage = "ca_IT"
+	Ccp       StoreUserRequestLanguage = "ccp"
+	CcpBD     StoreUserRequestLanguage = "ccp_BD"
+	CcpIN     StoreUserRequestLanguage = "ccp_IN"
+	Ce        StoreUserRequestLanguage = "ce"
+	CeRU      StoreUserRequestLanguage = "ce_RU"
+	Ceb       StoreUserRequestLanguage = "ceb"
+	CebPH     StoreUserRequestLanguage = "ceb_PH"
+	Cgg       StoreUserRequestLanguage = "cgg"
+	CggUG     StoreUserRequestLanguage = "cgg_UG"
+	Chr       StoreUserRequestLanguage = "chr"
+	ChrUS     StoreUserRequestLanguage = "chr_US"
+	Ckb       StoreUserRequestLanguage = "ckb"
+	CkbIQ     StoreUserRequestLanguage = "ckb_IQ"
+	CkbIR     StoreUserRequestLanguage = "ckb_IR"
+	Cs        StoreUserRequestLanguage = "cs"
+	CsCZ      StoreUserRequestLanguage = "cs_CZ"
+	Csw       StoreUserRequestLanguage = "csw"
+	CswCA     StoreUserRequestLanguage = "csw_CA"
+	Cv        StoreUserRequestLanguage = "cv"
+	CvRU      StoreUserRequestLanguage = "cv_RU"
+	Cy        StoreUserRequestLanguage = "cy"
+	CyGB      StoreUserRequestLanguage = "cy_GB"
+	Da        StoreUserRequestLanguage = "da"
+	DaDK      StoreUserRequestLanguage = "da_DK"
+	DaGL      StoreUserRequestLanguage = "da_GL"
+	Dav       StoreUserRequestLanguage = "dav"
+	DavKE     StoreUserRequestLanguage = "dav_KE"
+	De        StoreUserRequestLanguage = "de"
+	DeAT      StoreUserRequestLanguage = "de_AT"
+	DeBE      StoreUserRequestLanguage = "de_BE"
+	DeCH      StoreUserRequestLanguage = "de_CH"
+	DeDE      StoreUserRequestLanguage = "de_DE"
+	DeIT      StoreUserRequestLanguage = "de_IT"
+	DeLI      StoreUserRequestLanguage = "de_LI"
+	DeLU      StoreUserRequestLanguage = "de_LU"
+	Dje       StoreUserRequestLanguage = "dje"
+	DjeNE     StoreUserRequestLanguage = "dje_NE"
+	Doi       StoreUserRequestLanguage = "doi"
+	DoiIN     StoreUserRequestLanguage = "doi_IN"
+	Dsb       StoreUserRequestLanguage = "dsb"
+	DsbDE     StoreUserRequestLanguage = "dsb_DE"
+	Dua       StoreUserRequestLanguage = "dua"
+	DuaCM     StoreUserRequestLanguage = "dua_CM"
+	Dyo       StoreUserRequestLanguage = "dyo"
+	DyoSN     StoreUserRequestLanguage = "dyo_SN"
+	Dz        StoreUserRequestLanguage = "dz"
+	DzBT      StoreUserRequestLanguage = "dz_BT"
+	Ebu       StoreUserRequestLanguage = "ebu"
+	EbuKE     StoreUserRequestLanguage = "ebu_KE"
+	Ee        StoreUserRequestLanguage = "ee"
+	EeGH      StoreUserRequestLanguage = "ee_GH"
+	EeTG      StoreUserRequestLanguage = "ee_TG"
+	El        StoreUserRequestLanguage = "el"
+	ElCY      StoreUserRequestLanguage = "el_CY"
+	ElGR      StoreUserRequestLanguage = "el_GR"
+	En        StoreUserRequestLanguage = "en"
+	En001     StoreUserRequestLanguage = "en_001"
+	En150     StoreUserRequestLanguage = "en_150"
+	EnAE      StoreUserRequestLanguage = "en_AE"
+	EnAG      StoreUserRequestLanguage = "en_AG"
+	EnAI      StoreUserRequestLanguage = "en_AI"
+	EnAS      StoreUserRequestLanguage = "en_AS"
+	EnAT      StoreUserRequestLanguage = "en_AT"
+	EnAU      StoreUserRequestLanguage = "en_AU"
+	EnBB      StoreUserRequestLanguage = "en_BB"
+	EnBE      StoreUserRequestLanguage = "en_BE"
+	EnBI      StoreUserRequestLanguage = "en_BI"
+	EnBM      StoreUserRequestLanguage = "en_BM"
+	EnBS      StoreUserRequestLanguage = "en_BS"
+	EnBW      StoreUserRequestLanguage = "en_BW"
+	EnBZ      StoreUserRequestLanguage = "en_BZ"
+	EnCA      StoreUserRequestLanguage = "en_CA"
+	EnCC      StoreUserRequestLanguage = "en_CC"
+	EnCH      StoreUserRequestLanguage = "en_CH"
+	EnCK      StoreUserRequestLanguage = "en_CK"
+	EnCM      StoreUserRequestLanguage = "en_CM"
+	EnCX      StoreUserRequestLanguage = "en_CX"
+	EnCY      StoreUserRequestLanguage = "en_CY"
+	EnDE      StoreUserRequestLanguage = "en_DE"
+	EnDG      StoreUserRequestLanguage = "en_DG"
+	EnDK      StoreUserRequestLanguage = "en_DK"
+	EnDM      StoreUserRequestLanguage = "en_DM"
+	EnER      StoreUserRequestLanguage = "en_ER"
+	EnFI      StoreUserRequestLanguage = "en_FI"
+	EnFJ      StoreUserRequestLanguage = "en_FJ"
+	EnFK      StoreUserRequestLanguage = "en_FK"
+	EnFM      StoreUserRequestLanguage = "en_FM"
+	EnGB      StoreUserRequestLanguage = "en_GB"
+	EnGD      StoreUserRequestLanguage = "en_GD"
+	EnGG      StoreUserRequestLanguage = "en_GG"
+	EnGH      StoreUserRequestLanguage = "en_GH"
+	EnGI      StoreUserRequestLanguage = "en_GI"
+	EnGM      StoreUserRequestLanguage = "en_GM"
+	EnGU      StoreUserRequestLanguage = "en_GU"
+	EnGY      StoreUserRequestLanguage = "en_GY"
+	EnHK      StoreUserRequestLanguage = "en_HK"
+	EnID      StoreUserRequestLanguage = "en_ID"
+	EnIE      StoreUserRequestLanguage = "en_IE"
+	EnIL      StoreUserRequestLanguage = "en_IL"
+	EnIM      StoreUserRequestLanguage = "en_IM"
+	EnIN      StoreUserRequestLanguage = "en_IN"
+	EnIO      StoreUserRequestLanguage = "en_IO"
+	EnJE      StoreUserRequestLanguage = "en_JE"
+	EnJM      StoreUserRequestLanguage = "en_JM"
+	EnKE      StoreUserRequestLanguage = "en_KE"
+	EnKI      StoreUserRequestLanguage = "en_KI"
+	EnKN      StoreUserRequestLanguage = "en_KN"
+	EnKY      StoreUserRequestLanguage = "en_KY"
+	EnLC      StoreUserRequestLanguage = "en_LC"
+	EnLR      StoreUserRequestLanguage = "en_LR"
+	EnLS      StoreUserRequestLanguage = "en_LS"
+	EnMG      StoreUserRequestLanguage = "en_MG"
+	EnMH      StoreUserRequestLanguage = "en_MH"
+	EnMO      StoreUserRequestLanguage = "en_MO"
+	EnMP      StoreUserRequestLanguage = "en_MP"
+	EnMS      StoreUserRequestLanguage = "en_MS"
+	EnMT      StoreUserRequestLanguage = "en_MT"
+	EnMU      StoreUserRequestLanguage = "en_MU"
+	EnMV      StoreUserRequestLanguage = "en_MV"
+	EnMW      StoreUserRequestLanguage = "en_MW"
+	EnMY      StoreUserRequestLanguage = "en_MY"
+	EnNA      StoreUserRequestLanguage = "en_NA"
+	EnNF      StoreUserRequestLanguage = "en_NF"
+	EnNG      StoreUserRequestLanguage = "en_NG"
+	EnNL      StoreUserRequestLanguage = "en_NL"
+	EnNR      StoreUserRequestLanguage = "en_NR"
+	EnNU      StoreUserRequestLanguage = "en_NU"
+	EnNZ      StoreUserRequestLanguage = "en_NZ"
+	EnPG      StoreUserRequestLanguage = "en_PG"
+	EnPH      StoreUserRequestLanguage = "en_PH"
+	EnPK      StoreUserRequestLanguage = "en_PK"
+	EnPN      StoreUserRequestLanguage = "en_PN"
+	EnPR      StoreUserRequestLanguage = "en_PR"
+	EnPW      StoreUserRequestLanguage = "en_PW"
+	EnRW      StoreUserRequestLanguage = "en_RW"
+	EnSB      StoreUserRequestLanguage = "en_SB"
+	EnSC      StoreUserRequestLanguage = "en_SC"
+	EnSD      StoreUserRequestLanguage = "en_SD"
+	EnSE      StoreUserRequestLanguage = "en_SE"
+	EnSG      StoreUserRequestLanguage = "en_SG"
+	EnSH      StoreUserRequestLanguage = "en_SH"
+	EnSI      StoreUserRequestLanguage = "en_SI"
+	EnSL      StoreUserRequestLanguage = "en_SL"
+	EnSS      StoreUserRequestLanguage = "en_SS"
+	EnSX      StoreUserRequestLanguage = "en_SX"
+	EnSZ      StoreUserRequestLanguage = "en_SZ"
+	EnTC      StoreUserRequestLanguage = "en_TC"
+	EnTK      StoreUserRequestLanguage = "en_TK"
+	EnTO      StoreUserRequestLanguage = "en_TO"
+	EnTT      StoreUserRequestLanguage = "en_TT"
+	EnTV      StoreUserRequestLanguage = "en_TV"
+	EnTZ      StoreUserRequestLanguage = "en_TZ"
+	EnUG      StoreUserRequestLanguage = "en_UG"
+	EnUM      StoreUserRequestLanguage = "en_UM"
+	EnUS      StoreUserRequestLanguage = "en_US"
+	EnUSPOSIX StoreUserRequestLanguage = "en_US_POSIX"
+	EnVC      StoreUserRequestLanguage = "en_VC"
+	EnVG      StoreUserRequestLanguage = "en_VG"
+	EnVI      StoreUserRequestLanguage = "en_VI"
+	EnVU      StoreUserRequestLanguage = "en_VU"
+	EnWS      StoreUserRequestLanguage = "en_WS"
+	EnZA      StoreUserRequestLanguage = "en_ZA"
+	EnZM      StoreUserRequestLanguage = "en_ZM"
+	EnZW      StoreUserRequestLanguage = "en_ZW"
+	Eo        StoreUserRequestLanguage = "eo"
+	Eo001     StoreUserRequestLanguage = "eo_001"
+	Es        StoreUserRequestLanguage = "es"
+	Es419     StoreUserRequestLanguage = "es_419"
+	EsAR      StoreUserRequestLanguage = "es_AR"
+	EsBO      StoreUserRequestLanguage = "es_BO"
+	EsBR      StoreUserRequestLanguage = "es_BR"
+	EsBZ      StoreUserRequestLanguage = "es_BZ"
+	EsCL      StoreUserRequestLanguage = "es_CL"
+	EsCO      StoreUserRequestLanguage = "es_CO"
+	EsCR      StoreUserRequestLanguage = "es_CR"
+	EsCU      StoreUserRequestLanguage = "es_CU"
+	EsDO      StoreUserRequestLanguage = "es_DO"
+	EsEA      StoreUserRequestLanguage = "es_EA"
+	EsEC      StoreUserRequestLanguage = "es_EC"
+	EsES      StoreUserRequestLanguage = "es_ES"
+	EsGQ      StoreUserRequestLanguage = "es_GQ"
+	EsGT      StoreUserRequestLanguage = "es_GT"
+	EsHN      StoreUserRequestLanguage = "es_HN"
+	EsIC      StoreUserRequestLanguage = "es_IC"
+	EsMX      StoreUserRequestLanguage = "es_MX"
+	EsNI      StoreUserRequestLanguage = "es_NI"
+	EsPA      StoreUserRequestLanguage = "es_PA"
+	EsPE      StoreUserRequestLanguage = "es_PE"
+	EsPH      StoreUserRequestLanguage = "es_PH"
+	EsPR      StoreUserRequestLanguage = "es_PR"
+	EsPY      StoreUserRequestLanguage = "es_PY"
+	EsSV      StoreUserRequestLanguage = "es_SV"
+	EsUS      StoreUserRequestLanguage = "es_US"
+	EsUY      StoreUserRequestLanguage = "es_UY"
+	EsVE      StoreUserRequestLanguage = "es_VE"
+	Et        StoreUserRequestLanguage = "et"
+	EtEE      StoreUserRequestLanguage = "et_EE"
+	Eu        StoreUserRequestLanguage = "eu"
+	EuES      StoreUserRequestLanguage = "eu_ES"
+	Ewo       StoreUserRequestLanguage = "ewo"
+	EwoCM     StoreUserRequestLanguage = "ewo_CM"
+	Fa        StoreUserRequestLanguage = "fa"
+	FaAF      StoreUserRequestLanguage = "fa_AF"
+	FaIR      StoreUserRequestLanguage = "fa_IR"
+	Ff        StoreUserRequestLanguage = "ff"
+	FfAdlm    StoreUserRequestLanguage = "ff_Adlm"
+	FfAdlmBF  StoreUserRequestLanguage = "ff_Adlm_BF"
+	FfAdlmCM  StoreUserRequestLanguage = "ff_Adlm_CM"
+	FfAdlmGH  StoreUserRequestLanguage = "ff_Adlm_GH"
+	FfAdlmGM  StoreUserRequestLanguage = "ff_Adlm_GM"
+	FfAdlmGN  StoreUserRequestLanguage = "ff_Adlm_GN"
+	FfAdlmGW  StoreUserRequestLanguage = "ff_Adlm_GW"
+	FfAdlmLR  StoreUserRequestLanguage = "ff_Adlm_LR"
+	FfAdlmMR  StoreUserRequestLanguage = "ff_Adlm_MR"
+	FfAdlmNE  StoreUserRequestLanguage = "ff_Adlm_NE"
+	FfAdlmNG  StoreUserRequestLanguage = "ff_Adlm_NG"
+	FfAdlmSL  StoreUserRequestLanguage = "ff_Adlm_SL"
+	FfAdlmSN  StoreUserRequestLanguage = "ff_Adlm_SN"
+	FfLatn    StoreUserRequestLanguage = "ff_Latn"
+	FfLatnBF  StoreUserRequestLanguage = "ff_Latn_BF"
+	FfLatnCM  StoreUserRequestLanguage = "ff_Latn_CM"
+	FfLatnGH  StoreUserRequestLanguage = "ff_Latn_GH"
+	FfLatnGM  StoreUserRequestLanguage = "ff_Latn_GM"
+	FfLatnGN  StoreUserRequestLanguage = "ff_Latn_GN"
+	FfLatnGW  StoreUserRequestLanguage = "ff_Latn_GW"
+	FfLatnLR  StoreUserRequestLanguage = "ff_Latn_LR"
+	FfLatnMR  StoreUserRequestLanguage = "ff_Latn_MR"
+	FfLatnNE  StoreUserRequestLanguage = "ff_Latn_NE"
+	FfLatnNG  StoreUserRequestLanguage = "ff_Latn_NG"
+	FfLatnSL  StoreUserRequestLanguage = "ff_Latn_SL"
+	FfLatnSN  StoreUserRequestLanguage = "ff_Latn_SN"
+	Fi        StoreUserRequestLanguage = "fi"
+	FiFI      StoreUserRequestLanguage = "fi_FI"
+	Fil       StoreUserRequestLanguage = "fil"
+	FilPH     StoreUserRequestLanguage = "fil_PH"
+	Fo        StoreUserRequestLanguage = "fo"
+	FoDK      StoreUserRequestLanguage = "fo_DK"
+	FoFO      StoreUserRequestLanguage = "fo_FO"
+	Fr        StoreUserRequestLanguage = "fr"
+	FrBE      StoreUserRequestLanguage = "fr_BE"
+	FrBF      StoreUserRequestLanguage = "fr_BF"
+	FrBI      StoreUserRequestLanguage = "fr_BI"
+	FrBJ      StoreUserRequestLanguage = "fr_BJ"
+	FrBL      StoreUserRequestLanguage = "fr_BL"
+	FrCA      StoreUserRequestLanguage = "fr_CA"
+	FrCD      StoreUserRequestLanguage = "fr_CD"
+	FrCF      StoreUserRequestLanguage = "fr_CF"
+	FrCG      StoreUserRequestLanguage = "fr_CG"
+	FrCH      StoreUserRequestLanguage = "fr_CH"
+	FrCI      StoreUserRequestLanguage = "fr_CI"
+	FrCM      StoreUserRequestLanguage = "fr_CM"
+	FrDJ      StoreUserRequestLanguage = "fr_DJ"
+	FrDZ      StoreUserRequestLanguage = "fr_DZ"
+	FrFR      StoreUserRequestLanguage = "fr_FR"
+	FrGA      StoreUserRequestLanguage = "fr_GA"
+	FrGF      StoreUserRequestLanguage = "fr_GF"
+	FrGN      StoreUserRequestLanguage = "fr_GN"
+	FrGP      StoreUserRequestLanguage = "fr_GP"
+	FrGQ      StoreUserRequestLanguage = "fr_GQ"
+	FrHT      StoreUserRequestLanguage = "fr_HT"
+	FrKM      StoreUserRequestLanguage = "fr_KM"
+	FrLU      StoreUserRequestLanguage = "fr_LU"
+	FrMA      StoreUserRequestLanguage = "fr_MA"
+	FrMC      StoreUserRequestLanguage = "fr_MC"
+	FrMF      StoreUserRequestLanguage = "fr_MF"
+	FrMG      StoreUserRequestLanguage = "fr_MG"
+	FrML      StoreUserRequestLanguage = "fr_ML"
+	FrMQ      StoreUserRequestLanguage = "fr_MQ"
+	FrMR      StoreUserRequestLanguage = "fr_MR"
+	FrMU      StoreUserRequestLanguage = "fr_MU"
+	FrNC      StoreUserRequestLanguage = "fr_NC"
+	FrNE      StoreUserRequestLanguage = "fr_NE"
+	FrPF      StoreUserRequestLanguage = "fr_PF"
+	FrPM      StoreUserRequestLanguage = "fr_PM"
+	FrRE      StoreUserRequestLanguage = "fr_RE"
+	FrRW      StoreUserRequestLanguage = "fr_RW"
+	FrSC      StoreUserRequestLanguage = "fr_SC"
+	FrSN      StoreUserRequestLanguage = "fr_SN"
+	FrSY      StoreUserRequestLanguage = "fr_SY"
+	FrTD      StoreUserRequestLanguage = "fr_TD"
+	FrTG      StoreUserRequestLanguage = "fr_TG"
+	FrTN      StoreUserRequestLanguage = "fr_TN"
+	FrVU      StoreUserRequestLanguage = "fr_VU"
+	FrWF      StoreUserRequestLanguage = "fr_WF"
+	FrYT      StoreUserRequestLanguage = "fr_YT"
+	Fur       StoreUserRequestLanguage = "fur"
+	FurIT     StoreUserRequestLanguage = "fur_IT"
+	Fy        StoreUserRequestLanguage = "fy"
+	FyNL      StoreUserRequestLanguage = "fy_NL"
+	Ga        StoreUserRequestLanguage = "ga"
+	GaGB      StoreUserRequestLanguage = "ga_GB"
+	GaIE      StoreUserRequestLanguage = "ga_IE"
+	Gaa       StoreUserRequestLanguage = "gaa"
+	GaaGH     StoreUserRequestLanguage = "gaa_GH"
+	Gd        StoreUserRequestLanguage = "gd"
+	GdGB      StoreUserRequestLanguage = "gd_GB"
+	Gl        StoreUserRequestLanguage = "gl"
+	GlES      StoreUserRequestLanguage = "gl_ES"
+	Gsw       StoreUserRequestLanguage = "gsw"
+	GswCH     StoreUserRequestLanguage = "gsw_CH"
+	GswFR     StoreUserRequestLanguage = "gsw_FR"
+	GswLI     StoreUserRequestLanguage = "gsw_LI"
+	Gu        StoreUserRequestLanguage = "gu"
+	GuIN      StoreUserRequestLanguage = "gu_IN"
+	Guz       StoreUserRequestLanguage = "guz"
+	GuzKE     StoreUserRequestLanguage = "guz_KE"
+	Gv        StoreUserRequestLanguage = "gv"
+	GvIM      StoreUserRequestLanguage = "gv_IM"
+	Ha        StoreUserRequestLanguage = "ha"
+	HaGH      StoreUserRequestLanguage = "ha_GH"
+	HaNE      StoreUserRequestLanguage = "ha_NE"
+	HaNG      StoreUserRequestLanguage = "ha_NG"
+	Haw       StoreUserRequestLanguage = "haw"
+	HawUS     StoreUserRequestLanguage = "haw_US"
+	He        StoreUserRequestLanguage = "he"
+	HeIL      StoreUserRequestLanguage = "he_IL"
+	Hi        StoreUserRequestLanguage = "hi"
+	HiIN      StoreUserRequestLanguage = "hi_IN"
+	HiLatn    StoreUserRequestLanguage = "hi_Latn"
+	HiLatnIN  StoreUserRequestLanguage = "hi_Latn_IN"
+	Hr        StoreUserRequestLanguage = "hr"
+	HrBA      StoreUserRequestLanguage = "hr_BA"
+	HrHR      StoreUserRequestLanguage = "hr_HR"
+	Hsb       StoreUserRequestLanguage = "hsb"
+	HsbDE     StoreUserRequestLanguage = "hsb_DE"
+	Hu        StoreUserRequestLanguage = "hu"
+	HuHU      StoreUserRequestLanguage = "hu_HU"
+	Hy        StoreUserRequestLanguage = "hy"
+	HyAM      StoreUserRequestLanguage = "hy_AM"
+	Ia        StoreUserRequestLanguage = "ia"
+	Ia001     StoreUserRequestLanguage = "ia_001"
+	Id        StoreUserRequestLanguage = "id"
+	IdID      StoreUserRequestLanguage = "id_ID"
+	Ie        StoreUserRequestLanguage = "ie"
+	IeEE      StoreUserRequestLanguage = "ie_EE"
+	Ig        StoreUserRequestLanguage = "ig"
+	IgNG      StoreUserRequestLanguage = "ig_NG"
+	Ii        StoreUserRequestLanguage = "ii"
+	IiCN      StoreUserRequestLanguage = "ii_CN"
+	Is        StoreUserRequestLanguage = "is"
+	IsIS      StoreUserRequestLanguage = "is_IS"
+	It        StoreUserRequestLanguage = "it"
+	ItCH      StoreUserRequestLanguage = "it_CH"
+	ItIT      StoreUserRequestLanguage = "it_IT"
+	ItSM      StoreUserRequestLanguage = "it_SM"
+	ItVA      StoreUserRequestLanguage = "it_VA"
+	Ja        StoreUserRequestLanguage = "ja"
+	JaJP      StoreUserRequestLanguage = "ja_JP"
+	Jgo       StoreUserRequestLanguage = "jgo"
+	JgoCM     StoreUserRequestLanguage = "jgo_CM"
+	Jmc       StoreUserRequestLanguage = "jmc"
+	JmcTZ     StoreUserRequestLanguage = "jmc_TZ"
+	Jv        StoreUserRequestLanguage = "jv"
+	JvID      StoreUserRequestLanguage = "jv_ID"
+	Ka        StoreUserRequestLanguage = "ka"
+	KaGE      StoreUserRequestLanguage = "ka_GE"
+	Kab       StoreUserRequestLanguage = "kab"
+	KabDZ     StoreUserRequestLanguage = "kab_DZ"
+	Kam       StoreUserRequestLanguage = "kam"
+	KamKE     StoreUserRequestLanguage = "kam_KE"
+	Kde       StoreUserRequestLanguage = "kde"
+	KdeTZ     StoreUserRequestLanguage = "kde_TZ"
+	Kea       StoreUserRequestLanguage = "kea"
+	KeaCV     StoreUserRequestLanguage = "kea_CV"
+	Kgp       StoreUserRequestLanguage = "kgp"
+	KgpBR     StoreUserRequestLanguage = "kgp_BR"
+	Khq       StoreUserRequestLanguage = "khq"
+	KhqML     StoreUserRequestLanguage = "khq_ML"
+	Ki        StoreUserRequestLanguage = "ki"
+	KiKE      StoreUserRequestLanguage = "ki_KE"
+	Kk        StoreUserRequestLanguage = "kk"
+	KkCyrl    StoreUserRequestLanguage = "kk_Cyrl"
+	KkCyrlKZ  StoreUserRequestLanguage = "kk_Cyrl_KZ"
+	KkKZ      StoreUserRequestLanguage = "kk_KZ"
+	Kkj       StoreUserRequestLanguage = "kkj"
+	KkjCM     StoreUserRequestLanguage = "kkj_CM"
+	Kl        StoreUserRequestLanguage = "kl"
+	KlGL      StoreUserRequestLanguage = "kl_GL"
+	Kln       StoreUserRequestLanguage = "kln"
+	KlnKE     StoreUserRequestLanguage = "kln_KE"
+	Km        StoreUserRequestLanguage = "km"
+	KmKH      StoreUserRequestLanguage = "km_KH"
+	Kn        StoreUserRequestLanguage = "kn"
+	KnIN      StoreUserRequestLanguage = "kn_IN"
+	Ko        StoreUserRequestLanguage = "ko"
+	KoCN      StoreUserRequestLanguage = "ko_CN"
+	KoKP      StoreUserRequestLanguage = "ko_KP"
+	KoKR      StoreUserRequestLanguage = "ko_KR"
+	Kok       StoreUserRequestLanguage = "kok"
+	KokDeva   StoreUserRequestLanguage = "kok_Deva"
+	KokDevaIN StoreUserRequestLanguage = "kok_Deva_IN"
+	KokLatn   StoreUserRequestLanguage = "kok_Latn"
+	KokLatnIN StoreUserRequestLanguage = "kok_Latn_IN"
+	Ks        StoreUserRequestLanguage = "ks"
+	KsArab    StoreUserRequestLanguage = "ks_Arab"
+	KsArabIN  StoreUserRequestLanguage = "ks_Arab_IN"
+	KsDeva    StoreUserRequestLanguage = "ks_Deva"
+	KsDevaIN  StoreUserRequestLanguage = "ks_Deva_IN"
+	Ksb       StoreUserRequestLanguage = "ksb"
+	KsbTZ     StoreUserRequestLanguage = "ksb_TZ"
+	Ksf       StoreUserRequestLanguage = "ksf"
+	KsfCM     StoreUserRequestLanguage = "ksf_CM"
+	Ksh       StoreUserRequestLanguage = "ksh"
+	KshDE     StoreUserRequestLanguage = "ksh_DE"
+	Ku        StoreUserRequestLanguage = "ku"
+	KuTR      StoreUserRequestLanguage = "ku_TR"
+	Kw        StoreUserRequestLanguage = "kw"
+	KwGB      StoreUserRequestLanguage = "kw_GB"
+	Kxv       StoreUserRequestLanguage = "kxv"
+	KxvDeva   StoreUserRequestLanguage = "kxv_Deva"
+	KxvDevaIN StoreUserRequestLanguage = "kxv_Deva_IN"
+	KxvLatn   StoreUserRequestLanguage = "kxv_Latn"
+	KxvLatnIN StoreUserRequestLanguage = "kxv_Latn_IN"
+	KxvOrya   StoreUserRequestLanguage = "kxv_Orya"
+	KxvOryaIN StoreUserRequestLanguage = "kxv_Orya_IN"
+	KxvTelu   StoreUserRequestLanguage = "kxv_Telu"
+	KxvTeluIN StoreUserRequestLanguage = "kxv_Telu_IN"
+	Ky        StoreUserRequestLanguage = "ky"
+	KyKG      StoreUserRequestLanguage = "ky_KG"
+	Lag       StoreUserRequestLanguage = "lag"
+	LagTZ     StoreUserRequestLanguage = "lag_TZ"
+	Lb        StoreUserRequestLanguage = "lb"
+	LbLU      StoreUserRequestLanguage = "lb_LU"
+	Lg        StoreUserRequestLanguage = "lg"
+	LgUG      StoreUserRequestLanguage = "lg_UG"
+	Lij       StoreUserRequestLanguage = "lij"
+	LijIT     StoreUserRequestLanguage = "lij_IT"
+	Lkt       StoreUserRequestLanguage = "lkt"
+	LktUS     StoreUserRequestLanguage = "lkt_US"
+	Lmo       StoreUserRequestLanguage = "lmo"
+	LmoIT     StoreUserRequestLanguage = "lmo_IT"
+	Ln        StoreUserRequestLanguage = "ln"
+	LnAO      StoreUserRequestLanguage = "ln_AO"
+	LnCD      StoreUserRequestLanguage = "ln_CD"
+	LnCF      StoreUserRequestLanguage = "ln_CF"
+	LnCG      StoreUserRequestLanguage = "ln_CG"
+	Lo        StoreUserRequestLanguage = "lo"
+	LoLA      StoreUserRequestLanguage = "lo_LA"
+	Lrc       StoreUserRequestLanguage = "lrc"
+	LrcIQ     StoreUserRequestLanguage = "lrc_IQ"
+	LrcIR     StoreUserRequestLanguage = "lrc_IR"
+	Lt        StoreUserRequestLanguage = "lt"
+	LtLT      StoreUserRequestLanguage = "lt_LT"
+	Lu        StoreUserRequestLanguage = "lu"
+	LuCD      StoreUserRequestLanguage = "lu_CD"
+	Luo       StoreUserRequestLanguage = "luo"
+	LuoKE     StoreUserRequestLanguage = "luo_KE"
+	Luy       StoreUserRequestLanguage = "luy"
+	LuyKE     StoreUserRequestLanguage = "luy_KE"
+	Lv        StoreUserRequestLanguage = "lv"
+	LvLV      StoreUserRequestLanguage = "lv_LV"
+	Mai       StoreUserRequestLanguage = "mai"
+	MaiIN     StoreUserRequestLanguage = "mai_IN"
+	Mas       StoreUserRequestLanguage = "mas"
+	MasKE     StoreUserRequestLanguage = "mas_KE"
+	MasTZ     StoreUserRequestLanguage = "mas_TZ"
+	Mer       StoreUserRequestLanguage = "mer"
+	MerKE     StoreUserRequestLanguage = "mer_KE"
+	Mfe       StoreUserRequestLanguage = "mfe"
+	MfeMU     StoreUserRequestLanguage = "mfe_MU"
+	Mg        StoreUserRequestLanguage = "mg"
+	MgMG      StoreUserRequestLanguage = "mg_MG"
+	Mgh       StoreUserRequestLanguage = "mgh"
+	MghMZ     StoreUserRequestLanguage = "mgh_MZ"
+	Mgo       StoreUserRequestLanguage = "mgo"
+	MgoCM     StoreUserRequestLanguage = "mgo_CM"
+	Mi        StoreUserRequestLanguage = "mi"
+	MiNZ      StoreUserRequestLanguage = "mi_NZ"
+	Mk        StoreUserRequestLanguage = "mk"
+	MkMK      StoreUserRequestLanguage = "mk_MK"
+	Ml        StoreUserRequestLanguage = "ml"
+	MlIN      StoreUserRequestLanguage = "ml_IN"
+	Mn        StoreUserRequestLanguage = "mn"
+	MnMN      StoreUserRequestLanguage = "mn_MN"
+	Mni       StoreUserRequestLanguage = "mni"
+	MniBeng   StoreUserRequestLanguage = "mni_Beng"
+	MniBengIN StoreUserRequestLanguage = "mni_Beng_IN"
+	Mr        StoreUserRequestLanguage = "mr"
+	MrIN      StoreUserRequestLanguage = "mr_IN"
+	Ms        StoreUserRequestLanguage = "ms"
+	MsBN      StoreUserRequestLanguage = "ms_BN"
+	MsID      StoreUserRequestLanguage = "ms_ID"
+	MsMY      StoreUserRequestLanguage = "ms_MY"
+	MsSG      StoreUserRequestLanguage = "ms_SG"
+	Mt        StoreUserRequestLanguage = "mt"
+	MtMT      StoreUserRequestLanguage = "mt_MT"
+	Mua       StoreUserRequestLanguage = "mua"
+	MuaCM     StoreUserRequestLanguage = "mua_CM"
+	My        StoreUserRequestLanguage = "my"
+	MyMM      StoreUserRequestLanguage = "my_MM"
+	Mzn       StoreUserRequestLanguage = "mzn"
+	MznIR     StoreUserRequestLanguage = "mzn_IR"
+	Naq       StoreUserRequestLanguage = "naq"
+	NaqNA     StoreUserRequestLanguage = "naq_NA"
+	Nb        StoreUserRequestLanguage = "nb"
+	NbNO      StoreUserRequestLanguage = "nb_NO"
+	NbSJ      StoreUserRequestLanguage = "nb_SJ"
+	Nd        StoreUserRequestLanguage = "nd"
+	NdZW      StoreUserRequestLanguage = "nd_ZW"
+	Nds       StoreUserRequestLanguage = "nds"
+	NdsDE     StoreUserRequestLanguage = "nds_DE"
+	NdsNL     StoreUserRequestLanguage = "nds_NL"
+	Ne        StoreUserRequestLanguage = "ne"
+	NeIN      StoreUserRequestLanguage = "ne_IN"
+	NeNP      StoreUserRequestLanguage = "ne_NP"
+	Nl        StoreUserRequestLanguage = "nl"
+	NlAW      StoreUserRequestLanguage = "nl_AW"
+	NlBE      StoreUserRequestLanguage = "nl_BE"
+	NlBQ      StoreUserRequestLanguage = "nl_BQ"
+	NlCW      StoreUserRequestLanguage = "nl_CW"
+	NlNL      StoreUserRequestLanguage = "nl_NL"
+	NlSR      StoreUserRequestLanguage = "nl_SR"
+	NlSX      StoreUserRequestLanguage = "nl_SX"
+	Nmg       StoreUserRequestLanguage = "nmg"
+	NmgCM     StoreUserRequestLanguage = "nmg_CM"
+	Nn        StoreUserRequestLanguage = "nn"
+	NnNO      StoreUserRequestLanguage = "nn_NO"
+	Nnh       StoreUserRequestLanguage = "nnh"
+	NnhCM     StoreUserRequestLanguage = "nnh_CM"
+	No        StoreUserRequestLanguage = "no"
+	Nqo       StoreUserRequestLanguage = "nqo"
+	NqoGN     StoreUserRequestLanguage = "nqo_GN"
+	Nso       StoreUserRequestLanguage = "nso"
+	NsoZA     StoreUserRequestLanguage = "nso_ZA"
+	Nus       StoreUserRequestLanguage = "nus"
+	NusSS     StoreUserRequestLanguage = "nus_SS"
+	Nyn       StoreUserRequestLanguage = "nyn"
+	NynUG     StoreUserRequestLanguage = "nyn_UG"
+	Oc        StoreUserRequestLanguage = "oc"
+	OcES      StoreUserRequestLanguage = "oc_ES"
+	OcFR      StoreUserRequestLanguage = "oc_FR"
+	Om        StoreUserRequestLanguage = "om"
+	OmET      StoreUserRequestLanguage = "om_ET"
+	OmKE      StoreUserRequestLanguage = "om_KE"
+	Or        StoreUserRequestLanguage = "or"
+	OrIN      StoreUserRequestLanguage = "or_IN"
+	Os        StoreUserRequestLanguage = "os"
+	OsGE      StoreUserRequestLanguage = "os_GE"
+	OsRU      StoreUserRequestLanguage = "os_RU"
+	Pa        StoreUserRequestLanguage = "pa"
+	PaArab    StoreUserRequestLanguage = "pa_Arab"
+	PaArabPK  StoreUserRequestLanguage = "pa_Arab_PK"
+	PaGuru    StoreUserRequestLanguage = "pa_Guru"
+	PaGuruIN  StoreUserRequestLanguage = "pa_Guru_IN"
+	Pcm       StoreUserRequestLanguage = "pcm"
+	PcmNG     StoreUserRequestLanguage = "pcm_NG"
+	Pl        StoreUserRequestLanguage = "pl"
+	PlPL      StoreUserRequestLanguage = "pl_PL"
+	Prg       StoreUserRequestLanguage = "prg"
+	PrgPL     StoreUserRequestLanguage = "prg_PL"
+	Ps        StoreUserRequestLanguage = "ps"
+	PsAF      StoreUserRequestLanguage = "ps_AF"
+	PsPK      StoreUserRequestLanguage = "ps_PK"
+	Pt        StoreUserRequestLanguage = "pt"
+	PtAO      StoreUserRequestLanguage = "pt_AO"
+	PtBR      StoreUserRequestLanguage = "pt_BR"
+	PtCH      StoreUserRequestLanguage = "pt_CH"
+	PtCV      StoreUserRequestLanguage = "pt_CV"
+	PtGQ      StoreUserRequestLanguage = "pt_GQ"
+	PtGW      StoreUserRequestLanguage = "pt_GW"
+	PtLU      StoreUserRequestLanguage = "pt_LU"
+	PtMO      StoreUserRequestLanguage = "pt_MO"
+	PtMZ      StoreUserRequestLanguage = "pt_MZ"
+	PtPT      StoreUserRequestLanguage = "pt_PT"
+	PtST      StoreUserRequestLanguage = "pt_ST"
+	PtTL      StoreUserRequestLanguage = "pt_TL"
+	Qu        StoreUserRequestLanguage = "qu"
+	QuBO      StoreUserRequestLanguage = "qu_BO"
+	QuEC      StoreUserRequestLanguage = "qu_EC"
+	QuPE      StoreUserRequestLanguage = "qu_PE"
+	Raj       StoreUserRequestLanguage = "raj"
+	RajIN     StoreUserRequestLanguage = "raj_IN"
+	Rm        StoreUserRequestLanguage = "rm"
+	RmCH      StoreUserRequestLanguage = "rm_CH"
+	Rn        StoreUserRequestLanguage = "rn"
+	RnBI      StoreUserRequestLanguage = "rn_BI"
+	Ro        StoreUserRequestLanguage = "ro"
+	RoMD      StoreUserRequestLanguage = "ro_MD"
+	RoRO      StoreUserRequestLanguage = "ro_RO"
+	Rof       StoreUserRequestLanguage = "rof"
+	RofTZ     StoreUserRequestLanguage = "rof_TZ"
+	Ru        StoreUserRequestLanguage = "ru"
+	RuBY      StoreUserRequestLanguage = "ru_BY"
+	RuKG      StoreUserRequestLanguage = "ru_KG"
+	RuKZ      StoreUserRequestLanguage = "ru_KZ"
+	RuMD      StoreUserRequestLanguage = "ru_MD"
+	RuRU      StoreUserRequestLanguage = "ru_RU"
+	RuUA      StoreUserRequestLanguage = "ru_UA"
+	Rw        StoreUserRequestLanguage = "rw"
+	RwRW      StoreUserRequestLanguage = "rw_RW"
+	Rwk       StoreUserRequestLanguage = "rwk"
+	RwkTZ     StoreUserRequestLanguage = "rwk_TZ"
+	Sa        StoreUserRequestLanguage = "sa"
+	SaIN      StoreUserRequestLanguage = "sa_IN"
+	Sah       StoreUserRequestLanguage = "sah"
+	SahRU     StoreUserRequestLanguage = "sah_RU"
+	Saq       StoreUserRequestLanguage = "saq"
+	SaqKE     StoreUserRequestLanguage = "saq_KE"
+	Sat       StoreUserRequestLanguage = "sat"
+	SatOlck   StoreUserRequestLanguage = "sat_Olck"
+	SatOlckIN StoreUserRequestLanguage = "sat_Olck_IN"
+	Sbp       StoreUserRequestLanguage = "sbp"
+	SbpTZ     StoreUserRequestLanguage = "sbp_TZ"
+	Sc        StoreUserRequestLanguage = "sc"
+	ScIT      StoreUserRequestLanguage = "sc_IT"
+	Sd        StoreUserRequestLanguage = "sd"
+	SdArab    StoreUserRequestLanguage = "sd_Arab"
+	SdArabPK  StoreUserRequestLanguage = "sd_Arab_PK"
+	SdDeva    StoreUserRequestLanguage = "sd_Deva"
+	SdDevaIN  StoreUserRequestLanguage = "sd_Deva_IN"
+	Se        StoreUserRequestLanguage = "se"
+	SeFI      StoreUserRequestLanguage = "se_FI"
+	SeNO      StoreUserRequestLanguage = "se_NO"
+	SeSE      StoreUserRequestLanguage = "se_SE"
+	Seh       StoreUserRequestLanguage = "seh"
+	SehMZ     StoreUserRequestLanguage = "seh_MZ"
+	Ses       StoreUserRequestLanguage = "ses"
+	SesML     StoreUserRequestLanguage = "ses_ML"
+	Sg        StoreUserRequestLanguage = "sg"
+	SgCF      StoreUserRequestLanguage = "sg_CF"
+	Shi       StoreUserRequestLanguage = "shi"
+	ShiLatn   StoreUserRequestLanguage = "shi_Latn"
+	ShiLatnMA StoreUserRequestLanguage = "shi_Latn_MA"
+	ShiTfng   StoreUserRequestLanguage = "shi_Tfng"
+	ShiTfngMA StoreUserRequestLanguage = "shi_Tfng_MA"
+	Si        StoreUserRequestLanguage = "si"
+	SiLK      StoreUserRequestLanguage = "si_LK"
+	Sk        StoreUserRequestLanguage = "sk"
+	SkSK      StoreUserRequestLanguage = "sk_SK"
+	Sl        StoreUserRequestLanguage = "sl"
+	SlSI      StoreUserRequestLanguage = "sl_SI"
+	Smn       StoreUserRequestLanguage = "smn"
+	SmnFI     StoreUserRequestLanguage = "smn_FI"
+	Sn        StoreUserRequestLanguage = "sn"
+	SnZW      StoreUserRequestLanguage = "sn_ZW"
+	So        StoreUserRequestLanguage = "so"
+	SoDJ      StoreUserRequestLanguage = "so_DJ"
+	SoET      StoreUserRequestLanguage = "so_ET"
+	SoKE      StoreUserRequestLanguage = "so_KE"
+	SoSO      StoreUserRequestLanguage = "so_SO"
+	Sq        StoreUserRequestLanguage = "sq"
+	SqAL      StoreUserRequestLanguage = "sq_AL"
+	SqMK      StoreUserRequestLanguage = "sq_MK"
+	SqXK      StoreUserRequestLanguage = "sq_XK"
+	Sr        StoreUserRequestLanguage = "sr"
+	SrCyrl    StoreUserRequestLanguage = "sr_Cyrl"
+	SrCyrlBA  StoreUserRequestLanguage = "sr_Cyrl_BA"
+	SrCyrlME  StoreUserRequestLanguage = "sr_Cyrl_ME"
+	SrCyrlRS  StoreUserRequestLanguage = "sr_Cyrl_RS"
+	SrCyrlXK  StoreUserRequestLanguage = "sr_Cyrl_XK"
+	SrLatn    StoreUserRequestLanguage = "sr_Latn"
+	SrLatnBA  StoreUserRequestLanguage = "sr_Latn_BA"
+	SrLatnME  StoreUserRequestLanguage = "sr_Latn_ME"
+	SrLatnRS  StoreUserRequestLanguage = "sr_Latn_RS"
+	SrLatnXK  StoreUserRequestLanguage = "sr_Latn_XK"
+	St        StoreUserRequestLanguage = "st"
+	StLS      StoreUserRequestLanguage = "st_LS"
+	StZA      StoreUserRequestLanguage = "st_ZA"
+	Su        StoreUserRequestLanguage = "su"
+	SuLatn    StoreUserRequestLanguage = "su_Latn"
+	SuLatnID  StoreUserRequestLanguage = "su_Latn_ID"
+	Sv        StoreUserRequestLanguage = "sv"
+	SvAX      StoreUserRequestLanguage = "sv_AX"
+	SvFI      StoreUserRequestLanguage = "sv_FI"
+	SvSE      StoreUserRequestLanguage = "sv_SE"
+	Sw        StoreUserRequestLanguage = "sw"
+	SwCD      StoreUserRequestLanguage = "sw_CD"
+	SwKE      StoreUserRequestLanguage = "sw_KE"
+	SwTZ      StoreUserRequestLanguage = "sw_TZ"
+	SwUG      StoreUserRequestLanguage = "sw_UG"
+	Syr       StoreUserRequestLanguage = "syr"
+	SyrIQ     StoreUserRequestLanguage = "syr_IQ"
+	SyrSY     StoreUserRequestLanguage = "syr_SY"
+	Szl       StoreUserRequestLanguage = "szl"
+	SzlPL     StoreUserRequestLanguage = "szl_PL"
+	Ta        StoreUserRequestLanguage = "ta"
+	TaIN      StoreUserRequestLanguage = "ta_IN"
+	TaLK      StoreUserRequestLanguage = "ta_LK"
+	TaMY      StoreUserRequestLanguage = "ta_MY"
+	TaSG      StoreUserRequestLanguage = "ta_SG"
+	Te        StoreUserRequestLanguage = "te"
+	TeIN      StoreUserRequestLanguage = "te_IN"
+	Teo       StoreUserRequestLanguage = "teo"
+	TeoKE     StoreUserRequestLanguage = "teo_KE"
+	TeoUG     StoreUserRequestLanguage = "teo_UG"
+	Tg        StoreUserRequestLanguage = "tg"
+	TgTJ      StoreUserRequestLanguage = "tg_TJ"
+	Th        StoreUserRequestLanguage = "th"
+	ThTH      StoreUserRequestLanguage = "th_TH"
+	Ti        StoreUserRequestLanguage = "ti"
+	TiER      StoreUserRequestLanguage = "ti_ER"
+	TiET      StoreUserRequestLanguage = "ti_ET"
+	Tk        StoreUserRequestLanguage = "tk"
+	TkTM      StoreUserRequestLanguage = "tk_TM"
+	Tn        StoreUserRequestLanguage = "tn"
+	TnBW      StoreUserRequestLanguage = "tn_BW"
+	TnZA      StoreUserRequestLanguage = "tn_ZA"
+	To        StoreUserRequestLanguage = "to"
+	ToTO      StoreUserRequestLanguage = "to_TO"
+	Tok       StoreUserRequestLanguage = "tok"
+	Tok001    StoreUserRequestLanguage = "tok_001"
+	Tr        StoreUserRequestLanguage = "tr"
+	TrCY      StoreUserRequestLanguage = "tr_CY"
+	TrTR      StoreUserRequestLanguage = "tr_TR"
+	Tt        StoreUserRequestLanguage = "tt"
+	TtRU      StoreUserRequestLanguage = "tt_RU"
+	Twq       StoreUserRequestLanguage = "twq"
+	TwqNE     StoreUserRequestLanguage = "twq_NE"
+	Tzm       StoreUserRequestLanguage = "tzm"
+	TzmMA     StoreUserRequestLanguage = "tzm_MA"
+	Ug        StoreUserRequestLanguage = "ug"
+	UgCN      StoreUserRequestLanguage = "ug_CN"
+	Uk        StoreUserRequestLanguage = "uk"
+	UkUA      StoreUserRequestLanguage = "uk_UA"
+	Ur        StoreUserRequestLanguage = "ur"
+	UrIN      StoreUserRequestLanguage = "ur_IN"
+	UrPK      StoreUserRequestLanguage = "ur_PK"
+	Uz        StoreUserRequestLanguage = "uz"
+	UzArab    StoreUserRequestLanguage = "uz_Arab"
+	UzArabAF  StoreUserRequestLanguage = "uz_Arab_AF"
+	UzCyrl    StoreUserRequestLanguage = "uz_Cyrl"
+	UzCyrlUZ  StoreUserRequestLanguage = "uz_Cyrl_UZ"
+	UzLatn    StoreUserRequestLanguage = "uz_Latn"
+	UzLatnUZ  StoreUserRequestLanguage = "uz_Latn_UZ"
+	Vai       StoreUserRequestLanguage = "vai"
+	VaiLatn   StoreUserRequestLanguage = "vai_Latn"
+	VaiLatnLR StoreUserRequestLanguage = "vai_Latn_LR"
+	VaiVaii   StoreUserRequestLanguage = "vai_Vaii"
+	VaiVaiiLR StoreUserRequestLanguage = "vai_Vaii_LR"
+	Vec       StoreUserRequestLanguage = "vec"
+	VecIT     StoreUserRequestLanguage = "vec_IT"
+	Vi        StoreUserRequestLanguage = "vi"
+	ViVN      StoreUserRequestLanguage = "vi_VN"
+	Vmw       StoreUserRequestLanguage = "vmw"
+	VmwMZ     StoreUserRequestLanguage = "vmw_MZ"
+	Vun       StoreUserRequestLanguage = "vun"
+	VunTZ     StoreUserRequestLanguage = "vun_TZ"
+	Wae       StoreUserRequestLanguage = "wae"
+	WaeCH     StoreUserRequestLanguage = "wae_CH"
+	Wo        StoreUserRequestLanguage = "wo"
+	WoSN      StoreUserRequestLanguage = "wo_SN"
+	Xh        StoreUserRequestLanguage = "xh"
+	XhZA      StoreUserRequestLanguage = "xh_ZA"
+	Xnr       StoreUserRequestLanguage = "xnr"
+	XnrIN     StoreUserRequestLanguage = "xnr_IN"
+	Xog       StoreUserRequestLanguage = "xog"
+	XogUG     StoreUserRequestLanguage = "xog_UG"
+	Yav       StoreUserRequestLanguage = "yav"
+	YavCM     StoreUserRequestLanguage = "yav_CM"
+	Yi        StoreUserRequestLanguage = "yi"
+	YiUA      StoreUserRequestLanguage = "yi_UA"
+	Yo        StoreUserRequestLanguage = "yo"
+	YoBJ      StoreUserRequestLanguage = "yo_BJ"
+	YoNG      StoreUserRequestLanguage = "yo_NG"
+	Yrl       StoreUserRequestLanguage = "yrl"
+	YrlBR     StoreUserRequestLanguage = "yrl_BR"
+	YrlCO     StoreUserRequestLanguage = "yrl_CO"
+	YrlVE     StoreUserRequestLanguage = "yrl_VE"
+	Yue       StoreUserRequestLanguage = "yue"
+	YueHans   StoreUserRequestLanguage = "yue_Hans"
+	YueHansCN StoreUserRequestLanguage = "yue_Hans_CN"
+	YueHant   StoreUserRequestLanguage = "yue_Hant"
+	YueHantCN StoreUserRequestLanguage = "yue_Hant_CN"
+	YueHantHK StoreUserRequestLanguage = "yue_Hant_HK"
+	Za        StoreUserRequestLanguage = "za"
+	ZaCN      StoreUserRequestLanguage = "za_CN"
+	Zgh       StoreUserRequestLanguage = "zgh"
+	ZghMA     StoreUserRequestLanguage = "zgh_MA"
+	Zh        StoreUserRequestLanguage = "zh"
+	ZhHans    StoreUserRequestLanguage = "zh_Hans"
+	ZhHansCN  StoreUserRequestLanguage = "zh_Hans_CN"
+	ZhHansHK  StoreUserRequestLanguage = "zh_Hans_HK"
+	ZhHansMO  StoreUserRequestLanguage = "zh_Hans_MO"
+	ZhHansMY  StoreUserRequestLanguage = "zh_Hans_MY"
+	ZhHansSG  StoreUserRequestLanguage = "zh_Hans_SG"
+	ZhHant    StoreUserRequestLanguage = "zh_Hant"
+	ZhHantHK  StoreUserRequestLanguage = "zh_Hant_HK"
+	ZhHantMO  StoreUserRequestLanguage = "zh_Hant_MO"
+	ZhHantMY  StoreUserRequestLanguage = "zh_Hant_MY"
+	ZhHantTW  StoreUserRequestLanguage = "zh_Hant_TW"
+	Zu        StoreUserRequestLanguage = "zu"
+	ZuZA      StoreUserRequestLanguage = "zu_ZA"
 )
 
 // Defines values for StoreUserRequestTimezone.
@@ -651,6 +1381,7 @@ type StoreBackupRequest struct {
 	Ignored  *string `json:"ignored"`
 	IsLocked *bool   `json:"is_locked"`
 	Name     *string `json:"name"`
+	Override *bool   `json:"override"`
 }
 
 // StoreDatabaseHostRequest defines model for StoreDatabaseHostRequest.
@@ -874,11 +1605,13 @@ type ApplicationMountsServersJSONBody struct {
 
 // NodesNodeDeploymentParams defines parameters for NodesNodeDeployment.
 type NodesNodeDeploymentParams struct {
-	Page        *int      `form:"page,omitempty" json:"page,omitempty"`
-	Memory      int       `form:"memory" json:"memory"`
-	Disk        int       `form:"disk" json:"disk"`
-	Cpu         *int      `form:"cpu,omitempty" json:"cpu,omitempty"`
-	Tags        *[]string `form:"tags[],omitempty" json:"tags[],omitempty"`
+	Page   *int      `form:"page,omitempty" json:"page,omitempty"`
+	Memory int       `form:"memory" json:"memory"`
+	Disk   int       `form:"disk" json:"disk"`
+	Cpu    *int      `form:"cpu,omitempty" json:"cpu,omitempty"`
+	Tags   *[]string `form:"tags[],omitempty" json:"tags[],omitempty"`
+
+	// LocationIds use tags instead
 	LocationIds *[]string `form:"location_ids[],omitempty" json:"location_ids[],omitempty"`
 }
 
@@ -6217,7 +6950,7 @@ func (r ApplicationEggsEggsExportResponse) StatusCode() int {
 type ApplicationMountsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON422      *ValidationException
 }
@@ -6290,7 +7023,7 @@ func (r MountDeleteResponse) StatusCode() int {
 type ApplicationMountsViewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -6315,7 +7048,7 @@ func (r ApplicationMountsViewResponse) StatusCode() int {
 type MountUpdateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -6340,7 +7073,7 @@ func (r MountUpdateResponse) StatusCode() int {
 type MountGetEggsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -6365,7 +7098,7 @@ func (r MountGetEggsResponse) StatusCode() int {
 type ApplicationMountsEggsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
 }
@@ -6412,7 +7145,7 @@ func (r MountDeleteEggResponse) StatusCode() int {
 type MountGetNodesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -6437,7 +7170,7 @@ func (r MountGetNodesResponse) StatusCode() int {
 type ApplicationMountsNodesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
 }
@@ -6484,7 +7217,7 @@ func (r MountDeleteNodeResponse) StatusCode() int {
 type MountGetServersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -6509,7 +7242,7 @@ func (r MountGetServersResponse) StatusCode() int {
 type ApplicationMountsServersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
 }
@@ -6779,7 +7512,7 @@ type NodesNodeConfigurationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		AllowedMounts string `json:"allowed_mounts"`
+		AllowedMounts map[string]interface{} `json:"allowed_mounts"`
 		Api           struct {
 			Host NodesNodeConfiguration200ApiHost `json:"host"`
 			Port int                              `json:"port"`
@@ -6827,7 +7560,7 @@ func (r NodesNodeConfigurationResponse) StatusCode() int {
 type ApplicationRolesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON422      *ValidationException
 }
@@ -6899,7 +7632,7 @@ func (r RoleDeleteResponse) StatusCode() int {
 type ApplicationRolesViewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -6924,7 +7657,7 @@ func (r ApplicationRolesViewResponse) StatusCode() int {
 type RoleUpdateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -6949,7 +7682,7 @@ func (r RoleUpdateResponse) StatusCode() int {
 type ApplicationServersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON422      *ValidationException
 }
@@ -6997,7 +7730,7 @@ func (r ServerStoreResponse) StatusCode() int {
 type ApplicationServersExternalResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON422      *ValidationException
 }
@@ -7045,7 +7778,7 @@ func (r ApplicationServersServerDelete1Response) StatusCode() int {
 type ApplicationServersViewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7070,7 +7803,7 @@ func (r ApplicationServersViewResponse) StatusCode() int {
 type BackupIndexResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7095,7 +7828,7 @@ func (r BackupIndexResponse) StatusCode() int {
 type BackupStoreResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7145,7 +7878,7 @@ func (r BackupDeleteResponse) StatusCode() int {
 type BackupViewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7205,7 +7938,7 @@ func (r BackupDownloadResponse) StatusCode() int {
 type BackupToggleLockResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7230,7 +7963,7 @@ func (r BackupToggleLockResponse) StatusCode() int {
 type BackupRenameResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7284,7 +8017,7 @@ func (r BackupRestoreResponse) StatusCode() int {
 type ApplicationServersBuildResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7337,7 +8070,7 @@ func (r CommandIndexResponse) StatusCode() int {
 type ApplicationServersDatabasesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7411,7 +8144,7 @@ func (r DatabaseDeleteResponse) StatusCode() int {
 type ApplicationServersDatabasesViewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7461,7 +8194,7 @@ func (r DatabaseResetPasswordResponse) StatusCode() int {
 type ApplicationServersDetailsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7580,7 +8313,7 @@ func (r ApplicationServersReinstallResponse) StatusCode() int {
 type ApplicationServersStartupResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7725,7 +8458,7 @@ func (r ApplicationServersServerDelete0Response) StatusCode() int {
 type ApplicationUsersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON422      *ValidationException
 }
@@ -7822,7 +8555,7 @@ func (r UserDeleteResponse) StatusCode() int {
 type ApplicationUsersViewResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7847,7 +8580,7 @@ func (r ApplicationUsersViewResponse) StatusCode() int {
 type UserUpdateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7872,7 +8605,7 @@ func (r UserUpdateResponse) StatusCode() int {
 type UserAssignRolesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -7897,7 +8630,7 @@ func (r UserAssignRolesResponse) StatusCode() int {
 type UserRemoveRolesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]interface{}
+	JSON200      *map[string]interface{}
 	JSON403      *AuthorizationException
 	JSON404      *ModelNotFoundException
 	JSON422      *ValidationException
@@ -9273,7 +10006,7 @@ func ParseApplicationMountsResponse(rsp *http.Response) (*ApplicationMountsRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -9400,7 +10133,7 @@ func ParseApplicationMountsViewResponse(rsp *http.Response) (*ApplicationMountsV
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -9447,7 +10180,7 @@ func ParseMountUpdateResponse(rsp *http.Response) (*MountUpdateResponse, error) 
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -9494,7 +10227,7 @@ func ParseMountGetEggsResponse(rsp *http.Response) (*MountGetEggsResponse, error
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -9541,7 +10274,7 @@ func ParseApplicationMountsEggsResponse(rsp *http.Response) (*ApplicationMountsE
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -9614,7 +10347,7 @@ func ParseMountGetNodesResponse(rsp *http.Response) (*MountGetNodesResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -9661,7 +10394,7 @@ func ParseApplicationMountsNodesResponse(rsp *http.Response) (*ApplicationMounts
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -9734,7 +10467,7 @@ func ParseMountGetServersResponse(rsp *http.Response) (*MountGetServersResponse,
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -9781,7 +10514,7 @@ func ParseApplicationMountsServersResponse(rsp *http.Response) (*ApplicationMoun
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10257,7 +10990,7 @@ func ParseNodesNodeConfigurationResponse(rsp *http.Response) (*NodesNodeConfigur
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			AllowedMounts string `json:"allowed_mounts"`
+			AllowedMounts map[string]interface{} `json:"allowed_mounts"`
 			Api           struct {
 				Host NodesNodeConfiguration200ApiHost `json:"host"`
 				Port int                              `json:"port"`
@@ -10326,7 +11059,7 @@ func ParseApplicationRolesResponse(rsp *http.Response) (*ApplicationRolesRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10446,7 +11179,7 @@ func ParseApplicationRolesViewResponse(rsp *http.Response) (*ApplicationRolesVie
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10493,7 +11226,7 @@ func ParseRoleUpdateResponse(rsp *http.Response) (*RoleUpdateResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10540,7 +11273,7 @@ func ParseApplicationServersResponse(rsp *http.Response) (*ApplicationServersRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10620,7 +11353,7 @@ func ParseApplicationServersExternalResponse(rsp *http.Response) (*ApplicationSe
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10700,7 +11433,7 @@ func ParseApplicationServersViewResponse(rsp *http.Response) (*ApplicationServer
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10747,7 +11480,7 @@ func ParseBackupIndexResponse(rsp *http.Response) (*BackupIndexResponse, error) 
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10794,7 +11527,7 @@ func ParseBackupStoreResponse(rsp *http.Response) (*BackupStoreResponse, error) 
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10888,7 +11621,7 @@ func ParseBackupViewResponse(rsp *http.Response) (*BackupViewResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -10997,7 +11730,7 @@ func ParseBackupToggleLockResponse(rsp *http.Response) (*BackupToggleLockRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -11044,7 +11777,7 @@ func ParseBackupRenameResponse(rsp *http.Response) (*BackupRenameResponse, error
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -11148,7 +11881,7 @@ func ParseApplicationServersBuildResponse(rsp *http.Response) (*ApplicationServe
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -11245,7 +11978,7 @@ func ParseApplicationServersDatabasesResponse(rsp *http.Response) (*ApplicationS
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -11379,7 +12112,7 @@ func ParseApplicationServersDatabasesViewResponse(rsp *http.Response) (*Applicat
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -11473,7 +12206,7 @@ func ParseApplicationServersDetailsResponse(rsp *http.Response) (*ApplicationSer
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -11668,7 +12401,7 @@ func ParseApplicationServersStartupResponse(rsp *http.Response) (*ApplicationSer
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -11915,7 +12648,7 @@ func ParseApplicationUsersResponse(rsp *http.Response) (*ApplicationUsersRespons
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -12082,7 +12815,7 @@ func ParseApplicationUsersViewResponse(rsp *http.Response) (*ApplicationUsersVie
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -12129,7 +12862,7 @@ func ParseUserUpdateResponse(rsp *http.Response) (*UserUpdateResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -12176,7 +12909,7 @@ func ParseUserAssignRolesResponse(rsp *http.Response) (*UserAssignRolesResponse,
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -12223,7 +12956,7 @@ func ParseUserRemoveRolesResponse(rsp *http.Response) (*UserRemoveRolesResponse,
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []interface{}
+		var dest map[string]interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

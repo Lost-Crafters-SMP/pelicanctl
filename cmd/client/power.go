@@ -152,6 +152,41 @@ func executePowerOperations(
 	return executor.Execute(ctx, operations)
 }
 
+// printPowerResultsJSON prints power command results in structured JSON format.
+func printPowerResultsJSON(
+	formatter *output.Formatter,
+	results []bulk.Result,
+	command string,
+	summary bulk.Summary,
+) error {
+	outputData := make([]map[string]any, 0, len(results))
+
+	for _, result := range results {
+		resultData := map[string]any{
+			"server_identifier": result.Operation.ID,
+			"command":           command,
+		}
+		if result.Success {
+			resultData["status"] = statusSuccess
+		} else {
+			resultData["status"] = statusError
+			resultData["error"] = result.Error.Error()
+		}
+		outputData = append(outputData, resultData)
+	}
+
+	// Include summary in the output
+	response := map[string]any{
+		"results": outputData,
+		"summary": map[string]any{
+			"succeeded": summary.Success,
+			"failed":    summary.Failed,
+		},
+	}
+
+	return formatter.Print(response)
+}
+
 func printPowerResults(formatter *output.Formatter, results []bulk.Result, command string) {
 	for _, result := range results {
 		if result.Success {
@@ -216,6 +251,13 @@ func runPowerCommand(
 
 	ctx := context.Background()
 	results := executePowerOperations(ctx, client, uuids, command, maxConcurrency, continueOnError, failFast)
+
+	summary := bulk.GetSummary(results)
+
+	// Handle JSON output specially
+	if getOutputFormat(cmd) == output.OutputFormatJSON {
+		return printPowerResultsJSON(formatter, results, command, summary)
+	}
 
 	printPowerResults(formatter, results, command)
 

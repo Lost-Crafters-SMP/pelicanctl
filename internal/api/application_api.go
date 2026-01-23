@@ -997,33 +997,28 @@ func (a *ApplicationAPI) CreateBackup(identifier string, backupData map[string]a
 		}
 	}
 
-	httpResp, err := a.genClient.BackupStoreWithResponse(ctx, serverID, backupReq)
+	// Use non-WithResponse version to handle parsing manually (API may return object instead of array).
+	httpResp, err := a.genClient.BackupStore(ctx, serverID, backupReq)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
-	defer httpResp.HTTPResponse.Body.Close()
+	defer httpResp.Body.Close()
 
-	if httpResp.HTTPResponse.StatusCode != http.StatusOK && httpResp.HTTPResponse.StatusCode != http.StatusCreated {
-		return nil, handleApplicationErrorResponse(httpResp.HTTPResponse, httpResp.Body)
+	body, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
 
-	// Handle wrapped response.
-	unwrapped, unwrapErr := handleWrappedResponse(httpResp.Body)
-	if unwrapErr != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", unwrapErr)
+	if httpResp.StatusCode != http.StatusOK && httpResp.StatusCode != http.StatusCreated {
+		return nil, handleApplicationErrorResponse(httpResp, body)
 	}
 
-	var backups []any
-	if err := json.Unmarshal(unwrapped, &backups); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+	// Handle wrapped response - try to extract backup from response.
+	backup, err := extractBackupFromResponse(body)
+	if err != nil {
+		return nil, err
 	}
-
-	// Response is an array, return the first item (the created backup).
-	if len(backups) > 0 {
-		return convertInterfaceToMap(backups[0])
-	}
-
-	return nil, errors.New("backup creation response is empty")
+	return convertInterfaceToMap(backup)
 }
 
 // GetBackup gets a backup by server UUID/ID and backup UUID.
