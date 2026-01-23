@@ -21,7 +21,7 @@ func setupBulkFlags(cmd *cobra.Command) {
 	cmd.Flags().String("from-file", "", "read server IDs or UUIDs from file (one per line)")
 	const defaultMaxConcurrency = 10
 	cmd.Flags().Int("max-concurrency", defaultMaxConcurrency, "maximum parallel operations")
-	cmd.Flags().Bool("continue-on-error", true, "continue on errors")
+	cmd.Flags().Bool("continue-on-error", false, "continue on errors")
 	cmd.Flags().Bool("fail-fast", false, "stop on first error")
 	cmd.Flags().Bool("dry-run", false, "preview operations without executing")
 	cmd.Flags().Bool("yes", false, "skip confirmation prompts")
@@ -158,33 +158,9 @@ func printPowerResultsJSON(
 	results []bulk.Result,
 	command string,
 	summary bulk.Summary,
+	continueOnError bool,
 ) error {
-	outputData := make([]map[string]any, 0, len(results))
-
-	for _, result := range results {
-		resultData := map[string]any{
-			"server_identifier": result.Operation.ID,
-			"command":           command,
-		}
-		if result.Success {
-			resultData["status"] = statusSuccess
-		} else {
-			resultData["status"] = statusError
-			resultData["error"] = result.Error.Error()
-		}
-		outputData = append(outputData, resultData)
-	}
-
-	// Include summary in the output
-	response := map[string]any{
-		"results": outputData,
-		"summary": map[string]any{
-			"succeeded": summary.Success,
-			"failed":    summary.Failed,
-		},
-	}
-
-	return formatter.Print(response)
+	return printCommandResultsJSON(formatter, results, command, summary, continueOnError)
 }
 
 func printPowerResults(formatter *output.Formatter, results []bulk.Result, command string) {
@@ -197,11 +173,11 @@ func printPowerResults(formatter *output.Formatter, results []bulk.Result, comma
 	}
 }
 
-func handlePowerSummary(formatter *output.Formatter, results []bulk.Result) error {
+func handlePowerSummary(formatter *output.Formatter, results []bulk.Result, continueOnError bool) error {
 	summary := bulk.GetSummary(results)
 	formatter.PrintInfo("Summary: %d succeeded, %d failed", summary.Success, summary.Failed)
 
-	if summary.Failed > 0 {
+	if summary.Failed > 0 && !continueOnError {
 		return fmt.Errorf("%d operation(s) failed", summary.Failed)
 	}
 
@@ -256,12 +232,12 @@ func runPowerCommand(
 
 	// Handle JSON output specially
 	if getOutputFormat(cmd) == output.OutputFormatJSON {
-		return printPowerResultsJSON(formatter, results, command, summary)
+		return printPowerResultsJSON(formatter, results, command, summary, continueOnError)
 	}
 
 	printPowerResults(formatter, results, command)
 
-	return handlePowerSummary(formatter, results)
+	return handlePowerSummary(formatter, results, continueOnError)
 }
 
 func getClientServerUUIDsFromAll() ([]string, error) {

@@ -212,12 +212,12 @@ func runServerCommand(cmd *cobra.Command, args []string) error {
 	// Handle JSON output specially
 	if getOutputFormat(cmd) == output.OutputFormatJSON {
 		summary := bulk.GetSummary(results)
-		return printCommandResultsJSON(formatter, results, command, summary)
+		return printCommandResultsJSON(formatter, results, command, summary, continueOnError)
 	}
 
 	printCommandResults(formatter, results, command)
 
-	return handleCommandSummary(formatter, results)
+	return handleCommandSummary(formatter, results, continueOnError)
 }
 
 func executeCommandOperations(
@@ -249,6 +249,7 @@ func printCommandResultsJSON(
 	results []bulk.Result,
 	command string,
 	summary bulk.Summary,
+	continueOnError bool,
 ) error {
 	outputData := make([]map[string]any, 0, len(results))
 
@@ -275,7 +276,16 @@ func printCommandResultsJSON(
 		},
 	}
 
-	return formatter.Print(response)
+	if err := formatter.Print(response); err != nil {
+		return err
+	}
+
+	// Check failures based on continue-on-error flag
+	if summary.Failed > 0 && !continueOnError {
+		return fmt.Errorf("%d operation(s) failed", summary.Failed)
+	}
+
+	return nil
 }
 
 func printCommandResults(formatter *output.Formatter, results []bulk.Result, command string) {
@@ -288,11 +298,11 @@ func printCommandResults(formatter *output.Formatter, results []bulk.Result, com
 	}
 }
 
-func handleCommandSummary(formatter *output.Formatter, results []bulk.Result) error {
+func handleCommandSummary(formatter *output.Formatter, results []bulk.Result, continueOnError bool) error {
 	summary := bulk.GetSummary(results)
 	formatter.PrintInfo("Summary: %d succeeded, %d failed", summary.Success, summary.Failed)
 
-	if summary.Failed > 0 {
+	if summary.Failed > 0 && !continueOnError {
 		return fmt.Errorf("%d operation(s) failed", summary.Failed)
 	}
 

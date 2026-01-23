@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"maps"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/carapace-sh/carapace"
@@ -695,12 +697,12 @@ func runServerCommand(cmd *cobra.Command, args []string) error {
 	// Handle JSON output specially
 	if getOutputFormat(cmd) == output.OutputFormatJSON {
 		summary := bulk.GetSummary(results)
-		return printCommandResultsJSON(formatter, results, command, summary)
+		return printCommandResultsJSON(formatter, results, command, summary, flags.continueOnError)
 	}
 
 	printResults(formatter, results, "command")
 
-	return handleSummary(formatter, results)
+	return handleSummary(formatter, results, flags.continueOnError)
 }
 
 func printCommandResultsJSON(
@@ -708,33 +710,9 @@ func printCommandResultsJSON(
 	results []bulk.Result,
 	command string,
 	summary bulk.Summary,
+	continueOnError bool,
 ) error {
-	outputData := make([]map[string]any, 0, len(results))
-
-	for _, result := range results {
-		resultData := map[string]any{
-			"server_identifier": result.Operation.ID,
-			"command":           command,
-		}
-		if result.Success {
-			resultData["status"] = statusSuccess
-		} else {
-			resultData["status"] = statusError
-			resultData["error"] = result.Error.Error()
-		}
-		outputData = append(outputData, resultData)
-	}
-
-	// Include summary in the output
-	response := map[string]any{
-		"results": outputData,
-		"summary": map[string]any{
-			"succeeded": summary.Success,
-			"failed":    summary.Failed,
-		},
-	}
-
-	return formatter.Print(response)
+	return printResultsJSONWithField(formatter, results, "command", command, summary, continueOnError)
 }
 
 type serverActionFunc func(client *api.ApplicationAPI, uuid string) error
@@ -828,13 +806,26 @@ func printResultsJSON(
 	results []bulk.Result,
 	actionName string,
 	summary bulk.Summary,
+	continueOnError bool,
+) error {
+	return printResultsJSONWithField(formatter, results, "action", actionName, summary, continueOnError)
+}
+
+// printResultsJSONWithField is a helper function that prints bulk operation results in JSON format.
+func printResultsJSONWithField(
+	formatter *output.Formatter,
+	results []bulk.Result,
+	fieldName string,
+	fieldValue string,
+	summary bulk.Summary,
+	continueOnError bool,
 ) error {
 	outputData := make([]map[string]any, 0, len(results))
 
 	for _, result := range results {
 		resultData := map[string]any{
 			"server_identifier": result.Operation.ID,
-			"action":            actionName,
+			fieldName:           fieldValue,
 		}
 		if result.Success {
 			resultData["status"] = statusSuccess
@@ -854,7 +845,16 @@ func printResultsJSON(
 		},
 	}
 
-	return formatter.Print(response)
+	if err := formatter.Print(response); err != nil {
+		return err
+	}
+
+	// Check failures based on continue-on-error flag
+	if summary.Failed > 0 && !continueOnError {
+		return fmt.Errorf("%d operation(s) failed", summary.Failed)
+	}
+
+	return nil
 }
 
 func printResults(formatter *output.Formatter, results []bulk.Result, actionName string) {
@@ -867,11 +867,11 @@ func printResults(formatter *output.Formatter, results []bulk.Result, actionName
 	}
 }
 
-func handleSummary(formatter *output.Formatter, results []bulk.Result) error {
+func handleSummary(formatter *output.Formatter, results []bulk.Result, continueOnError bool) error {
 	summary := bulk.GetSummary(results)
 	formatter.PrintInfo("Summary: %d succeeded, %d failed", summary.Success, summary.Failed)
 
-	if summary.Failed > 0 {
+	if summary.Failed > 0 && !continueOnError {
 		return fmt.Errorf("%d operation(s) failed", summary.Failed)
 	}
 
@@ -921,12 +921,12 @@ func runServerAction(cmd *cobra.Command, args []string, actionName string, actio
 
 	// Handle JSON output specially
 	if getOutputFormat(cmd) == output.OutputFormatJSON {
-		return printResultsJSON(formatter, results, actionName, summary)
+		return printResultsJSON(formatter, results, actionName, summary, flags.continueOnError)
 	}
 
 	printResults(formatter, results, actionName)
 
-	return handleSummary(formatter, results)
+	return handleSummary(formatter, results, flags.continueOnError)
 }
 
 func addBulkFlags(cmd *cobra.Command) {
@@ -934,7 +934,7 @@ func addBulkFlags(cmd *cobra.Command) {
 	cmd.Flags().String("from-file", "", "read server UUIDs from file (one per line)")
 	const defaultMaxConcurrency = 10
 	cmd.Flags().Int("max-concurrency", defaultMaxConcurrency, "maximum parallel operations")
-	cmd.Flags().Bool("continue-on-error", true, "continue on errors")
+	cmd.Flags().Bool("continue-on-error", false, "continue on errors")
 	cmd.Flags().Bool("fail-fast", false, "stop on first error")
 	cmd.Flags().Bool("dry-run", false, "preview operations without executing")
 	cmd.Flags().Bool("yes", false, "skip confirmation prompts")
@@ -1202,6 +1202,7 @@ func createBackupOperations(
 	uuids []string,
 	backupData map[string]any,
 	pairs *[]backupPair,
+	pairsMu *sync.Mutex,
 ) []bulk.Operation {
 	operations := make([]bulk.Operation, len(uuids))
 	for i, uuid := range uuids {
@@ -1214,14 +1215,63 @@ func createBackupOperations(
 					return createErr
 				}
 				// Extract backup UUID from response
-				if backupUUID, ok := backup["uuid"].(string); ok {
-					*pairs = append(*pairs, backupPair{ServerID: uuid, BackupUUID: backupUUID})
+				backupUUID, found, _ := extractBackupUUID(backup)
+				if found {
+					appendBackupPair(pairsMu, pairs, uuid, backupUUID)
 				}
 				return nil
 			},
 		}
 	}
 	return operations
+}
+
+// appendBackupPair appends a backup pair to the pairs slice with proper locking.
+func appendBackupPair(pairsMu *sync.Mutex, pairs *[]backupPair, uuid, backupUUID string) {
+	pairsMu.Lock()
+	*pairs = append(*pairs, backupPair{ServerID: uuid, BackupUUID: backupUUID})
+	pairsMu.Unlock()
+}
+
+// extractUUIDFromMap extracts UUID from a map, trying "uuid" and "identifier" keys.
+func extractUUIDFromMap(m map[string]any, pathPrefix string) (string, bool, string) {
+	if uuidVal, okUUID := m["uuid"].(string); okUUID && uuidVal != "" {
+		return uuidVal, true, pathPrefix + ".uuid"
+	}
+	if uuidVal, okID := m["identifier"].(string); okID && uuidVal != "" {
+		return uuidVal, true, pathPrefix + ".identifier"
+	}
+	return "", false, ""
+}
+
+// extractBackupUUID extracts the backup UUID from the backup response map.
+func extractBackupUUID(backup map[string]any) (string, bool, string) {
+	// Try top-level uuid
+	if uuidVal, ok := backup["uuid"].(string); ok && uuidVal != "" {
+		return uuidVal, true, "top-level.uuid"
+	}
+	// Try top-level identifier
+	if uuidVal, ok := backup["identifier"].(string); ok && uuidVal != "" {
+		return uuidVal, true, "top-level.identifier"
+	}
+	// Try nested attributes
+	if attrs, okAttrs := backup["attributes"].(map[string]any); okAttrs {
+		if uuidVal, foundUUID, pathVal := extractUUIDFromMap(attrs, "attributes"); foundUUID {
+			return uuidVal, foundUUID, pathVal
+		}
+	}
+	// Try nested object
+	if obj, okObj := backup["object"].(map[string]any); okObj {
+		if uuidVal, foundUUID, pathVal := extractUUIDFromMap(obj, "object"); foundUUID {
+			return uuidVal, foundUUID, pathVal
+		}
+		if objAttrs, okObjAttrs := obj["attributes"].(map[string]any); okObjAttrs {
+			if uuidVal, foundUUID, pathVal := extractUUIDFromMap(objAttrs, "object.attributes"); foundUUID {
+				return uuidVal, foundUUID, pathVal
+			}
+		}
+	}
+	return "", false, ""
 }
 
 // buildBackupPairsMap creates a map from server ID to backup UUID for quick lookup.
@@ -1239,6 +1289,7 @@ func printBackupCreateResultsJSON(
 	results []bulk.Result,
 	pairs []backupPair,
 	summary bulk.Summary,
+	continueOnError bool,
 ) error {
 	pairsMap := buildBackupPairsMap(pairs)
 	outputData := make([]map[string]any, 0, len(results))
@@ -1269,7 +1320,16 @@ func printBackupCreateResultsJSON(
 		},
 	}
 
-	return formatter.Print(response)
+	if err := formatter.Print(response); err != nil {
+		return err
+	}
+
+	// Check failures based on continue-on-error flag
+	if summary.Failed > 0 && !continueOnError {
+		return fmt.Errorf("%d backup creation(s) failed", summary.Failed)
+	}
+
+	return nil
 }
 
 // printBackupCreateResults prints the results of backup creation operations.
@@ -1283,10 +1343,47 @@ func printBackupCreateResults(formatter *output.Formatter, results []bulk.Result
 	}
 }
 
+// resolveSavePairsPath resolves the save pairs file path to an absolute path.
+func resolveSavePairsPath(savePairs string) string {
+	if filepath.IsAbs(savePairs) {
+		return savePairs
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		// Fallback to filepath.Abs if we can't get cwd
+		absPath, absErr := filepath.Abs(savePairs)
+		if absErr != nil {
+			return savePairs
+		}
+		return absPath
+	}
+	return filepath.Join(cwd, savePairs)
+}
+
 // saveBackupPairs saves server+backup pairs to a file if requested.
-func saveBackupPairs(formatter *output.Formatter, pairs []backupPair, savePairs string) error {
-	if savePairs == "" || len(pairs) == 0 {
+func saveBackupPairs(formatter *output.Formatter, pairs []backupPair, savePairs string, isJSON bool) error {
+	if savePairs == "" {
 		return nil
+	}
+
+	if len(pairs) == 0 {
+		// Only show warning in non-JSON mode to avoid breaking JSON output
+		if !isJSON {
+			formatter.PrintWarning("No backup pairs to save (no successful backups with UUIDs found)")
+		}
+		// In JSON mode, silently skip saving if there are no pairs
+		// The user can see from the results that there were no successful backups with UUIDs
+		return nil
+	}
+
+	// Convert to absolute path for clarity
+	absPath := resolveSavePairsPath(savePairs)
+
+	// Create parent directory if it doesn't exist
+	dir := filepath.Dir(absPath)
+	if err := os.MkdirAll(dir, 0750); err != nil {
+		formatter.PrintError("Failed to create directory for pairs file: %v", err)
+		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
 	var lines []string
@@ -1294,12 +1391,19 @@ func saveBackupPairs(formatter *output.Formatter, pairs []backupPair, savePairs 
 		lines = append(lines, fmt.Sprintf("%s,%s", pair.ServerID, pair.BackupUUID))
 	}
 
-	if writeErr := os.WriteFile(savePairs, []byte(strings.Join(lines, "\n")), 0600); writeErr != nil {
+	content := strings.Join(lines, "\n") + "\n" // Ensure trailing newline
+	if writeErr := os.WriteFile(absPath, []byte(content), 0600); writeErr != nil {
 		formatter.PrintError("Failed to save pairs to file: %v", writeErr)
-		return writeErr
+		return fmt.Errorf("failed to write file %s: %w", absPath, writeErr)
 	}
 
-	formatter.PrintSuccess("Saved %d server+backup pairs to %s", len(pairs), savePairs)
+	// Verify file was written
+	if _, statErr := os.Stat(absPath); statErr != nil {
+		formatter.PrintError("File was not created: %v", statErr)
+		return fmt.Errorf("file verification failed: %w", statErr)
+	}
+
+	formatter.PrintSuccess("Saved %d server+backup pairs to %s", len(pairs), absPath)
 	return nil
 }
 
@@ -1348,28 +1452,36 @@ func runBackupCreate(cmd *cobra.Command, args []string) error {
 
 	// Store pairs for saving
 	var pairs []backupPair
+	var pairsMu sync.Mutex
 
 	// Create and execute operations
 	ctx := context.Background()
-	operations := createBackupOperations(client, uuids, backupData, &pairs)
+	operations := createBackupOperations(client, uuids, backupData, &pairs, &pairsMu)
 	executor := bulk.NewExecutor(flags.maxConcurrency, flags.continueOnError, flags.failFast)
 	results := executor.Execute(ctx, operations)
 
 	summary := bulk.GetSummary(results)
 
 	// Handle JSON output specially
-	if getOutputFormat(cmd) == output.OutputFormatJSON {
-		return printBackupCreateResultsJSON(formatter, results, pairs, summary)
+	isJSON := getOutputFormat(cmd) == output.OutputFormatJSON
+	if isJSON {
+		// Save pairs if requested (before JSON output)
+		if saveErr := saveBackupPairs(formatter, pairs, savePairs, isJSON); saveErr != nil {
+			return saveErr
+		}
+		return printBackupCreateResultsJSON(formatter, results, pairs, summary, flags.continueOnError)
 	}
 
 	// Print results
 	printBackupCreateResults(formatter, results)
 
 	// Save pairs if requested
-	_ = saveBackupPairs(formatter, pairs, savePairs)
+	if saveErr := saveBackupPairs(formatter, pairs, savePairs, isJSON); saveErr != nil {
+		return saveErr
+	}
 
 	// Print summary
-	if summary.Failed > 0 {
+	if summary.Failed > 0 && !flags.continueOnError {
 		return fmt.Errorf("%d backup creation(s) failed", summary.Failed)
 	}
 
