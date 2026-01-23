@@ -479,6 +479,33 @@ func (a *ApplicationAPI) SendPowerCommand(identifier, command string) error {
 	return nil
 }
 
+// SendCommand sends a console command to a server by UUID or integer ID.
+func (a *ApplicationAPI) SendCommand(identifier, command string) error {
+	ctx := context.Background()
+
+	// Convert identifier (UUID or integer ID) to integer ID.
+	serverID, err := a.getServerIDFromIdentifier(ctx, identifier)
+	if err != nil {
+		return fmt.Errorf("failed to get server ID: %w", err)
+	}
+
+	body := application.SendCommandRequest{
+		Command: command,
+	}
+
+	httpResp, err := a.genClient.CommandIndexWithResponse(ctx, serverID, body)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer httpResp.HTTPResponse.Body.Close()
+
+	if httpResp.HTTPResponse.StatusCode >= http.StatusBadRequest {
+		return handleApplicationErrorResponse(httpResp.HTTPResponse, httpResp.Body)
+	}
+
+	return nil
+}
+
 // GetServerHealth gets the health status of a server by UUID or integer ID.
 func (a *ApplicationAPI) GetServerHealth(identifier string, since *time.Time, window *int) (map[string]any, error) {
 	ctx := context.Background()

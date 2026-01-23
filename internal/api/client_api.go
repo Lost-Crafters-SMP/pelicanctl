@@ -395,6 +395,33 @@ func (c *ClientAPI) SendPowerCommand(serverIdentifier, command string) error {
 	return nil
 }
 
+// SendCommand sends a console command to a server by UUID or integer ID.
+func (c *ClientAPI) SendCommand(serverIdentifier, command string) error {
+	ctx := context.Background()
+
+	// Convert identifier (UUID or integer ID) to UUID.
+	serverUUID, err := c.getServerUUIDFromIdentifier(ctx, serverIdentifier)
+	if err != nil {
+		return err
+	}
+
+	body := client.SendCommandRequest{
+		Command: command,
+	}
+
+	httpResp, err := c.genClient.CommandIndexWithResponse(ctx, serverUUID, body)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer httpResp.HTTPResponse.Body.Close()
+
+	if httpResp.HTTPResponse.StatusCode >= http.StatusBadRequest {
+		return handleErrorResponse(httpResp.HTTPResponse, httpResp.Body)
+	}
+
+	return nil
+}
+
 // ListBackups lists backups for a server by UUID or integer ID.
 func (c *ClientAPI) ListBackups(serverIdentifier string) ([]map[string]any, error) {
 	ctx := context.Background()

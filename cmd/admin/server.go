@@ -148,6 +148,7 @@ func newServerCmd() *cobra.Command {
 	}
 	cmd.AddCommand(powerCmd)
 	cmd.AddCommand(backupCmd)
+	cmd.AddCommand(newCommandCmd())
 
 	// Set up carapace completion AFTER adding to parent (matching carapace example pattern)
 	setupServerCommandCompletion(basicCmds)
@@ -621,6 +622,114 @@ func runPowerRestart(cmd *cobra.Command, args []string) error {
 
 func runPowerKill(cmd *cobra.Command, args []string) error {
 	return runPowerCommand(cmd, args, "kill")
+}
+
+func newCommandCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "command <id|uuid>... --command <command>",
+		Short: "Send command to server(s)",
+		Long:  "Send a console command to one or more running servers by ID (integer) or UUID (string). Supports bulk operations with --all or --from-file.",
+		Args:  cobra.MinimumNArgs(1),
+		RunE:  runServerCommand,
+	}
+	cmd.Flags().String("command", "", "The command to send to the server console (required)")
+	_ = cmd.MarkFlagRequired("command")
+	addBulkFlags(cmd)
+	cmd.ValidArgsFunction = adminServerValidArgsFunction
+	carapace.Gen(cmd).PositionalAnyCompletion(carapace.ActionCallback(adminServerCompletionAction))
+	return cmd
+}
+
+func runServerCommand(cmd *cobra.Command, args []string) error {
+	command, _ := cmd.Flags().GetString("command")
+	if command == "" {
+		return errors.New("--command flag is required")
+	}
+
+	// For command, we need special handling to include the command in JSON output
+	if len(args) == 0 {
+		return errors.New("no servers specified")
+	}
+
+	flags := getBulkFlags(cmd)
+
+	uuids := args
+	if flags.all || flags.fromFile != "" {
+		var err error
+		uuids, err = getServerUUIDs(cmd, args, flags.all, flags.fromFile)
+		if err != nil {
+			return err
+		}
+	}
+
+	formatter := output.NewFormatter(getOutputFormat(cmd), os.Stdout)
+
+	shouldContinue, err := handleConfirmation(formatter, "command", len(uuids), flags.yes)
+	if err != nil {
+		return err
+	}
+	if !shouldContinue {
+		return nil
+	}
+
+	if flags.dryRun {
+		handleDryRun(formatter, "command", uuids)
+		return nil
+	}
+
+	client, err := api.NewApplicationAPI()
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	results := executeBulkOperations(ctx, client, uuids, func(client *api.ApplicationAPI, identifier string) error {
+		return client.SendCommand(identifier, command)
+	}, flags)
+
+	// Handle JSON output specially
+	if getOutputFormat(cmd) == output.OutputFormatJSON {
+		summary := bulk.GetSummary(results)
+		return printCommandResultsJSON(formatter, results, command, summary)
+	}
+
+	printResults(formatter, results, "command")
+
+	return handleSummary(formatter, results)
+}
+
+func printCommandResultsJSON(
+	formatter *output.Formatter,
+	results []bulk.Result,
+	command string,
+	summary bulk.Summary,
+) error {
+	outputData := make([]map[string]any, 0, len(results))
+
+	for _, result := range results {
+		resultData := map[string]any{
+			"server_identifier": result.Operation.ID,
+			"command":           command,
+		}
+		if result.Success {
+			resultData["status"] = "success"
+		} else {
+			resultData["status"] = "error"
+			resultData["error"] = result.Error.Error()
+		}
+		outputData = append(outputData, resultData)
+	}
+
+	// Include summary in the output
+	response := map[string]any{
+		"results": outputData,
+		"summary": map[string]any{
+			"succeeded": summary.Success,
+			"failed":    summary.Failed,
+		},
+	}
+
+	return formatter.Print(response)
 }
 
 type serverActionFunc func(client *api.ApplicationAPI, uuid string) error
